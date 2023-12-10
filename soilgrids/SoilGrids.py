@@ -1,6 +1,5 @@
 from .get_soilgrids import get_soilgrids
 import numpy as np
-import pandas as pd
 
 
 class SoilGrids:
@@ -26,8 +25,8 @@ class SoilGrids:
                           lat_min=-90, lat_max=90, lon_min=-180, lon_max=180,
                           property=None, depth=None, value=None):
         self.__data = get_soilgrids(
-            lat_min + np.abs(lat_max - lat_min) * np.random.random_sample(n),
-            lon_min + np.abs(lon_max - lon_min) * np.random.random_sample(n),
+            lat_min + np.abs(lat_max - lat_min) * np.random.random_sample(n).round(6),
+            lon_min + np.abs(lon_max - lon_min) * np.random.random_sample(n).round(6),
             property=property, depth=depth, value=value
         )
         
@@ -56,12 +55,15 @@ class SoilGrids:
             
     # TODO: Is this doing the right thing? Is the weighting resulting in
     # inflated/deflated values?
-    def aggregate_means(self, depth_min=0, depth_max=30):
+    def aggregate_means(self, top_depth=0, bottom_depth=30):
         assert 'mean' in self.data.keys(), \
             'No `mean` column. Call `get_points()` or `get_points_sample()`' \
             ' with `value="mean"` first.'
         
-        return self.data \
+        d = self.data
+        d = d[(top_depth <= d['top_depth']) & (d['bottom_depth'] <= bottom_depth)]
+        
+        return d \
             .groupby(
                 ['lat', 'lon', 'unit_depth', 'property'], 
                 as_index=False

@@ -3,7 +3,7 @@ import time
 import pandas as pd
 import numpy as np
 
-from ._utils import Throttle, check_arg, to_list
+from ._utils import Throttle, check_arg, to_list, logger
 
 
 def get_soilgrids(lat, lon, *, property=None, depth=None, value=None):
@@ -60,11 +60,12 @@ def get_soilgrids(lat, lon, *, property=None, depth=None, value=None):
 
 _throttle_requests = Throttle(5)
 _base_url = 'https://rest.isric.org/soilgrids/v2.0/'    
-    
+
 def _query_soilgrids(lat, lon, property=None, depth=None, value=None):
     # Perform the actual API request, with some basic handling for 429 errors
     
     _throttle_requests()
+    logger.info(f"Querying Soilgrids for lat={lat:>9}, lon={lon:>10f}")
     
     def perform_request():
         return requests.get(
@@ -82,8 +83,8 @@ def _query_soilgrids(lat, lon, property=None, depth=None, value=None):
     resp = perform_request()
     
     if resp.status_code == 429:
-        print("429: Too Many Requests")
-        print("  Waiting 60s before retrying...")
+        logger.info("429: Too Many Requests")
+        logger.info("  Waiting 60s before retrying...")
         time.sleep(60)
         resp = perform_request()
     

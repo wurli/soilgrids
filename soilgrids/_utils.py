@@ -1,4 +1,7 @@
+import logging
 import time
+
+logger = logging.getLogger("soilgrids")
 
 def check_arg(arg, name, allowed_vals):
     # Check that a function argument is either None or a subset of allowed_vals
@@ -22,6 +25,7 @@ def check_arg(arg, name, allowed_vals):
     return arg
 
 def to_list(x):
+    # Convert a scalar to a list, or leave a list unchanged
     try:
         iter(x)
     except TypeError:
@@ -37,12 +41,14 @@ class Throttle():
         
     def __call__(self):
         if self.last_request_time is None:
-            self.last_request = time.time()
-        else:
-            time_since_last_request = time.time() - self.last_request_time
-            time_to_wait = self.interval - time_since_last_request
-            if time_to_wait > 0:
-                print(f"Waiting {time_to_wait:.1f}s before next request")
-                time.sleep(time_to_wait)
-            self.last_request = time.time()
-
+            self.last_request_time = time.time()
+            return
+        
+        time_since_last_request = time.time() - self.last_request_time
+        time_to_wait = self.interval - time_since_last_request
+        
+        if time_to_wait > 0:
+            logger.info(f"Waiting {time_to_wait:.1f}s before next request...")
+            time.sleep(time_to_wait)
+            
+        self.last_request_time = time.time()
