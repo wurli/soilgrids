@@ -98,16 +98,20 @@ def _query_soilgrids(lat, lon, property=None, depth=None, value=None):
 def _parse_response(x):
     # Parse the full geojson response from _query_soilgrids() into a DataFrame
     
-    # Should both be scalars
-    lat, lon = x["geometry"]["coordinates"]    
-    
-    layers = pd.concat([_parse_property(l) for l in x["properties"]["layers"]])
-    
-    layers.insert(0, "lon", lon)
-    layers.insert(0, "lat", lat)   
-    
-    layers.reset_index(drop=True, inplace=True)
-    
+    try:
+        # Should both be scalars
+        lat, lon = x["geometry"]["coordinates"]    
+        
+        layers = pd.concat([_parse_property(l) for l in x["properties"]["layers"]])
+        
+        layers.insert(0, "lon", lon)
+        layers.insert(0, "lat", lat)   
+        
+        layers.reset_index(drop=True, inplace=True)
+
+    except Exception as exc:
+        raise RuntimeError('Failed to parse geojson response') from exc
+
     return layers
 
 

@@ -58,12 +58,13 @@ class SoilGrids:
     def aggregate_means(self, top_depth=0, bottom_depth=30):
         assert 'mean' in self.data.keys(), \
             'No `mean` column. Call `get_points()` or `get_points_sample()`' \
-            ' with `value="mean"` first.'
+            " with `value='mean'` first."
         
         d = self.data
         d = d[(top_depth <= d['top_depth']) & (d['bottom_depth'] <= bottom_depth)]
         
         return d \
+            .fillna({'mean': 0}) \
             .groupby(
                 ['lat', 'lon', 'unit_depth', 'property'], 
                 as_index=False
@@ -97,7 +98,9 @@ class SoilGrids:
                 # precision than the original data.)
                 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 thickness = lambda x: x['bottom_depth'] - x['top_depth'],
-                mean = lambda x: round(x['mean'] * x['thickness'] / x['thickness'].sum())
+                mean = lambda x: (x['mean'] * x['thickness'] / x['thickness'].sum()) \
+                    .round() \
+                    .astype(np.int64)
             )) \
             .groupby(
                 ['lat', 'lon', 'mapped_units', 'unit_depth', 'property'], 

@@ -1,4 +1,6 @@
 import logging
+import platform
+import subprocess
 import time
 
 logger = logging.getLogger("soilgrids")
@@ -52,3 +54,22 @@ class Throttle():
             time.sleep(time_to_wait)
             
         self.last_request_time = time.time()
+
+
+def check_r_available():
+    cmd = 'where' if platform.system() == 'Windows' else 'which'
+    try:
+        subprocess.check_output([cmd, 'r'])
+    except subprocess.CalledProcessError:
+        raise RuntimeError(
+            "No R installation detected\n" \
+            "  i: Make sure your R installation can be found on the PATH"
+        )
+
+
+def rscript(script, args):
+    check_r_available()
+
+    subprocess.call(['dir'])
+
+
