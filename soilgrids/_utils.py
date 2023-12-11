@@ -6,7 +6,7 @@ import time
 logger = logging.getLogger("soilgrids")
 
 def check_arg(arg, name, allowed_vals):
-    # Check that a function argument is either None or a subset of allowed_vals
+    """Check that a function argument is either None or a subset of allowed_vals."""
     
     if arg is None:
         return allowed_vals
@@ -27,7 +27,7 @@ def check_arg(arg, name, allowed_vals):
     return arg
 
 def to_list(x):
-    # Convert a scalar to a list, or leave a list unchanged
+    """Convert a scalar to a list, or leave a list unchanged."""
     try:
         iter(x)
     except TypeError:
@@ -57,6 +57,7 @@ class Throttle():
 
 
 def check_r_available():
+    """Check that R is installed and available on the PATH."""
     cmd = 'where' if platform.system() == 'Windows' else 'which'
     try:
         subprocess.check_output([cmd, 'r'])
@@ -66,10 +67,17 @@ def check_r_available():
             "  i: Make sure your R installation can be found on the PATH"
         )
 
-
-def rscript(script, args):
+def rscript(script, *args):
+    """Run `Rscript script.R arg1 arg2 arg3...` and return the printed output.""" 
     check_r_available()
-
-    subprocess.call(['dir'])
+    
+    try:
+        return subprocess.run(['rscript', script, *args], text=True, check=True)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            f"R script failed with exit code {exc.returncode}.\n" \
+            f"  i: Check the R script at {script}.\n" \
+            f"  i: Check the arguments: {args}"
+        )
 
 

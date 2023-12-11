@@ -1,3 +1,4 @@
+from typing import Union
 import requests
 import time
 import pandas as pd
@@ -5,19 +6,45 @@ import numpy as np
 
 from ._utils import Throttle, check_arg, to_list, logger
 
-
-def get_soilgrids(lat, lon, *, property=None, depth=None, value=None):
-    """_summary_
-
+def get_soilgrids(lat: float | list[float], 
+                  lon: float | list[float], 
+                  *, 
+                  soil_property: Union[str, list[str], None] = None, 
+                  depth: Union[str, list[str], None] = None, 
+                  value: Union[str, list[str], None] = None) -> pd.DataFrame:
+    """Query Soilgrids for soil properties at specified locations.
+    
+    This function is a wrapper for the Soilgrids API. The returned geojson is
+    parsed into a DataFrame, with a row for each combination of lat, lon,
+    soil_property, and depth, and a column for each value.
+    
+    More detailed information about the data returned can be found at:
+    https://www.isric.org/explore/soilgrids/faq-soilgrids.
+    
     Args:
-        lat (_type_): _description_
-        lon (_type_): _description_
-        property (_type_, optional): _description_. Defaults to None.
-        depth (_type_, optional): _description_. Defaults to None.
-        value (_type_, optional): _description_. Defaults to None.
+        lat: The latitude(s) of the point(s) to query. Must be in the range 
+            [-90, 90].
+        lon: The longitude(s) of the point(s) to query. Must be in the range
+            [-180, 180]. Note that NumPy-style broadcasting is applied to lat 
+            and lon, so that if one is a scalar and the other is an array, all
+            combinations of the two are queried.
+        soil_property: The soil property/properties to query. Must be a subset 
+            of the following or None, in which case all properties are returned:
+            ['bdod', 'cec', 'cfvo', 'clay', 'nitrogen', 'ocd', 'ocs', 'phh2o', 
+             'sand', 'silt', 'soc', 'wv0010', 'wv0033', 'wv1500'] 
+        depth: The soild depth(s) to query. Must be a subset of the following or
+            None, in which case all depths are returned:
+            ['0-5cm', '0-30cm', '5-15cm', '15-30cm', '30-60cm', '60-100cm', 
+             '100-200cm'] 
+            Note that there is some overlap between the allowed values, since 
+            some properties are measured at a more granular level than others.
+        value: The value(s) to query. Must be a subset of the following or None,
+            in which case all values are returned:
+            ['Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty']
 
     Returns:
-        _type_: _description_
+        pd.DataFrame: A data frame with a row for each combination of lat, lon,
+            soil_property, and depth, and a column for each value. 
     """
     
     # Allow mixing and and matching of scalars and arrays for lat and lon
@@ -32,7 +59,7 @@ def get_soilgrids(lat, lon, *, property=None, depth=None, value=None):
     assert np.array(np.abs(lon) <= 180).all(), \
         "Invalid `lon`. \n  i: Check `lon` is in the range [-180, 180]."
     
-    property = check_arg(property, name="property", allowed_vals=[
+    soil_property = check_arg(soil_property, name="soil_property", allowed_vals=[
         'bdod', 'cec', 'cfvo', 'clay', 'nitrogen', 'ocd', 'ocs', 'phh2o', 
         'sand', 'silt', 'soc', 'wv0010', 'wv0033', 'wv1500'
     ])
@@ -47,7 +74,7 @@ def get_soilgrids(lat, lon, *, property=None, depth=None, value=None):
     results = [
         _query_soilgrids(
             lat, lon, 
-            property=property, 
+            soil_property=soil_property, 
             depth=depth, 
             value=value
         )
@@ -61,11 +88,11 @@ def get_soilgrids(lat, lon, *, property=None, depth=None, value=None):
 _throttle_requests = Throttle(5)
 _base_url = 'https://rest.isric.org/soilgrids/v2.0/'    
 
-def _query_soilgrids(lat, lon, property=None, depth=None, value=None):
-    # Perform the actual API request, with some basic handling for 429 errors
+def _query_soilgrids(lat, lon, soil_property=None, depth=None, value=None):
+    """Perform the actual API request, with some basic handling for 429 errors."""
     
     _throttle_requests()
-    logger.info(f"Querying Soilgrids for lat={lat:>9}, lon={lon:>10f}")
+    logger.info(f"Querying Soilgrids for {lat=}, {lon=}")
     
     def perform_request():
         return requests.get(
@@ -73,7 +100,9 @@ def _query_soilgrids(lat, lon, property=None, depth=None, value=None):
             params={
                 'lat': lat, 
                 'lon': lon, 
-                'property': property,
+                # NB, 'property' is a reserved keyword in Python, so it's best
+                # to use a different name here
+                'property': soil_property,
                 'depth': depth,
                 'value': value
             },
@@ -91,12 +120,19 @@ def _query_soilgrids(lat, lon, property=None, depth=None, value=None):
     # Raise anything but a 200 response as an exception
     resp.raise_for_status()
     
-    return resp.json()
+    try:
+        json_output = resp.json()
+    except requests.exceptions.JSONDecodeError as exc:
+        raise RuntimeError(
+            'Malformed JSON response from Soilgrids.'
+        ) from exc
+    
+    return json_output
 
 
 
 def _parse_response(x):
-    # Parse the full geojson response from _query_soilgrids() into a DataFrame
+    """Parse the full geojson response from _query_soilgrids() into a DataFrame."""
     
     try:
         # Should both be scalars
@@ -117,12 +153,12 @@ def _parse_response(x):
 
 
 def _parse_property(x):
-    # Parse a single property/layer from the geojson response of 
-    # _query_soilgrids() into a DataFrame
+    """Parse a single property/layer from the geojson response of 
+    _query_soilgrids() into a DataFrame."""
     
     # Should be <=1 row
     unit_measures = pd.DataFrame({
-        "property": [x["name"]],
+        "soil_property": [x["name"]],
         **x["unit_measure"]
     })
     
@@ -134,8 +170,8 @@ def _parse_property(x):
 
 
 def _parse_depth(x):
-    # Parse a single depth from a single property from the geojson response of
-    # _query_soilgrids() into a DataFrame
+    """Parse a single depth from a single property from the geojson response of
+    _query_soilgrids() into a DataFrame."""
     
     return pd.DataFrame({
         "depth": [x["label"]], 
