@@ -14,7 +14,8 @@ class SoilGrids:
     
     Attributes:
         `data` (`pandas.DataFrame`): The data returned by the last call to 
-            `get_points()` or `get_points_sample()`.
+            `get_points()` or `get_points_sample()`. Note that this generates
+            a `ValueError` if called before either of these methods.
         `get_points()` (method): Query Soilgrids for soil properties at 
             specified locations.
         `get_points_sample()` (method): Query Soilgrids for soil properties at
@@ -32,7 +33,7 @@ class SoilGrids:
     
     @property
     def data(self):
-        """Get the data returned by the last call to `get_points()` or `get_points_sample()`.
+        """Data returned by the last call to `get_points()` or `get_points_sample()`.
 
         Raises:
             `ValueError`: If no data has been returned yet.
@@ -74,14 +75,14 @@ class SoilGrids:
                 subset of the following or `None`, in which case all properties 
                 are returned:
                 ```python
-                ['bdod', 'cec', 'cfvo', 'clay', 'nitrogen', 'ocd', 'ocs', 'phh2o', 
-                'sand', 'silt', 'soc', 'wv0010', 'wv0033', 'wv1500'] 
+                ['bdod', 'cec', 'cfvo', 'clay', 'nitrogen', 'ocd', 'ocs', 
+                 'phh2o', 'sand', 'silt', 'soc', 'wv0010', 'wv0033', 'wv1500'] 
                 ```
             `depth`: The soild depth(s) to query. Must be a subset of the 
                 following or `None`, in which case all depths are returned:
                 ```python
                 ['0-5cm', '0-30cm', '5-15cm', '15-30cm', '30-60cm', '60-100cm', 
-                '100-200cm'] 
+                 '100-200cm'] 
                 ```
                 Note that there is some overlap between the allowed values, since 
                 some properties are measured at a more granular level than others.
@@ -143,7 +144,7 @@ class SoilGrids:
                 following or `None`, in which case all depths are returned:
                 ```python
                 ['0-5cm', '0-30cm', '5-15cm', '15-30cm', '30-60cm', '60-100cm', 
-                '100-200cm'] 
+                 '100-200cm'] 
                 ```
                 Note that there is some overlap between the allowed values, 
                 since some properties are measured at a more granular level than 
@@ -250,7 +251,8 @@ class SoilGrids:
         to aggregate them up to the same level of granularity.
         
         Aggregating means is done by weighting each value according to the 
-        thickness of the layer it represents, before summing the weighted values.
+        thickness of the layer it represents, before summing the weighted 
+        values.
         
         Once this has been done, it is possible to compare sand, silt, and clay
         with OCS.
@@ -272,10 +274,13 @@ class SoilGrids:
             'No `mean` column. Call `get_points()` or `get_points_sample()`' \
             " with `value='mean'` first."
         
-        d = self.data
-        d = d[(top_depth <= d['top_depth']) & (d['bottom_depth'] <= bottom_depth)]
+        data = self.data
+        data = data[
+            (top_depth <= data['top_depth']) & 
+            (data['bottom_depth'] <= bottom_depth)
+        ]
         
-        return d \
+        return data \
             .fillna({'mean': 0}) \
             .groupby(
                 ['lat', 'lon', 'unit_depth', 'soil_property'], 
