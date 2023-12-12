@@ -56,12 +56,14 @@ class _Throttle():
         self.last_request_time = time.time()
 
 
+def _r_available():
+    """Check that R can be called from Python.""" 
+    cmd = ['rscript', '-e', 'R.version']
+    return subprocess.run(cmd, capture_output=True).returncode == 0
+
 def _check_r_available():
-    """Check that R is installed and available on the PATH."""
-    cmd = 'where' if platform.system() == 'Windows' else 'which'
-    try:
-        subprocess.check_output([cmd, 'r'])
-    except subprocess.CalledProcessError:
+    """Check that R can be called from Python."""
+    if not _r_available():
         raise RuntimeError(
             "No R installation detected\n" \
             "  i: Make sure your R installation can be found on the PATH"

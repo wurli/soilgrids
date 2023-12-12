@@ -1,4 +1,4 @@
-from .get_soilgrids import get_soilgrids
+from .api_requests import get_soilgrids
 from ._utils import _rscript, _logger
 
 from typing import Union

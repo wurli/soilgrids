@@ -148,8 +148,9 @@ def _parse_response(x):
     """Parse the full geojson response from _query_soilgrids() into a DataFrame."""
     
     try:
-        # Should both be scalars
-        lat, lon = x["geometry"]["coordinates"]    
+        # Should both be scalars. Note these are returned in reverse order to 
+        # that used throughout this package
+        lon, lat = x["geometry"]["coordinates"]    
         
         layers = pd.concat([_parse_property(l) for l in x["properties"]["layers"]])
         

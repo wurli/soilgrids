@@ -27,8 +27,8 @@ This package is licensed as
 
 import logging
 
-from .get_soilgrids import get_soilgrids
-from .soilgrids     import SoilGrids
+from .api_requests    import get_soilgrids
+from .soilgrids_class import SoilGrids
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
