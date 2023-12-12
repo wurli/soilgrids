@@ -1,5 +1,5 @@
 from .get_soilgrids import get_soilgrids
-from ._utils import rscript, logger
+from ._utils import _rscript, _logger
 
 from typing import Union
 import numpy as np
@@ -64,6 +64,11 @@ class SoilGrids:
         More detailed information about the data returned can be obtained from
         [IRSIC](https://www.isric.org/explore/soilgrids/faq-soilgrids).
         
+        Note that ISRIC's [fair use policy](https://rest.isric.org) requests 
+        that at most 5 requests are made per minute, and this method throttles 
+        requests to this rate in cases when multiple values for `lat` and `lon` 
+        are provided.
+        
         Args:
             `lat`: The latitude(s) of the point(s) to query. Must be in the range 
                 [-90, 90].
@@ -122,6 +127,11 @@ class SoilGrids:
         
         More detailed information about the data returned can be obtained from
         [ISRIC](https://www.isric.org/explore/soilgrids/faq-soilgrids).
+        
+        Note that ISRIC's [fair use policy](https://rest.isric.org) requests 
+        that at most 5 requests are made per minute, and this method throttles 
+        requests to this rate in cases when multiple values for `lat` and `lon` 
+        are provided.
         
         Args:
             `n`: The number of points to query.
@@ -199,9 +209,13 @@ class SoilGrids:
     def ocs_correlations(self) -> None:
         """Get the correlation between sand, silt, clay, and OCS (organic carbon stock).
         
+        This function requires R to be installed and available on the PATH in 
+        order to run.
+         
         1. First, the data is aggregated to get overall means for sand, silt,
-           clay for the 0-30cm layer (this is because Soilgrids provides OCS
-           data for the 0-30cm layer as a single value).
+           clay for the 0-30cm layer. Soilgrids provides OCS data for the 0-30cm 
+           layer as a single value, so this step is necessary to make the 
+           values comparable.
       
         2. The aggregated data is pivoted into wide format similar to the 
            following:
@@ -231,12 +245,12 @@ class SoilGrids:
             ) \
             .reset_index()
         
-        model_summary = rscript(
+        model_summary = _rscript(
             'r-scripts/linear-regression.R', 
-            pivoted_data.to_csv()
+            pivoted_data.to_csv(index=False)
         )
         
-        logger.info(model_summary)
+        _logger.info(model_summary)
     
     
     def aggregate_means(self, top_depth=0, bottom_depth=30):

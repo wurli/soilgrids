@@ -3,12 +3,12 @@ import platform
 import subprocess
 import time
 
-logger = logging.getLogger("soilgrids")
+_logger = logging.getLogger("soilgrids")
 
-def check_arg(arg, name, allowed_vals):
+def _check_arg(arg, name, allowed_vals):
     """Check that a function argument is either None or a subset of allowed_vals."""
     
-    if arg is None:
+    if arg in [None, []]:
         return allowed_vals
     
     if isinstance(arg, str):
@@ -26,7 +26,7 @@ def check_arg(arg, name, allowed_vals):
     
     return arg
 
-def to_list(x):
+def _to_list(x):
     """Convert a scalar to a list, or leave a list unchanged."""
     try:
         iter(x)
@@ -34,8 +34,8 @@ def to_list(x):
         x = [x]
     return x
 
-class Throttle():
-    # An object that sleeps for a specified minimum interval between calls
+class _Throttle():
+    # Sleep for a specified minimum interval between calls
     
     def __init__(self, interval=5):
         self.interval = interval
@@ -50,13 +50,13 @@ class Throttle():
         time_to_wait = self.interval - time_since_last_request
         
         if time_to_wait > 0:
-            logger.info(f"Waiting {time_to_wait:.1f}s before next request...")
+            _logger.info(f"Waiting {time_to_wait:.1f}s before next request...")
             time.sleep(time_to_wait)
             
         self.last_request_time = time.time()
 
 
-def check_r_available():
+def _check_r_available():
     """Check that R is installed and available on the PATH."""
     cmd = 'where' if platform.system() == 'Windows' else 'which'
     try:
@@ -67,17 +67,23 @@ def check_r_available():
             "  i: Make sure your R installation can be found on the PATH"
         )
 
-def rscript(script, *args):
+def _rscript(script, *args):
     """Run `Rscript script.R arg1 arg2 arg3...` and return the printed output.""" 
-    check_r_available()
+    _check_r_available()
     
-    try:
-        return subprocess.run(['rscript', script, *args], text=True, check=True)
-    except subprocess.CalledProcessError as exc:
+    res = subprocess.run(
+        ['rscript', script, *args], 
+        check=True, 
+        capture_output=True
+    )
+    
+    if res.returncode != 0:
         raise RuntimeError(
-            f"R script failed with exit code {exc.returncode}.\n" \
-            f"  i: Check the R script at {script}.\n" \
-            f"  i: Check the arguments: {args}"
+            f'R script failed with exit code {res.returncode}.\n' \
+            f'  i: Check the R script at {script}.\n' \
+            f'  i: Check the arguments: {args}\n' \
+            f'  i: Check the error returned by R: {res.stderr.decode('utf-8')}.\n'
         )
-
+    
+    return res.stdout.decode('utf-8')
 
