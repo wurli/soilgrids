@@ -13,18 +13,18 @@ class SoilGrids:
     wrangling and analysis methods.
     
     Attributes:
-        data (pandas.DataFrame): The data returned by the last call to 
+        `data` (`pandas.DataFrame`): The data returned by the last call to 
             `get_points()` or `get_points_sample()`.
-        get_points (method): Query Soilgrids for soil properties at specified
-            locations.
-        get_points_sample (method): Query Soilgrids for soil properties at
+        `get_points()` (method): Query Soilgrids for soil properties at 
+            specified locations.
+        `get_points_sample()` (method): Query Soilgrids for soil properties at
             randomly sampled locations.
-        main_properties (method): Determine the most prevalent property (out of 
-            sand, silt, and clay) for each location.
-        ocs_correlations (method): Determine the correlation between sand, silt,
-            clay, and OCS (organic carbon stock).
-        aggregate_means (method): Aggregate the means of soil properties across
-            depths.
+        `main_properties()` (method): Determine the most prevalent property (out 
+            of sand, silt, and clay) for each location.
+        `ocs_correlations()` (method): Determine the correlation between sand, 
+            silt, clay, and OCS (organic carbon stock).
+        `aggregate_means()` (method): Aggregate the means of soil properties 
+            across depths.
     """
     
     def __init__(self):
@@ -35,10 +35,10 @@ class SoilGrids:
         """Get the data returned by the last call to `get_points()` or `get_points_sample()`.
 
         Raises:
-            ValueError: If no data has been returned yet.
+            `ValueError`: If no data has been returned yet.
 
         Returns:
-            pandas.DataFrame: A DataFrame of the form returned by 
+            `pandas.DataFrame`: A data frame of the form returned by 
             `get_soilgrids()`.
         """
         if self.__data is None:
@@ -57,36 +57,44 @@ class SoilGrids:
         """Query Soilgrids for soil properties at specified locations.
     
         This function is a wrapper for the Soilgrids API. The returned geojson is
-        parsed into a DataFrame, with a row for each combination of lat, lon,
-        soil_property, and depth, and a column for each value.
+        parsed into a pandas DataFrame, with a row for each combination of 
+        `lat`, `lon`, `soil_property`, and `depth`, and a column for each `value`.
         
-        More detailed information about the data returned can be found at:
-        https://www.isric.org/explore/soilgrids/faq-soilgrids.
+        More detailed information about the data returned can be obtained from
+        [IRSIC](https://www.isric.org/explore/soilgrids/faq-soilgrids).
         
         Args:
-            lat: The latitude(s) of the point(s) to query. Must be in the range 
+            `lat`: The latitude(s) of the point(s) to query. Must be in the range 
                 [-90, 90].
-            lon: The longitude(s) of the point(s) to query. Must be in the range
-                [-180, 180]. Note that NumPy-style broadcasting is applied to lat 
-                and lon, so that if one is a scalar and the other is an array, all
-                combinations of the two are queried.
-            soil_property: The soil property/properties to query. Must be a subset 
-                of the following or None, in which case all properties are returned:
+            `lon`: The longitude(s) of the point(s) to query. Must be in the 
+                range [-180, 180]. Note that NumPy-style broadcasting is 
+                applied to lat and lon, so that if one is a scalar and the other 
+                is an array, all combinations of the two are queried.
+            `soil_property`: The soil property/properties to query. Must be a 
+                subset of the following or `None`, in which case all properties 
+                are returned:
+                ```python
                 ['bdod', 'cec', 'cfvo', 'clay', 'nitrogen', 'ocd', 'ocs', 'phh2o', 
                 'sand', 'silt', 'soc', 'wv0010', 'wv0033', 'wv1500'] 
-            depth: The soild depth(s) to query. Must be a subset of the following or
-                None, in which case all depths are returned:
+                ```
+            `depth`: The soild depth(s) to query. Must be a subset of the 
+                following or `None`, in which case all depths are returned:
+                ```python
                 ['0-5cm', '0-30cm', '5-15cm', '15-30cm', '30-60cm', '60-100cm', 
                 '100-200cm'] 
+                ```
                 Note that there is some overlap between the allowed values, since 
                 some properties are measured at a more granular level than others.
-            value: The value(s) to query. Must be a subset of the following or None,
-                in which case all values are returned:
+            `value`: The value(s) to query. Must be a subset of the following or 
+                `None`, in which case all values are returned:
+                ```python
                 ['Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty']
+                ```
 
         Returns:
-            pd.DataFrame: A data frame with a row for each combination of lat, lon,
-                soil_property, and depth, and a column for each value. 
+            `pd.DataFrame`: A data frame with a row for each combination of 
+                `lat`, `lon`, `soil_property`, and `depth`, and a column for 
+                each `value`. 
         """
         self.__data = get_soilgrids(
             lat, lon, 
@@ -106,40 +114,50 @@ class SoilGrids:
                           value: Union[str, list[str], None] = None) -> pd.DataFrame:
         """Query Soilgrids for a random set of coordinates.
         
-        This function is a wrapper for the Soilgrids API. The returned geojson is
-        parsed into a DataFrame, with a row for each combination of lat, lon,
-        soil_property, and depth, and a column for each value.
+        This function is a wrapper for the Soilgrids API. The returned geojson 
+        is parsed into a pandas DataFrame, with a row for each combination of 
+        `lat`, `lon`, `soil_property`, and `depth`, and a column for each 
+        `value`.
         
-        More detailed information about the data returned can be found at:
-        https://www.isric.org/explore/soilgrids/faq-soilgrids.
+        More detailed information about the data returned can be obtained from
+        [ISRIC](https://www.isric.org/explore/soilgrids/faq-soilgrids).
         
         Args:
-            n: The number of points to query.
-            lat_min: The minimum latitude of the points to query. Must be in the
-                range [-90, 90].
-            lat_max: The maximum latitude of the points to query. Must be in the
-                range [-90, 90].
-            lon_min: The minimum longitude of the points to query. Must be in 
+            `n`: The number of points to query.
+            `lat_min`: The minimum latitude of the points to query. Must be in 
+                the range [-90, 90].
+            `lat_max`: The maximum latitude of the points to query. Must be in 
+                the range [-90, 90].
+            `lon_min`: The minimum longitude of the points to query. Must be in 
                 the range [-180, 180].
-            lon_max: The maximum longitude of the points to query. Must be in
+            `lon_max`: The maximum longitude of the points to query. Must be in
                 the range [-180, 180].
-            soil_property: The soil property/properties to query. Must be a subset 
-                of the following or None, in which case all properties are returned:
-                ['bdod', 'cec', 'cfvo', 'clay', 'nitrogen', 'ocd', 'ocs', 'phh2o', 
-                'sand', 'silt', 'soc', 'wv0010', 'wv0033', 'wv1500'] 
-            depth: The soild depth(s) to query. Must be a subset of the following or
-                None, in which case all depths are returned:
+            `soil_property`: The soil property/properties to query. Must be a 
+                subset of the following or `None`, in which case all properties 
+                are returned:
+                ```python
+                ['bdod', 'cec', 'cfvo', 'clay', 'nitrogen', 'ocd', 'ocs', 
+                 'phh2o', 'sand', 'silt', 'soc', 'wv0010', 'wv0033', 'wv1500'] 
+                ```
+            `depth`: The soild depth(s) to query. Must be a subset of the 
+                following or `None`, in which case all depths are returned:
+                ```python
                 ['0-5cm', '0-30cm', '5-15cm', '15-30cm', '30-60cm', '60-100cm', 
                 '100-200cm'] 
-                Note that there is some overlap between the allowed values, since 
-                some properties are measured at a more granular level than others.
-            value: The value(s) to query. Must be a subset of the following or None,
-                in which case all values are returned:
+                ```
+                Note that there is some overlap between the allowed values, 
+                since some properties are measured at a more granular level than 
+                others.
+            `value`: The value(s) to query. Must be a subset of the following or 
+                `None`, in which case all values are returned:
+                ```python
                 ['Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty']
+                ```
 
         Returns:
-            pd.DataFrame: A data frame with a row for each combination of lat, 
-                lon, soil_property, and depth, and a column for each value. 
+            `pd.DataFrame`: A data frame with a row for each combination of 
+                `lat`, `lon`, `soil_property`, and `depth`, and a column for 
+                each `value`. 
         """
         self.__data = get_soilgrids(
             lat_min + (np.abs(lat_max - lat_min) * np.random.random_sample(n)).round(6),
@@ -154,14 +172,14 @@ class SoilGrids:
         This is a utility method for quickly determining the most prevalent soil
         type for each location.
         
-        Note that for this method to work, the column 'mean' must be present in
+        Note that for this method to work, the column `mean` must be present in
         the data. This can be achieved by calling `get_points()` or 
         `get_points_sample()` with `value='mean'`.
         
         Returns:
-            pandas.DataFrame: A DataFrame with columns lat, lon and soil_property,
-            where soil_property gives the most prevelant soil property for
-            the location.
+            `pandas.DataFrame`: A data frame with columns `lat`, `lon` and 
+            `soil_property`, where `soil_property` gives the most prevelant 
+            property for the location.
         """
         return self.aggregate_means() \
             .query("soil_property in ['sand', 'silt', 'clay']") \
@@ -184,13 +202,15 @@ class SoilGrids:
            clay for the 0-30cm layer (this is because Soilgrids provides OCS
            data for the 0-30cm layer as a single value).
       
-        2. The aggregated data is pivoted into wide format like so:
-
-                    lat      lon    sand    silt    clay    ocs
-             0  55.9581   8.6622     0.1     0.2     0.7     10
-             1  55.9581   8.6622     0.2     0.3     0.5     20
-           ...      ...      ...     ...     ...     ...    ...
-          
+        2. The aggregated data is pivoted into wide format similar to the 
+           following:
+            ```
+                     lat      lon    sand    silt    clay    ocs
+              0  55.9581   8.6622     0.1     0.2     0.7     10
+              1  55.9581   8.6622     0.2     0.3     0.5     20
+            ...      ...      ...     ...     ...     ...    ...
+            ```
+            
         3. A linear regression model is then fitted, with OCS as the response 
            variable and sand, silt, and clay as predictors.
  
@@ -199,7 +219,7 @@ class SoilGrids:
         Steps 3 and 4 are performed using R. 
         
         Returns:
-            None: The model summary is printed to the console.
+            `None`: The model summary is printed to the console.
         """
         pivoted_data = self.aggregate_means(0, 30) \
             .query("soil_property in ['sand', 'silt', 'clay', 'ocs']") \
@@ -236,16 +256,17 @@ class SoilGrids:
         with OCS.
         
         Args:
-            top_depth (float): The minimum top depth to include in the 
+            `top_depth` (`float`): The minimum top depth to include in the 
                 aggregated results. Note that the value returned in the output 
                 may be higher. Defaults to 0.
-            bottom_depth (float): The maximum bottom depth to include in the
+            `bottom_depth` (`float`): The maximum bottom depth to include in the
                 aggregated results. Note that the value returned in the output
                 may be lower. Defaults to 30.
 
         Returns:
-            pandas.DataFrame: A DataFrame with columns lat, lon, mapped_units,
-            unit_depth, soil_property, top_depth, bottom_depth, and mean.
+            `pandas.DataFrame`: A DataFrame with columns `lat`, `lon`, 
+            `mapped_units`, `unit_depth`, `soil_property`, `top_depth`, 
+            `bottom_depth`, and `mean`.
         """
         assert 'mean' in self.data.keys(), \
             'No `mean` column. Call `get_points()` or `get_points_sample()`' \

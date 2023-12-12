@@ -15,36 +15,43 @@ def get_soilgrids(lat: float | list[float],
     """Query Soilgrids for soil properties at specified locations.
     
     This function is a wrapper for the Soilgrids API. The returned geojson is
-    parsed into a DataFrame, with a row for each combination of lat, lon,
-    soil_property, and depth, and a column for each value.
+    parsed into a pandas DataFrame, with a row for each combination of `lat`, 
+    `lon`, `soil_property`, and `depth`, and a column for each `value`.
     
-    More detailed information about the data returned can be found at:
-    https://www.isric.org/explore/soilgrids/faq-soilgrids.
+    More detailed information about the data returned can be obtained from
+    [ISRIC](https://www.isric.org/explore/soilgrids/faq-soilgrids).
     
     Args:
-        lat: The latitude(s) of the point(s) to query. Must be in the range 
+        `lat`: The latitude(s) of the point(s) to query. Must be in the range 
             [-90, 90].
-        lon: The longitude(s) of the point(s) to query. Must be in the range
+        `lon`: The longitude(s) of the point(s) to query. Must be in the range
             [-180, 180]. Note that NumPy-style broadcasting is applied to lat 
             and lon, so that if one is a scalar and the other is an array, all
             combinations of the two are queried.
-        soil_property: The soil property/properties to query. Must be a subset 
-            of the following or None, in which case all properties are returned:
+        `soil_property`: The soil property/properties to query. Must be a subset 
+            of the following or `None`, in which case all properties are 
+            returned:
+            ```python
             ['bdod', 'cec', 'cfvo', 'clay', 'nitrogen', 'ocd', 'ocs', 'phh2o', 
              'sand', 'silt', 'soc', 'wv0010', 'wv0033', 'wv1500'] 
-        depth: The soild depth(s) to query. Must be a subset of the following or
-            None, in which case all depths are returned:
+            ```
+        `depth`: The soild depth(s) to query. Must be a subset of the following 
+            or `None`, in which case all depths are returned:
+            ``` python
             ['0-5cm', '0-30cm', '5-15cm', '15-30cm', '30-60cm', '60-100cm', 
              '100-200cm'] 
+            ```
             Note that there is some overlap between the allowed values, since 
             some properties are measured at a more granular level than others.
-        value: The value(s) to query. Must be a subset of the following or None,
-            in which case all values are returned:
+        `value`: The value(s) to query. Must be a subset of the following or 
+            `None`, in which case all values are returned:
+            ```python
             ['Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty']
+            ```
 
     Returns:
-        pd.DataFrame: A data frame with a row for each combination of lat, lon,
-            soil_property, and depth, and a column for each value. 
+        `pd.DataFrame`: A data frame with a row for each combination of `lat`, 
+        `lon`, `soil_property`, and `depth`, and a column for each `value`. 
     """
     
     # Allow mixing and and matching of scalars and arrays for lat and lon
