@@ -1,7 +1,7 @@
 # soilgrids
 
 This package provides a minimal wrapper for the ISRIC Soilgrids API, allowing 
-users to query soil properties by latitude/longitude and to perform basic 
+users to query soil properties by latitude/longitude and perform basic 
 analyses on the returned data.
 
 Functions:
