@@ -6,19 +6,26 @@ This package provides a minimal wrapper for the ISRIC Soilgrids API,
 allowing users to query soil properties by latitude/longitude and to
 perform basic analyses on the returned data.
 
-Functions: \* `get_soilgrids()`: Provides a simple wrapper for the
-/properties/query API endpoint, parsing the geojson response into a
-pandas DataFrame.
+Functions:
 
-Classes: \* `SoilGrids()`: Provides methods for reading data from
-Soilgrids and basic including utilities for aggregating and analysing
-the returned data.
+- `get_soilgrids()`: Provides a simple wrapper for the /properties/query
+  API endpoint, parsing the geojson response into a pandas DataFrame.
 
-Useful links: \* Documentation for the API:
-<https://rest.isric.org/soilgrids/v2.0/docs> \* ISRIC REST entry page,
-including fair use policy: <https://rest.isric.org> \* ISRIC data and
-software policy: <https://www.isric.org/about/data-policy> \* Soilgrids
-FAQ: <https://www.isric.org/explore/soilgrids/faq-soilgrids>
+Classes:
+
+- `SoilGrids()`: Provides methods for reading data from Soilgrids and
+  basic including utilities for aggregating and analysing the returned
+  data.
+
+Useful links:
+
+- Documentation for the API:
+  <https://rest.isric.org/soilgrids/v2.0/docs>
+- ISRIC REST entry page, including fair use policy:
+  <https://rest.isric.org>
+- ISRIC data and software policy:
+  <https://www.isric.org/about/data-policy>
+- Soilgrids FAQ: <https://www.isric.org/explore/soilgrids/faq-soilgrids>
 
 ## Querying data using `SoilGrids`:
 
@@ -30,18 +37,19 @@ queried at a maximum rate of 5/minute, so the following code takes about
 10 minutes to run:
 
 ``` python
-# ~~~ Console messages disabled for a cleaner output ~~~ #
-import logging
-logging.getLogger('soilgrids').setLevel(logging.ERROR)
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
 from soilgrids import SoilGrids
 import pandas as pd
+
+# ~~~ Tweak some settings for cleaner notebook results ~~~ #
+import logging
+logging.getLogger('soilgrids').setLevel(logging.ERROR)
+pd.options.display.notebook_repr_html = False
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 sg = SoilGrids()
 
 sg.get_points_sample(
-    50,
+    3,
     lat_min=56.225297, lat_max=55.958103,
     lon_min=8.662215, lon_max=9.354390,
     soil_property=['clay', 'sand', 'silt', 'ocs'],
@@ -56,35 +64,37 @@ sg.data \
     ])
 ```
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-&#10;    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-&#10;    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-|     | lat       | lon      | soil_property | mapped_units | target_units | depth   | mean |
-|-----|-----------|----------|---------------|--------------|--------------|---------|------|
-| 0   | 56.306063 | 8.992414 | clay          | g/kg         | %            | 0-5cm   | 64   |
-| 1   | 56.306063 | 8.992414 | clay          | g/kg         | %            | 5-15cm  | 59   |
-| 2   | 56.306063 | 8.992414 | clay          | g/kg         | %            | 15-30cm | 66   |
-| 3   | 56.306063 | 8.992414 | ocs           | t/ha         | kg/m²        | 0-30cm  | 51   |
-| 4   | 56.306063 | 8.992414 | sand          | g/kg         | %            | 0-5cm   | 807  |
-| ... | ...       | ...      | ...           | ...          | ...          | ...     | ...  |
-| 5   | 56.337998 | 8.841833 | sand          | g/kg         | %            | 5-15cm  | 783  |
-| 6   | 56.337998 | 8.841833 | sand          | g/kg         | %            | 15-30cm | 787  |
-| 7   | 56.337998 | 8.841833 | silt          | g/kg         | %            | 0-5cm   | 136  |
-| 8   | 56.337998 | 8.841833 | silt          | g/kg         | %            | 5-15cm  | 134  |
-| 9   | 56.337998 | 8.841833 | silt          | g/kg         | %            | 15-30cm | 132  |
-
-<p>500 rows × 7 columns</p>
-</div>
+             lat       lon soil_property mapped_units target_units    depth  mean
+    0  56.271260  8.922771          clay         g/kg            %    0-5cm    61
+    1  56.271260  8.922771          clay         g/kg            %   5-15cm    52
+    2  56.271260  8.922771          clay         g/kg            %  15-30cm    68
+    3  56.271260  8.922771           ocs         t/ha        kg/m²   0-30cm    57
+    4  56.271260  8.922771          sand         g/kg            %    0-5cm   832
+    5  56.271260  8.922771          sand         g/kg            %   5-15cm   842
+    6  56.271260  8.922771          sand         g/kg            %  15-30cm   819
+    7  56.271260  8.922771          silt         g/kg            %    0-5cm   106
+    8  56.271260  8.922771          silt         g/kg            %   5-15cm   106
+    9  56.271260  8.922771          silt         g/kg            %  15-30cm   113
+    0  56.281484  8.766259          clay         g/kg            %    0-5cm    60
+    1  56.281484  8.766259          clay         g/kg            %   5-15cm    56
+    2  56.281484  8.766259          clay         g/kg            %  15-30cm    69
+    3  56.281484  8.766259           ocs         t/ha        kg/m²   0-30cm    73
+    4  56.281484  8.766259          sand         g/kg            %    0-5cm   795
+    5  56.281484  8.766259          sand         g/kg            %   5-15cm   804
+    6  56.281484  8.766259          sand         g/kg            %  15-30cm   797
+    7  56.281484  8.766259          silt         g/kg            %    0-5cm   145
+    8  56.281484  8.766259          silt         g/kg            %   5-15cm   140
+    9  56.281484  8.766259          silt         g/kg            %  15-30cm   134
+    0  56.360402  8.767026          clay         g/kg            %    0-5cm    52
+    1  56.360402  8.767026          clay         g/kg            %   5-15cm    45
+    2  56.360402  8.767026          clay         g/kg            %  15-30cm    58
+    3  56.360402  8.767026           ocs         t/ha        kg/m²   0-30cm    58
+    4  56.360402  8.767026          sand         g/kg            %    0-5cm   832
+    5  56.360402  8.767026          sand         g/kg            %   5-15cm   839
+    6  56.360402  8.767026          sand         g/kg            %  15-30cm   824
+    7  56.360402  8.767026          silt         g/kg            %    0-5cm   116
+    8  56.360402  8.767026          silt         g/kg            %   5-15cm   116
+    9  56.360402  8.767026          silt         g/kg            %  15-30cm   119
 
 ## Get the property (clay, sand, silt) with the highest value for each point
 
@@ -96,73 +106,10 @@ this case, we see that the Herning region is quite sandy:
 sg.main_properties()
 ```
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-&#10;    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-&#10;    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-|     | lat       | lon      | soil_property |
-|-----|-----------|----------|---------------|
-| 0   | 56.234901 | 8.752395 | sand          |
-| 1   | 56.238367 | 8.951273 | sand          |
-| 2   | 56.240253 | 8.901798 | sand          |
-| 3   | 56.245924 | 8.963168 | sand          |
-| 4   | 56.269462 | 9.166450 | sand          |
-| 5   | 56.280067 | 9.312749 | sand          |
-| 6   | 56.286142 | 9.293941 | sand          |
-| 7   | 56.302159 | 9.037330 | sand          |
-| 8   | 56.304554 | 8.778113 | sand          |
-| 9   | 56.306063 | 8.992414 | sand          |
-| 10  | 56.314706 | 9.178075 | sand          |
-| 11  | 56.315842 | 8.816094 | sand          |
-| 12  | 56.316418 | 8.860752 | clay          |
-| 13  | 56.316976 | 8.851662 | clay          |
-| 14  | 56.329187 | 8.928059 | clay          |
-| 15  | 56.334036 | 9.317110 | sand          |
-| 16  | 56.337998 | 8.841833 | sand          |
-| 17  | 56.338237 | 9.233187 | sand          |
-| 18  | 56.339839 | 9.062079 | sand          |
-| 19  | 56.341797 | 9.060661 | sand          |
-| 20  | 56.342172 | 8.758683 | sand          |
-| 21  | 56.342644 | 9.085042 | sand          |
-| 22  | 56.345443 | 8.919721 | sand          |
-| 23  | 56.355689 | 8.813530 | sand          |
-| 24  | 56.365293 | 8.815704 | sand          |
-| 25  | 56.366343 | 9.077412 | sand          |
-| 26  | 56.377811 | 9.346168 | clay          |
-| 27  | 56.382762 | 9.314068 | sand          |
-| 28  | 56.384265 | 9.143350 | sand          |
-| 29  | 56.384365 | 9.197719 | sand          |
-| 30  | 56.390224 | 9.070273 | sand          |
-| 31  | 56.396134 | 9.053126 | sand          |
-| 32  | 56.396891 | 9.155951 | sand          |
-| 33  | 56.398162 | 9.351860 | sand          |
-| 34  | 56.398391 | 8.999016 | sand          |
-| 35  | 56.411855 | 8.942717 | sand          |
-| 36  | 56.413044 | 9.090452 | sand          |
-| 37  | 56.414130 | 9.250468 | sand          |
-| 38  | 56.418099 | 9.187183 | sand          |
-| 39  | 56.420619 | 8.745520 | sand          |
-| 40  | 56.426248 | 9.013450 | sand          |
-| 41  | 56.426782 | 8.914958 | sand          |
-| 42  | 56.435778 | 8.952786 | sand          |
-| 43  | 56.440082 | 9.011887 | sand          |
-| 44  | 56.442866 | 8.680624 | sand          |
-| 45  | 56.455380 | 9.200767 | sand          |
-| 46  | 56.462681 | 9.306805 | sand          |
-| 47  | 56.467152 | 9.289959 | sand          |
-| 48  | 56.475445 | 9.336898 | sand          |
-| 49  | 56.486752 | 9.336961 | sand          |
-
-</div>
+             lat       lon soil_property
+    0  56.271260  8.922771          sand
+    1  56.281484  8.766259          sand
+    2  56.360402  8.767026          sand
 
 ## Relationship between clay, sand, silt and organic carbon stock
 
@@ -174,25 +121,6 @@ effective at predicting OCS, explaining around 90% of the variance:
 ``` python
 print(sg.ocs_correlation(capture_output=True))
 ```
-
-
-    Call:
-    lm(formula = clay + sand + silt ~ ocs, data = input_data)
-
-    Residuals:
-         Min       1Q   Median       3Q      Max 
-    -199.082  -67.783   -2.134   66.265  161.739 
-
-    Coefficients:
-                Estimate Std. Error t value Pr(>|t|)    
-    (Intercept)  92.0828    41.7141   2.207   0.0321 *  
-    ocs          16.5373     0.7957  20.783   <2e-16 ***
-    ---
-    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-    Residual standard error: 87.56 on 48 degrees of freedom
-    Multiple R-squared:    0.9, Adjusted R-squared:  0.8979 
-    F-statistic: 431.9 on 1 and 48 DF,  p-value: < 2.2e-16
 
 ## Disclaimers
 

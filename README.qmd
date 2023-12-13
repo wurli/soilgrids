@@ -11,14 +11,17 @@ users to query soil properties by latitude/longitude and to perform basic
 analyses on the returned data.
 
 Functions:
+
 *   `get_soilgrids()`: Provides a simple wrapper for the /properties/query
     API endpoint, parsing the geojson response into a pandas DataFrame.
         
 Classes:
+
 *   `SoilGrids()`: Provides methods for reading data from Soilgrids and basic 
     including utilities for aggregating and analysing the returned data.
 
 Useful links:
+
 *   Documentation for the API: <https://rest.isric.org/soilgrids/v2.0/docs>
 *   ISRIC REST entry page, including fair use policy: <https://rest.isric.org>
 *   ISRIC data and software policy: <https://www.isric.org/about/data-policy>
@@ -33,18 +36,19 @@ be queried at a maximum rate of 5/minute, so the following code takes about 10
 minutes to run:
 
 ```{python}
-# ~~~ Console messages disabled for a cleaner output ~~~ #
-import logging
-logging.getLogger('soilgrids').setLevel(logging.ERROR)
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
 from soilgrids import SoilGrids
 import pandas as pd
+
+# ~~~ Tweak some settings for cleaner notebook results ~~~ #
+import logging
+logging.getLogger('soilgrids').setLevel(logging.ERROR)
+pd.options.display.notebook_repr_html = False
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 sg = SoilGrids()
 
 sg.get_points_sample(
-    50,
+    3,
     lat_min=56.225297, lat_max=55.958103,
     lon_min=8.662215, lon_max=9.354390,
     soil_property=['clay', 'sand', 'silt', 'ocs'],
@@ -75,9 +79,12 @@ In this case, we find these soil properties are quite effective at predicting
 OCS, explaining around 90% of the variance:
 
 ```{python}
+#| eval: false
+
 print(sg.ocs_correlation(capture_output=True))
 ```
 
 ## Disclaimers
+
 *   Use of this package is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).
 *   This package is licensed as [GPL-2](LICENSE).
