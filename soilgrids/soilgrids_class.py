@@ -214,7 +214,7 @@ class SoilGrids:
             .filter(['lat', 'lon', 'soil_property'])
             
     
-    def ocs_correlation(self, capture_output=False) -> None | str:
+    def ocs_correlation(self, capture_output: bool=False) -> None | str:
         """Get the correlation between sand, silt, clay, and OCS (organic carbon stock).
         
         This function requires R to be installed and available on the PATH in 
@@ -277,11 +277,40 @@ class SoilGrids:
         
         _logger.info(model_summary)
    
-    def plot_ocs_property_relationships(self):
-        data = self.aggregate_means()
+    def plot_ocs_property_relationships(self, 
+                                        top_depth: int=0, 
+                                        bottom_depth: int=30) -> seaborn.objects.Plot:
+        """Plot the relationships between OCS and other soil properties.
+        
+        This function produces a plot with multiple panels, where each panel
+        shows a scatterplot with an overlayed line of best fit, i.e. a modelled
+        linear regression. Different panels are shown for each soil property
+        besides OCS which is present in the data. The mean OCS is shows on the
+        y-axis, and the other property is shown on the x-axis.
+        
+        Before plotting, the data is aggregated so that a single value is given
+        for each point (i.e. combination of latitude and longitude). The values
+        included in the aggregated data can be controlled using `top_depth` and
+        `bottom_depth`.
+        
+        Args:
+            `top_depth` (`float`): The minimum top depth to include in the 
+                aggregated results. Note that the value returned in the output 
+                may be higher. Defaults to 0.
+            `bottom_depth` (`float`): The maximum bottom depth to include in the
+                aggregated results. Note that the value returned in the output
+                may be lower. Defaults to 30.
+                
+        Returns:
+            `seaborn.objects.Plot`: An object representing the plot. Use the
+            `show()` method to display this graphically in an interactive
+            context.
+        """
+        
+        data = self.aggregate_means(top_depth, bottom_depth) 
          
         soil_types_data = data \
-            .query("soil_property in ['clay', 'sand', 'silt']")
+            .query("soil_property != 'ocs'")
         
         ocs_data = data \
             .query("soil_property == 'ocs'") \
@@ -307,7 +336,7 @@ class SoilGrids:
         
         return plot
         
-    def aggregate_means(self, top_depth=0, bottom_depth=30):
+    def aggregate_means(self, top_depth: int=0, bottom_depth:int=30) -> pd.DataFrame:
         """Aggregate the means of soil properties across depths.
         
         Soilgrids provides for different properties at different levels of
