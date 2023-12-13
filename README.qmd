@@ -27,7 +27,8 @@ Useful links:
 *   ISRIC data and software policy: <https://www.isric.org/about/data-policy>
 *   Soilgrids FAQ: <https://www.isric.org/explore/soilgrids/faq-soilgrids>
 
-## Querying data using `SoilGrids`:
+## Querying data using `SoilGrids`
+
 The following code reads in the mean values for clay, sand, silt and ocs 
 (organic carbon stock) in the top 30cm of soil for a random set of 50 points 
 within roughly 25km of 
@@ -63,10 +64,12 @@ data = sg.data \
         'target_units', 'depth', 'mean'
     ])
 
-print(data.to_markdown(index=False))
+# Just display the first 15 rows for brevity
+print(data[0:15].to_markdown(index=False))
 ```
 
 ## Get the property (clay, sand, silt) with the highest value for each point
+
 The `SoilGrids` class provides a handy utility `main_properties()` for finding
 the most abundant soil type (i.e. property) for each point. In this case, we
 see that the Herning region is quite sandy:
@@ -86,7 +89,6 @@ In this case, we find these soil properties are quite effective at predicting
 OCS, explaining around 90% of the variance:
 
 ```{python}
-#| eval: false
 
 print(sg.ocs_correlation(capture_output=True))
 ```
