@@ -24,7 +24,6 @@ setup(
     install_requires=[
         'numpy >= 1.26.0',
         'pandas >= 2.1.0',
-        'requests >= 2.31',
-        "importlib-metadata; python_version<'3.12'",
+        'requests >= 2.31'
     ]
 )
