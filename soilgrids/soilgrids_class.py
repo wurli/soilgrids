@@ -1,5 +1,5 @@
-from .get_soilgrids import get_soilgrids
-from ._utils import rscript, logger
+from .api_requests import get_soilgrids
+from ._utils import _rscript, _logger
 
 from typing import Union
 import numpy as np
@@ -22,14 +22,14 @@ class SoilGrids:
             randomly sampled locations.
         `main_properties()` (method): Determine the most prevalent property (out 
             of sand, silt, and clay) for each location.
-        `ocs_correlations()` (method): Determine the correlation between sand, 
+        `ocs_correlation()` (method): Determine the correlation between sand, 
             silt, clay, and OCS (organic carbon stock).
         `aggregate_means()` (method): Aggregate the means of soil properties 
             across depths.
     """
     
     def __init__(self):
-        self.__data = None
+        self._data = None
     
     @property
     def data(self):
@@ -42,11 +42,11 @@ class SoilGrids:
             `pandas.DataFrame`: A data frame of the form returned by 
             `get_soilgrids()`.
         """
-        if self.__data is None:
+        if self._data is None:
             raise ValueError(
                 'No data. Call `get_points()` or `get_points_sample()` first.'
             )
-        return self.__data
+        return self._data
     
     def get_points(self,
                    lat: float | list[float], 
@@ -60,9 +60,16 @@ class SoilGrids:
         This function is a wrapper for the Soilgrids API. The returned geojson is
         parsed into a pandas DataFrame, with a row for each combination of 
         `lat`, `lon`, `soil_property`, and `depth`, and a column for each `value`.
+        After running this method, the returned data can be obtained using the
+        `data` property.
         
         More detailed information about the data returned can be obtained from
         [IRSIC](https://www.isric.org/explore/soilgrids/faq-soilgrids).
+        
+        Note that ISRIC's [fair use policy](https://rest.isric.org) requests 
+        that at most 5 requests are made per minute, and this method throttles 
+        requests to this rate in cases when multiple values for `lat` and `lon` 
+        are provided.
         
         Args:
             `lat`: The latitude(s) of the point(s) to query. Must be in the range 
@@ -70,7 +77,10 @@ class SoilGrids:
             `lon`: The longitude(s) of the point(s) to query. Must be in the 
                 range [-180, 180]. Note that NumPy-style broadcasting is 
                 applied to lat and lon, so that if one is a scalar and the other 
-                is an array, all combinations of the two are queried.
+                is an array, all combinations of the two are queried. Note that 
+                coordinates are rounded to 6 decimal places before querying - 
+                roughly the precision needed to identify an 
+                [individual human](https://en.wikipedia.org/wiki/Decimal_degrees#Precision).
             `soil_property`: The soil property/properties to query. Must be a 
                 subset of the following or `None`, in which case all properties 
                 are returned:
@@ -97,7 +107,7 @@ class SoilGrids:
                 `lat`, `lon`, `soil_property`, and `depth`, and a column for 
                 each `value`. 
         """
-        self.__data = get_soilgrids(
+        self._data = get_soilgrids(
             lat, lon, 
             soil_property=soil_property, depth=depth, value=value
         )
@@ -118,10 +128,17 @@ class SoilGrids:
         This function is a wrapper for the Soilgrids API. The returned geojson 
         is parsed into a pandas DataFrame, with a row for each combination of 
         `lat`, `lon`, `soil_property`, and `depth`, and a column for each 
-        `value`.
+        `value`. After running this method, the returned data can be obtained 
+        using the `data` property. The points returned by this function are
+        uniformly distributed throughout the specified range.
         
         More detailed information about the data returned can be obtained from
         [ISRIC](https://www.isric.org/explore/soilgrids/faq-soilgrids).
+        
+        Note that ISRIC's [fair use policy](https://rest.isric.org) requests 
+        that at most 5 requests are made per minute, and this method throttles 
+        requests to this rate in cases when multiple values for `lat` and `lon` 
+        are provided.
         
         Args:
             `n`: The number of points to query.
@@ -160,9 +177,9 @@ class SoilGrids:
                 `lat`, `lon`, `soil_property`, and `depth`, and a column for 
                 each `value`. 
         """
-        self.__data = get_soilgrids(
-            lat_min + (np.abs(lat_max - lat_min) * np.random.random_sample(n)).round(6),
-            lon_min + (np.abs(lon_max - lon_min) * np.random.random_sample(n)).round(6),
+        self._data = get_soilgrids(
+            lat_min + np.abs(lat_max - lat_min) * np.random.random_sample(n),
+            lon_min + np.abs(lon_max - lon_min) * np.random.random_sample(n),
             soil_property=soil_property, depth=depth, value=value
         )
         
@@ -196,12 +213,16 @@ class SoilGrids:
             .filter(['lat', 'lon', 'soil_property'])
             
     
-    def ocs_correlations(self) -> None:
+    def ocs_correlation(self, capture_output=False) -> None | str:
         """Get the correlation between sand, silt, clay, and OCS (organic carbon stock).
         
+        This function requires R to be installed and available on the PATH in 
+        order to run.
+         
         1. First, the data is aggregated to get overall means for sand, silt,
-           clay for the 0-30cm layer (this is because Soilgrids provides OCS
-           data for the 0-30cm layer as a single value).
+           clay for the 0-30cm layer. Soilgrids provides OCS data for the 0-30cm 
+           layer as a single value, so this step is necessary to make the 
+           values comparable.
       
         2. The aggregated data is pivoted into wide format similar to the 
            following:
@@ -219,6 +240,11 @@ class SoilGrids:
         
         Steps 3 and 4 are performed using R. 
         
+        Args:
+            `capture_output` (`bool`): If `False` (the default), the model 
+                summary is printed to the console. If `True`, the model summary
+                is returned as a string.
+        
         Returns:
             `None`: The model summary is printed to the console.
         """
@@ -231,12 +257,24 @@ class SoilGrids:
             ) \
             .reset_index()
         
-        model_summary = rscript(
-            'r-scripts/linear-regression.R', 
-            pivoted_data.to_csv()
+        assert len(pivoted_data) >= 20, \
+            "At least 20 distinct values for `lat` and `lon` are needed to fit a linear model."
+        
+        # Fill missing properties with zeros 
+        pivoted_data = pivoted_data.reindex(
+            pivoted_data.columns.union(['sand', 'silt', 'clay', 'ocs'], sort=False), 
+            axis=1, fill_value=0
         )
         
-        logger.info(model_summary)
+        model_summary = _rscript(
+            'r-scripts/linear-regression.R', 
+            pivoted_data.to_csv(index=False)
+        )
+        
+        if capture_output:
+            return model_summary
+        
+        _logger.info(model_summary)
     
     
     def aggregate_means(self, top_depth=0, bottom_depth=30):
@@ -283,10 +321,6 @@ class SoilGrids:
         return data \
             .fillna({'mean': 0}) \
             .groupby(
-                ['lat', 'lon', 'unit_depth', 'soil_property'], 
-                as_index=False
-            ) \
-            .apply(lambda x: x.assign(
                 # ~~ What's happening here? ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 # Say we have the following values:
                 #
@@ -314,6 +348,10 @@ class SoilGrids:
                 # (NB, rounding is because it doesn't make sense to give more 
                 # precision than the original data.)
                 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                ['lat', 'lon', 'mapped_units', 'unit_depth', 'soil_property'], 
+                as_index=False
+            ) \
+            .apply(lambda x: x.assign(
                 thickness = lambda x: x['bottom_depth'] - x['top_depth'],
                 mean = lambda x: (x['mean'] * x['thickness'] / x['thickness'].sum()) \
                     .round() \
