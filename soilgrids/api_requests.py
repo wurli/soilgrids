@@ -110,7 +110,7 @@ def _query_soilgrids(lat, lon, soil_property=None, depth=None, value=None):
     
     # The `float` type doesn't always give exactly 6 decimal places, which 
     # causes Soilgrids to give a much more precise response than required.
-    lat, lon = round(Decimal(lat), 6), round(Decimal(lon), 6)
+    lat, lon = round(Decimal(float(lat)), 6), round(Decimal(float(lon)), 6)
     
     _throttle_requests()
     _logger.info(f"Querying Soilgrids for lat={lat}, lon={lon}")
