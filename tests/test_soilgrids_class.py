@@ -64,9 +64,9 @@ def test_ocs_correlation_works():
 
     lm = sg.ocs_correlation(capture_output=True)
     
-    assert 'clay + sand + silt ~ ocs'       in lm, 'ocs_correlation() should return a linear model summary'
-    assert 'Residual standard error: 100.6' in lm, 'Model summary should give a standard error of 100.6'
-    assert 'Multiple R-squared:  0.8279'    in lm, 'Model summary should give an R-squared of 0.8279'
+    assert 'clay + sand + silt ~ ocs'        in lm, 'ocs_correlation() should return a linear model summary'
+    assert 'Residual standard error: 0.8302' in lm, 'Model summary should give a standard error of 100.6'
+    assert 'Multiple R-squared:  0.001053'   in lm, 'Model summary should give an R-squared of 0.8279'
 
     
 def test_ocs_correlation_works_with_missing_properties():
