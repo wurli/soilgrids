@@ -1,7 +1,7 @@
 # soilgrids
 
 This package provides a minimal wrapper for the ISRIC Soilgrids API, allowing 
-users to query soil properties at a particular location and to perform basic 
+users to query soil properties by latitude/longitude and to perform basic 
 analyses on the returned data.
 
 Functions:
@@ -24,7 +24,7 @@ The following code reads in the mean values for clay, sand, silt and ocs
 within roughly 25km of 
 [Herning, Denmark](https://en.wikipedia.org/wiki/Herning). Note that points can 
 be queried at a maximum rate of 5/minute, so the following code takes about 10 
-minutes to run.
+minutes to run:
 
 
 ```python
@@ -34,6 +34,8 @@ logging.getLogger('soilgrids').setLevel(logging.ERROR)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 from soilgrids import SoilGrids
+import pandas as pd
+
 
 sg = SoilGrids()
 
@@ -46,215 +48,34 @@ sg.get_points_sample(
     value='mean'
 )
 
-sg.data
+sg.data \
+    .filter([
+        'lat', 'lon', 'soil_property', 'mapped_units', 
+        'target_units', 'depth', 'mean'
+    ])
 ```
 
 
+    ---------------------------------------------------------------------------
+
+    NameError                                 Traceback (most recent call last)
+
+    Cell In[1], line 21
+         10     sg = SoilGrids()
+         12     sg.get_points_sample(
+         13         50,
+         14         lat_min=56.225297, lat_max=55.958103,
+       (...)
+         18         value='mean'
+         19     )
+    ---> 21 sg.data \
+         22     .filter([
+         23         'lat', 'lon', 'soil_property', 'mapped_units', 
+         24         'target_units', 'depth', 'mean'
+         25     ])
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>lat</th>
-      <th>lon</th>
-      <th>soil_property</th>
-      <th>d_factor</th>
-      <th>mapped_units</th>
-      <th>target_units</th>
-      <th>uncertainty_unit</th>
-      <th>depth</th>
-      <th>top_depth</th>
-      <th>bottom_depth</th>
-      <th>unit_depth</th>
-      <th>mean</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>56.320075</td>
-      <td>8.884830</td>
-      <td>clay</td>
-      <td>10</td>
-      <td>g/kg</td>
-      <td>%</td>
-      <td></td>
-      <td>0-5cm</td>
-      <td>0</td>
-      <td>5</td>
-      <td>cm</td>
-      <td>80</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>56.320075</td>
-      <td>8.884830</td>
-      <td>clay</td>
-      <td>10</td>
-      <td>g/kg</td>
-      <td>%</td>
-      <td></td>
-      <td>5-15cm</td>
-      <td>5</td>
-      <td>15</td>
-      <td>cm</td>
-      <td>74</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>56.320075</td>
-      <td>8.884830</td>
-      <td>clay</td>
-      <td>10</td>
-      <td>g/kg</td>
-      <td>%</td>
-      <td></td>
-      <td>15-30cm</td>
-      <td>15</td>
-      <td>30</td>
-      <td>cm</td>
-      <td>96</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>56.320075</td>
-      <td>8.884830</td>
-      <td>ocs</td>
-      <td>10</td>
-      <td>t/ha</td>
-      <td>kg/m²</td>
-      <td></td>
-      <td>0-30cm</td>
-      <td>0</td>
-      <td>30</td>
-      <td>cm</td>
-      <td>58</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>56.320075</td>
-      <td>8.884830</td>
-      <td>sand</td>
-      <td>10</td>
-      <td>g/kg</td>
-      <td>%</td>
-      <td></td>
-      <td>0-5cm</td>
-      <td>0</td>
-      <td>5</td>
-      <td>cm</td>
-      <td>782</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>56.391902</td>
-      <td>9.198561</td>
-      <td>sand</td>
-      <td>10</td>
-      <td>g/kg</td>
-      <td>%</td>
-      <td></td>
-      <td>5-15cm</td>
-      <td>5</td>
-      <td>15</td>
-      <td>cm</td>
-      <td>742</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>56.391902</td>
-      <td>9.198561</td>
-      <td>sand</td>
-      <td>10</td>
-      <td>g/kg</td>
-      <td>%</td>
-      <td></td>
-      <td>15-30cm</td>
-      <td>15</td>
-      <td>30</td>
-      <td>cm</td>
-      <td>740</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>56.391902</td>
-      <td>9.198561</td>
-      <td>silt</td>
-      <td>10</td>
-      <td>g/kg</td>
-      <td>%</td>
-      <td></td>
-      <td>0-5cm</td>
-      <td>0</td>
-      <td>5</td>
-      <td>cm</td>
-      <td>159</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>56.391902</td>
-      <td>9.198561</td>
-      <td>silt</td>
-      <td>10</td>
-      <td>g/kg</td>
-      <td>%</td>
-      <td></td>
-      <td>5-15cm</td>
-      <td>5</td>
-      <td>15</td>
-      <td>cm</td>
-      <td>152</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>56.391902</td>
-      <td>9.198561</td>
-      <td>silt</td>
-      <td>10</td>
-      <td>g/kg</td>
-      <td>%</td>
-      <td></td>
-      <td>15-30cm</td>
-      <td>15</td>
-      <td>30</td>
-      <td>cm</td>
-      <td>156</td>
-    </tr>
-  </tbody>
-</table>
-<p>500 rows × 12 columns</p>
-</div>
-
+    NameError: name 'sg' is not defined
 
 
 ## Get the property (clay, sand, silt) with the highest value for each point
@@ -635,6 +456,6 @@ print(sg.ocs_correlation(capture_output=True))
 
 ## Disclaimers
 
-Use of this package is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).
+*   Use of this package is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).
 
-This package is licensed as [GPL-2](LICENSE).
+*   This package is licensed as [GPL-2](LICENSE).
