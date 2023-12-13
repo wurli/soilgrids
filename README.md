@@ -43,7 +43,7 @@ import pandas as pd
 # ~~~ Tweak some settings for cleaner notebook results ~~~ #
 import logging
 logging.getLogger('soilgrids').setLevel(logging.ERROR)
-pd.options.display.notebook_repr_html = False
+# pd.options.display.notebook_repr_html = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 sg = SoilGrids()
@@ -57,44 +57,48 @@ sg.get_points_sample(
     value='mean'
 )
 
-sg.data \
+df = sg.data \
     .filter([
         'lat', 'lon', 'soil_property', 'mapped_units', 
         'target_units', 'depth', 'mean'
-    ])
+    ]) \
+    .to_markdown()
+
+print(df)
 ```
 
-             lat       lon soil_property mapped_units target_units    depth  mean
-    0  56.271260  8.922771          clay         g/kg            %    0-5cm    61
-    1  56.271260  8.922771          clay         g/kg            %   5-15cm    52
-    2  56.271260  8.922771          clay         g/kg            %  15-30cm    68
-    3  56.271260  8.922771           ocs         t/ha        kg/m²   0-30cm    57
-    4  56.271260  8.922771          sand         g/kg            %    0-5cm   832
-    5  56.271260  8.922771          sand         g/kg            %   5-15cm   842
-    6  56.271260  8.922771          sand         g/kg            %  15-30cm   819
-    7  56.271260  8.922771          silt         g/kg            %    0-5cm   106
-    8  56.271260  8.922771          silt         g/kg            %   5-15cm   106
-    9  56.271260  8.922771          silt         g/kg            %  15-30cm   113
-    0  56.281484  8.766259          clay         g/kg            %    0-5cm    60
-    1  56.281484  8.766259          clay         g/kg            %   5-15cm    56
-    2  56.281484  8.766259          clay         g/kg            %  15-30cm    69
-    3  56.281484  8.766259           ocs         t/ha        kg/m²   0-30cm    73
-    4  56.281484  8.766259          sand         g/kg            %    0-5cm   795
-    5  56.281484  8.766259          sand         g/kg            %   5-15cm   804
-    6  56.281484  8.766259          sand         g/kg            %  15-30cm   797
-    7  56.281484  8.766259          silt         g/kg            %    0-5cm   145
-    8  56.281484  8.766259          silt         g/kg            %   5-15cm   140
-    9  56.281484  8.766259          silt         g/kg            %  15-30cm   134
-    0  56.360402  8.767026          clay         g/kg            %    0-5cm    52
-    1  56.360402  8.767026          clay         g/kg            %   5-15cm    45
-    2  56.360402  8.767026          clay         g/kg            %  15-30cm    58
-    3  56.360402  8.767026           ocs         t/ha        kg/m²   0-30cm    58
-    4  56.360402  8.767026          sand         g/kg            %    0-5cm   832
-    5  56.360402  8.767026          sand         g/kg            %   5-15cm   839
-    6  56.360402  8.767026          sand         g/kg            %  15-30cm   824
-    7  56.360402  8.767026          silt         g/kg            %    0-5cm   116
-    8  56.360402  8.767026          silt         g/kg            %   5-15cm   116
-    9  56.360402  8.767026          silt         g/kg            %  15-30cm   119
+|     |     lat |     lon | soil_property | mapped_units | target_units | depth   | mean |
+|----:|--------:|--------:|:--------------|:-------------|:-------------|:--------|-----:|
+|   0 | 56.3815 | 9.15372 | clay          | g/kg         | %            | 0-5cm   |   83 |
+|   1 | 56.3815 | 9.15372 | clay          | g/kg         | %            | 5-15cm  |   81 |
+|   2 | 56.3815 | 9.15372 | clay          | g/kg         | %            | 15-30cm |  100 |
+|   3 | 56.3815 | 9.15372 | ocs           | t/ha         | kg/m²        | 0-30cm  |   57 |
+|   4 | 56.3815 | 9.15372 | sand          | g/kg         | %            | 0-5cm   |  758 |
+|   5 | 56.3815 | 9.15372 | sand          | g/kg         | %            | 5-15cm  |  767 |
+|   6 | 56.3815 | 9.15372 | sand          | g/kg         | %            | 15-30cm |  750 |
+|   7 | 56.3815 | 9.15372 | silt          | g/kg         | %            | 0-5cm   |  160 |
+|   8 | 56.3815 | 9.15372 | silt          | g/kg         | %            | 5-15cm  |  151 |
+|   9 | 56.3815 | 9.15372 | silt          | g/kg         | %            | 15-30cm |  150 |
+|   0 | 56.3989 | 9.23681 | clay          | g/kg         | %            | 0-5cm   |  106 |
+|   1 | 56.3989 | 9.23681 | clay          | g/kg         | %            | 5-15cm  |  105 |
+|   2 | 56.3989 | 9.23681 | clay          | g/kg         | %            | 15-30cm |  110 |
+|   3 | 56.3989 | 9.23681 | ocs           | t/ha         | kg/m²        | 0-30cm  |   64 |
+|   4 | 56.3989 | 9.23681 | sand          | g/kg         | %            | 0-5cm   |  757 |
+|   5 | 56.3989 | 9.23681 | sand          | g/kg         | %            | 5-15cm  |  772 |
+|   6 | 56.3989 | 9.23681 | sand          | g/kg         | %            | 15-30cm |  756 |
+|   7 | 56.3989 | 9.23681 | silt          | g/kg         | %            | 0-5cm   |  138 |
+|   8 | 56.3989 | 9.23681 | silt          | g/kg         | %            | 5-15cm  |  123 |
+|   9 | 56.3989 | 9.23681 | silt          | g/kg         | %            | 15-30cm |  134 |
+|   0 | 56.3108 | 8.81015 | clay          | g/kg         | %            | 0-5cm   |   71 |
+|   1 | 56.3108 | 8.81015 | clay          | g/kg         | %            | 5-15cm  |   68 |
+|   2 | 56.3108 | 8.81015 | clay          | g/kg         | %            | 15-30cm |   71 |
+|   3 | 56.3108 | 8.81015 | ocs           | t/ha         | kg/m²        | 0-30cm  |   60 |
+|   4 | 56.3108 | 8.81015 | sand          | g/kg         | %            | 0-5cm   |  830 |
+|   5 | 56.3108 | 8.81015 | sand          | g/kg         | %            | 5-15cm  |  832 |
+|   6 | 56.3108 | 8.81015 | sand          | g/kg         | %            | 15-30cm |  828 |
+|   7 | 56.3108 | 8.81015 | silt          | g/kg         | %            | 0-5cm   |   99 |
+|   8 | 56.3108 | 8.81015 | silt          | g/kg         | %            | 5-15cm  |  100 |
+|   9 | 56.3108 | 8.81015 | silt          | g/kg         | %            | 15-30cm |  100 |
 
 ## Get the property (clay, sand, silt) with the highest value for each point
 
@@ -107,9 +111,9 @@ sg.main_properties()
 ```
 
              lat       lon soil_property
-    0  56.271260  8.922771          sand
-    1  56.281484  8.766259          sand
-    2  56.360402  8.767026          sand
+    0  56.310782  8.810152          sand
+    1  56.381481  9.153719          sand
+    2  56.398910  9.236813          sand
 
 ## Relationship between clay, sand, silt and organic carbon stock
 

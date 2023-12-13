@@ -36,13 +36,15 @@ be queried at a maximum rate of 5/minute, so the following code takes about 10
 minutes to run:
 
 ```{python}
+#| output: asis
+
 from soilgrids import SoilGrids
 import pandas as pd
 
 # ~~~ Tweak some settings for cleaner notebook results ~~~ #
 import logging
 logging.getLogger('soilgrids').setLevel(logging.ERROR)
-pd.options.display.notebook_repr_html = False
+# pd.options.display.notebook_repr_html = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 sg = SoilGrids()
@@ -56,11 +58,14 @@ sg.get_points_sample(
     value='mean'
 )
 
-sg.data \
+df = sg.data \
     .filter([
         'lat', 'lon', 'soil_property', 'mapped_units', 
         'target_units', 'depth', 'mean'
-    ])
+    ]) \
+    .to_markdown()
+
+print(df)
 ```
 
 ## Get the property (clay, sand, silt) with the highest value for each point
