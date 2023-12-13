@@ -3,6 +3,7 @@ import requests
 import time
 import pandas as pd
 import numpy as np
+from decimal import Decimal
 
 from ._utils import _Throttle, _check_arg, _to_list, _logger
 
@@ -31,7 +32,10 @@ def get_soilgrids(lat: float | list[float],
         `lon`: The longitude(s) of the point(s) to query. Must be in the range
             [-180, 180]. Note that NumPy-style broadcasting is applied to lat 
             and lon, so that if one is a scalar and the other is an array, all
-            combinations of the two are queried.
+            combinations of the two are queried. Note that coordinates are 
+            rounded to 6 decimal places before querying - roughly the precision
+            needed to identify an 
+            [individual human](https://en.wikipedia.org/wiki/Decimal_degrees#Precision).
         `soil_property`: The soil property/properties to query. Must be a subset 
             of the following or `None`, in which case all properties are 
             returned:
@@ -104,16 +108,20 @@ _base_url = 'https://rest.isric.org/soilgrids/v2.0/'
 def _query_soilgrids(lat, lon, soil_property=None, depth=None, value=None):
     """Perform the actual API request, with some basic handling for 429 errors."""
     
+    # The `float` type doesn't always give exactly 6 decimal places, which 
+    # causes Soilgrids to give a much more precise response than required.
+    lat, lon = round(Decimal(lat), 6), round(Decimal(lon), 6)
+    
     _throttle_requests()
-    _logger.info(f"Querying Soilgrids for {lat=}, {lon=}")
+    _logger.info(f"Querying Soilgrids for lat={lat}, lon={lon}")
     
     def perform_request():
         return requests.get(
             _base_url + 'properties/query',
             params={
                 'lat': lat, 
-                'lon': lon, 
-                # NB, 'property' is a reserved keyword in Python, so it's best
+                'lon': lon,
+                # NB, `property` is a reserved keyword in Python, so it's best
                 # to use a different name here
                 'property': soil_property,
                 'depth': depth,

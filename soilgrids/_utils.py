@@ -1,7 +1,7 @@
 import logging
-import platform
 import subprocess
 import time
+import importlib.resources
 
 _logger = logging.getLogger("soilgrids")
 
@@ -18,10 +18,10 @@ def _check_arg(arg, name, allowed_vals):
     # load on Soilgrids and to provide a quicker error with a more helpful
     # message in the event that an argument is invalid
     assert set(arg) <= set(allowed_vals), \
-        'Invalid `{}`. \n  i: Check "{}". \n  i: Allowed values are: "{}".'.format(
+        "Invalid `{}`. \n  i: Check '{}'. \n  i: Allowed values are: '{}'.".format(
             name, 
-            '", "'.join(set(arg) - set(allowed_vals)),
-            '", "'.join(allowed_vals)
+            "', '".join(set(arg) - set(allowed_vals)),
+            "', '".join(allowed_vals)
         )
     
     return arg
@@ -35,7 +35,7 @@ def _to_list(x):
     return x
 
 class _Throttle():
-    # Sleep for a specified minimum interval between calls
+    """Sleep for a specified minimum interval between calls"""
     
     def __init__(self, interval=5):
         self.interval = interval
@@ -56,26 +56,12 @@ class _Throttle():
         self.last_request_time = time.time()
 
 
-def _r_available():
-    """Check that R can be called from Python.""" 
-    cmd = ['rscript', '-e', 'R.version']
-    return subprocess.run(cmd, capture_output=True).returncode == 0
-
-def _check_r_available():
-    """Check that R can be called from Python."""
-    if not _r_available():
-        raise RuntimeError(
-            "No R installation detected\n" \
-            "  i: Make sure your R installation can be found on the PATH"
-        )
-
 def _rscript(script, *args):
     """Run `Rscript script.R arg1 arg2 arg3...` and return the printed output.""" 
     _check_r_available()
     
     res = subprocess.run(
-        ['rscript', script, *args], 
-        check=True, 
+        ['rscript', _pkg_file(script), *args], 
         capture_output=True
     )
     
@@ -89,3 +75,26 @@ def _rscript(script, *args):
     
     return res.stdout.decode('utf-8')
 
+
+def _check_r_available():
+    """Check that R can be called from Python."""
+    if not _r_available():
+        raise RuntimeError(
+            "No R installation detected\n" \
+            "  i: Make sure your R installation can be found on the PATH"
+        )
+
+
+def _r_available():
+    """Check that R can be called from Python.""" 
+    cmd = ['rscript', '-e', 'R.version']
+    return subprocess.run(cmd, capture_output=True).returncode == 0
+
+
+def _pkg_file(path):
+    """Ensure paths to resources work regardless of how the package is installed."""
+    path = importlib.resources \
+        .files('soilgrids') \
+        .joinpath("..") \
+        .joinpath(path)
+    return str(path)

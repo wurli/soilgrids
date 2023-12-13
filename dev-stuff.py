@@ -3,16 +3,8 @@ import soilgrids as sg
 
 soilgrids = sg.SoilGrids()
 
-soilgrids.aggregate_means
-soilgrids.get_points
-soilgrids.get_points_sample
-soilgrids.ocs_correlations
-soilgrids.main_properties
-
-soilgrids.get_points(50, 60)
-
 soilgrids.get_points_sample(
-    1,
+    4,
     lat_min=56.225297, lat_max=55.958103,
     lon_min=8.662215, lon_max=9.354390,
     soil_property=['clay', 'sand', 'silt', 'ocs'],
@@ -20,6 +12,11 @@ soilgrids.get_points_sample(
     value=['mean', 'uncertainty']
 )
 
+soilgrids.aggregate_means
+soilgrids.get_points
+soilgrids.get_points_sample
+soilgrids.ocs_correlations
+soilgrids.main_properties
 soilgrids.ocs_correlations()
 
 import requests
