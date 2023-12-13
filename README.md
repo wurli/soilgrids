@@ -56,26 +56,151 @@ sg.data \
 ```
 
 
-    ---------------------------------------------------------------------------
-
-    NameError                                 Traceback (most recent call last)
-
-    Cell In[1], line 21
-         10     sg = SoilGrids()
-         12     sg.get_points_sample(
-         13         50,
-         14         lat_min=56.225297, lat_max=55.958103,
-       (...)
-         18         value='mean'
-         19     )
-    ---> 21 sg.data \
-         22     .filter([
-         23         'lat', 'lon', 'soil_property', 'mapped_units', 
-         24         'target_units', 'depth', 'mean'
-         25     ])
 
 
-    NameError: name 'sg' is not defined
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>lat</th>
+      <th>lon</th>
+      <th>soil_property</th>
+      <th>mapped_units</th>
+      <th>target_units</th>
+      <th>depth</th>
+      <th>mean</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>56.276607</td>
+      <td>9.069328</td>
+      <td>clay</td>
+      <td>g/kg</td>
+      <td>%</td>
+      <td>0-5cm</td>
+      <td>58</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>56.276607</td>
+      <td>9.069328</td>
+      <td>clay</td>
+      <td>g/kg</td>
+      <td>%</td>
+      <td>5-15cm</td>
+      <td>52</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>56.276607</td>
+      <td>9.069328</td>
+      <td>clay</td>
+      <td>g/kg</td>
+      <td>%</td>
+      <td>15-30cm</td>
+      <td>64</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>56.276607</td>
+      <td>9.069328</td>
+      <td>ocs</td>
+      <td>t/ha</td>
+      <td>kg/m²</td>
+      <td>0-30cm</td>
+      <td>66</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>56.276607</td>
+      <td>9.069328</td>
+      <td>sand</td>
+      <td>g/kg</td>
+      <td>%</td>
+      <td>0-5cm</td>
+      <td>844</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>56.276492</td>
+      <td>8.923697</td>
+      <td>sand</td>
+      <td>g/kg</td>
+      <td>%</td>
+      <td>5-15cm</td>
+      <td>836</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>56.276492</td>
+      <td>8.923697</td>
+      <td>sand</td>
+      <td>g/kg</td>
+      <td>%</td>
+      <td>15-30cm</td>
+      <td>810</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>56.276492</td>
+      <td>8.923697</td>
+      <td>silt</td>
+      <td>g/kg</td>
+      <td>%</td>
+      <td>0-5cm</td>
+      <td>111</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>56.276492</td>
+      <td>8.923697</td>
+      <td>silt</td>
+      <td>g/kg</td>
+      <td>%</td>
+      <td>5-15cm</td>
+      <td>111</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>56.276492</td>
+      <td>8.923697</td>
+      <td>silt</td>
+      <td>g/kg</td>
+      <td>%</td>
+      <td>15-30cm</td>
+      <td>121</td>
+    </tr>
+  </tbody>
+</table>
+<p>500 rows × 7 columns</p>
+</div>
+
 
 
 ## Get the property (clay, sand, silt) with the highest value for each point
@@ -117,303 +242,303 @@ sg.main_properties()
   <tbody>
     <tr>
       <th>0</th>
-      <td>56.235719</td>
-      <td>9.227313</td>
+      <td>56.226264</td>
+      <td>9.310044</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>56.237697</td>
-      <td>8.984183</td>
-      <td>sand</td>
+      <td>56.240131</td>
+      <td>9.085027</td>
+      <td>clay</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>56.239461</td>
-      <td>9.191985</td>
+      <td>56.240232</td>
+      <td>8.923844</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>56.255252</td>
-      <td>9.049602</td>
+      <td>56.257524</td>
+      <td>8.701260</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>56.259932</td>
-      <td>8.923327</td>
+      <td>56.263617</td>
+      <td>8.884656</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>56.262672</td>
-      <td>9.002590</td>
+      <td>56.267173</td>
+      <td>9.272709</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>56.264488</td>
-      <td>9.004942</td>
+      <td>56.269523</td>
+      <td>9.024149</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>56.267499</td>
-      <td>9.058695</td>
+      <td>56.270786</td>
+      <td>9.056345</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>56.273890</td>
-      <td>9.107779</td>
+      <td>56.271717</td>
+      <td>8.752865</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>56.297945</td>
-      <td>9.109309</td>
+      <td>56.271802</td>
+      <td>8.721928</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>10</th>
-      <td>56.303049</td>
-      <td>8.864423</td>
+      <td>56.276492</td>
+      <td>8.923697</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>11</th>
-      <td>56.311145</td>
-      <td>8.916930</td>
+      <td>56.276607</td>
+      <td>9.069328</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>12</th>
-      <td>56.312923</td>
-      <td>9.068515</td>
+      <td>56.285562</td>
+      <td>8.831884</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>13</th>
-      <td>56.315340</td>
-      <td>8.905336</td>
+      <td>56.292184</td>
+      <td>9.018149</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>14</th>
-      <td>56.318400</td>
-      <td>8.995711</td>
+      <td>56.295637</td>
+      <td>8.973799</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>15</th>
-      <td>56.318480</td>
-      <td>9.187449</td>
+      <td>56.301430</td>
+      <td>8.947664</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>16</th>
-      <td>56.320075</td>
-      <td>8.884830</td>
+      <td>56.312244</td>
+      <td>9.033930</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>17</th>
-      <td>56.329586</td>
-      <td>8.906809</td>
+      <td>56.320408</td>
+      <td>9.099744</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>18</th>
-      <td>56.329594</td>
-      <td>9.119618</td>
+      <td>56.337811</td>
+      <td>9.102337</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>19</th>
-      <td>56.330206</td>
-      <td>9.236711</td>
+      <td>56.341841</td>
+      <td>9.194195</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>20</th>
-      <td>56.335098</td>
-      <td>8.693827</td>
+      <td>56.344729</td>
+      <td>9.196675</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>21</th>
-      <td>56.336729</td>
-      <td>9.042064</td>
+      <td>56.345896</td>
+      <td>8.667457</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>22</th>
-      <td>56.337229</td>
-      <td>9.130738</td>
+      <td>56.346370</td>
+      <td>9.202317</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>23</th>
-      <td>56.343606</td>
-      <td>8.953429</td>
+      <td>56.353099</td>
+      <td>9.168756</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>24</th>
-      <td>56.356396</td>
-      <td>8.958299</td>
+      <td>56.356364</td>
+      <td>8.911127</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>25</th>
-      <td>56.358869</td>
-      <td>8.803543</td>
+      <td>56.360388</td>
+      <td>9.220224</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>26</th>
-      <td>56.359760</td>
-      <td>8.789007</td>
+      <td>56.362676</td>
+      <td>8.894764</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>27</th>
-      <td>56.365707</td>
-      <td>9.074531</td>
+      <td>56.363781</td>
+      <td>9.145282</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>28</th>
-      <td>56.369691</td>
-      <td>8.910835</td>
+      <td>56.375587</td>
+      <td>9.208008</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>29</th>
-      <td>56.370562</td>
-      <td>8.963777</td>
+      <td>56.382394</td>
+      <td>9.065123</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>30</th>
-      <td>56.391902</td>
-      <td>9.198561</td>
+      <td>56.383332</td>
+      <td>9.026549</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>31</th>
-      <td>56.395247</td>
-      <td>9.280102</td>
+      <td>56.383418</td>
+      <td>9.057628</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>32</th>
-      <td>56.404672</td>
-      <td>9.154775</td>
+      <td>56.403295</td>
+      <td>9.287058</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>33</th>
-      <td>56.405100</td>
-      <td>9.009216</td>
+      <td>56.405351</td>
+      <td>9.140873</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>34</th>
-      <td>56.407227</td>
-      <td>8.928714</td>
+      <td>56.410998</td>
+      <td>8.755577</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>35</th>
-      <td>56.407619</td>
-      <td>8.765451</td>
+      <td>56.430169</td>
+      <td>8.839292</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>36</th>
-      <td>56.411133</td>
-      <td>8.932984</td>
+      <td>56.433262</td>
+      <td>8.690437</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>37</th>
-      <td>56.425257</td>
-      <td>8.972734</td>
+      <td>56.433473</td>
+      <td>8.951179</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>38</th>
-      <td>56.425502</td>
-      <td>9.219506</td>
+      <td>56.439106</td>
+      <td>8.688263</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>39</th>
-      <td>56.431954</td>
-      <td>8.729293</td>
+      <td>56.445124</td>
+      <td>9.040367</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>40</th>
-      <td>56.432663</td>
-      <td>9.001378</td>
+      <td>56.450100</td>
+      <td>9.033623</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>41</th>
-      <td>56.437198</td>
-      <td>8.981586</td>
+      <td>56.454865</td>
+      <td>8.677666</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>42</th>
-      <td>56.444646</td>
-      <td>9.261524</td>
+      <td>56.456948</td>
+      <td>9.147255</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>43</th>
-      <td>56.453442</td>
-      <td>9.345086</td>
+      <td>56.458241</td>
+      <td>8.792846</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>44</th>
-      <td>56.460806</td>
-      <td>9.332726</td>
+      <td>56.475961</td>
+      <td>8.833438</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>45</th>
-      <td>56.463859</td>
-      <td>8.770557</td>
+      <td>56.480569</td>
+      <td>9.211856</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>46</th>
-      <td>56.471824</td>
-      <td>9.139974</td>
-      <td>sand</td>
+      <td>56.481033</td>
+      <td>8.703145</td>
+      <td>clay</td>
     </tr>
     <tr>
       <th>47</th>
-      <td>56.477596</td>
-      <td>9.092933</td>
+      <td>56.483997</td>
+      <td>9.324725</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>48</th>
-      <td>56.480323</td>
-      <td>9.201440</td>
+      <td>56.485126</td>
+      <td>9.219960</td>
       <td>sand</td>
     </tr>
     <tr>
       <th>49</th>
-      <td>56.492063</td>
-      <td>8.853880</td>
-      <td>sand</td>
+      <td>56.485551</td>
+      <td>8.890252</td>
+      <td>clay</td>
     </tr>
   </tbody>
 </table>
@@ -438,18 +563,18 @@ print(sg.ocs_correlation(capture_output=True))
     
     Residuals:
          Min       1Q   Median       3Q      Max 
-    -1.07700 -1.05049 -0.05614  0.92996  1.94212 
+    -184.510  -57.234    6.529   54.289  182.565 
     
     Coefficients:
-                  Estimate Std. Error t value Pr(>|t|)    
-    (Intercept)  1.000e+03  1.337e+00 748.061   <2e-16 ***
-    ocs         -1.738e-03  2.387e-02  -0.073    0.942    
+                Estimate Std. Error t value Pr(>|t|)    
+    (Intercept) 113.2903    45.7361   2.477   0.0168 *  
+    ocs          16.0033     0.8548  18.721   <2e-16 ***
     ---
     Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
     
-    Residual standard error: 0.8758 on 48 degrees of freedom
-    Multiple R-squared:  0.0001104,	Adjusted R-squared:  -0.02072 
-    F-statistic: 0.005302 on 1 and 48 DF,  p-value: 0.9423
+    Residual standard error: 84.13 on 48 degrees of freedom
+    Multiple R-squared:  0.8795,	Adjusted R-squared:  0.877 
+    F-statistic: 350.5 on 1 and 48 DF,  p-value: < 2.2e-16
     
     
 
