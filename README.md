@@ -146,8 +146,8 @@ show(sg.main_properties())
 
 The `ocs_correlation()` method fits and displays summary statistics for a linear 
 model with sand, clay and silt as predictors and OCS as the response variable. 
-In this case, we find these soil properties are quite effective at predicting 
-OCS, explaining around 90% of the variance:
+Based on the R-squared values returned in the summary, it doesn't look like
+these soil properties are particularly good predictors for OCS in this case:
 
 
 ```python
