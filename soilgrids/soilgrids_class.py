@@ -4,6 +4,7 @@ from ._utils import _rscript, _logger
 from typing import Union
 import numpy as np
 import pandas as pd
+import seaborn.objects as so
 
 
 class SoilGrids:
@@ -275,8 +276,37 @@ class SoilGrids:
             return model_summary
         
         _logger.info(model_summary)
-    
-    
+   
+    def plot_ocs_property_relationships(self):
+        data = self.aggregate_means()
+         
+        soil_types_data = data \
+            .query("soil_property in ['clay', 'sand', 'silt']")
+        
+        ocs_data = data \
+            .query("soil_property == 'ocs'") \
+            .filter(['lat', 'lon', 'mean']) \
+            .rename(columns={'mean': 'mean_ocs'})
+         
+        plot_data = soil_types_data \
+            .merge(ocs_data, on=['lat', 'lon'], how = 'outer') \
+            .fillna({'mean': 0, 'mean_ocs': 0}) \
+            .reset_index()
+        
+        plot = so.Plot(plot_data, x="mean", y='mean_ocs') \
+            .add(so.Dots()) \
+            .add(so.Line(), so.PolyFit(1)) \
+            .facet('soil_property') \
+            .share(x=False) \
+            .label(
+                title="Mean {}".format,
+                x="",
+                y="Mean OCS",
+                color="",
+            )
+        
+        return plot
+        
     def aggregate_means(self, top_depth=0, bottom_depth=30):
         """Aggregate the means of soil properties across depths.
         
