@@ -57,30 +57,30 @@ def test_main_properties():
         'First two main properties should be sand and clay'
 
         
-def test_ocs_correlations_works():
+def test_ocs_correlation_works():
     sg = SoilGrids()
     data = pd.read_csv('tests/data/soilgrids-results.csv')
     sg._data = data
 
-    lm = sg.ocs_correlations(capture_output=True)
+    lm = sg.ocs_correlation(capture_output=True)
     
-    assert 'clay + sand + silt ~ ocs'       in lm, 'ocs_correlations() should return a linear model summary'
+    assert 'clay + sand + silt ~ ocs'       in lm, 'ocs_correlation() should return a linear model summary'
     assert 'Residual standard error: 100.6' in lm, 'Model summary should give a standard error of 100.6'
     assert 'Multiple R-squared:  0.8279'    in lm, 'Model summary should give an R-squared of 0.8279'
 
     
-def test_ocs_correlations_works_with_missing_properties():
+def test_ocs_correlation_works_with_missing_properties():
     sg = SoilGrids()
     data = pd.read_csv('tests/data/soilgrids-results.csv')        
     sg._data = data \
         .query("soil_property != 'clay'") \
         .reset_index(drop=True)
         
-    lm = sg.ocs_correlations(capture_output=True)
-    assert 'clay + sand + silt ~ ocs' in lm, 'ocs_correlations() should work with missing properties'
+    lm = sg.ocs_correlation(capture_output=True)
+    assert 'clay + sand + silt ~ ocs' in lm, 'ocs_correlation() should work with missing properties'
 
 
-def test_ocs_correlations_fails_with_limited_data():
+def test_ocs_correlation_fails_with_limited_data():
     sg = SoilGrids()
     data = pd.read_csv('tests/data/soilgrids-results.csv')        
         
@@ -92,7 +92,7 @@ def test_ocs_correlations_fails_with_limited_data():
     sg._data = data.merge(ten_points, on=['lat', 'lon'], how='inner')
 
     with pytest.raises(AssertionError) as err:
-        sg.ocs_correlations(capture_output=True)
+        sg.ocs_correlation(capture_output=True)
     
     assert "20 distinct values for `lat` and `lon` are needed" in str(err.value), \
         'Error message should indicate not enough data'

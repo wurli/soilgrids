@@ -22,7 +22,7 @@ class SoilGrids:
             randomly sampled locations.
         `main_properties()` (method): Determine the most prevalent property (out 
             of sand, silt, and clay) for each location.
-        `ocs_correlations()` (method): Determine the correlation between sand, 
+        `ocs_correlation()` (method): Determine the correlation between sand, 
             silt, clay, and OCS (organic carbon stock).
         `aggregate_means()` (method): Aggregate the means of soil properties 
             across depths.
@@ -60,6 +60,8 @@ class SoilGrids:
         This function is a wrapper for the Soilgrids API. The returned geojson is
         parsed into a pandas DataFrame, with a row for each combination of 
         `lat`, `lon`, `soil_property`, and `depth`, and a column for each `value`.
+        After running this method, the returned data can be obtained using the
+        `data` property.
         
         More detailed information about the data returned can be obtained from
         [IRSIC](https://www.isric.org/explore/soilgrids/faq-soilgrids).
@@ -126,7 +128,9 @@ class SoilGrids:
         This function is a wrapper for the Soilgrids API. The returned geojson 
         is parsed into a pandas DataFrame, with a row for each combination of 
         `lat`, `lon`, `soil_property`, and `depth`, and a column for each 
-        `value`.
+        `value`. After running this method, the returned data can be obtained 
+        using the `data` property. The points returned by this function are
+        uniformly distributed throughout the specified range.
         
         More detailed information about the data returned can be obtained from
         [ISRIC](https://www.isric.org/explore/soilgrids/faq-soilgrids).
@@ -209,7 +213,7 @@ class SoilGrids:
             .filter(['lat', 'lon', 'soil_property'])
             
     
-    def ocs_correlations(self, capture_output=False) -> None | str:
+    def ocs_correlation(self, capture_output=False) -> None | str:
         """Get the correlation between sand, silt, clay, and OCS (organic carbon stock).
         
         This function requires R to be installed and available on the PATH in 

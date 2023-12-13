@@ -95,6 +95,5 @@ def _pkg_file(path):
     """Ensure paths to resources work regardless of how the package is installed."""
     path = importlib.resources \
         .files('soilgrids') \
-        .joinpath("..") \
         .joinpath(path)
     return str(path)

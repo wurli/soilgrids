@@ -1,0 +1,23 @@
+---
+format: gfm
+jupyter: python3
+---
+
+# Soilgrids
+
+This package provides a lightweight wrapper around the ISRIC Soilgrids API.
+
+```{python}
+from soilgrids import Soilgrids
+
+sg = Soilgrids()
+
+soilgrids.get_points_sample(
+    8,
+    lat_min=56.225297, lat_max=55.958103,
+    lon_min=8.662215, lon_max=9.354390,
+    soil_property=['clay', 'sand', 'silt', 'ocs'],
+    depth=['0-5cm', '5-15cm', '15-30cm', '0-30cm'],
+    value=['mean', 'uncertainty']
+)
+```
