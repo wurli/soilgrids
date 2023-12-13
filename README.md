@@ -33,9 +33,9 @@ minutes to run:
 
 ```python
 import logging
-from soilgrids import SoilGrids
 import pandas as pd
 from IPython.display import Markdown as md
+from soilgrids import SoilGrids
 
 # Turn off console logs for cleaner notebook output
 logging.getLogger('soilgrids').setLevel(logging.ERROR)
