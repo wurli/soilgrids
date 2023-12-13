@@ -279,7 +279,7 @@ class SoilGrids:
    
     def plot_ocs_property_relationships(self, 
                                         top_depth: int=0, 
-                                        bottom_depth: int=30) -> seaborn.objects.Plot:
+                                        bottom_depth: int=30) -> so.Plot:
         """Plot the relationships between OCS and other soil properties.
         
         This function produces a plot with multiple panels, where each panel

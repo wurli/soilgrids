@@ -176,6 +176,30 @@ print(sg.ocs_correlation(capture_output=True))
     
 
 
+## Additional features
+The `plot_ocs_property_relationships()` method can be used to obtain a graphical
+representation of the relationships between OCS and the other soil properties 
+present in the data. These are displayed as scatterplots with overlayed lines
+of best fit, i.e. the values predicted by a fitted linear regression.
+
+In this case we can see that there is no panel where the plotted points show
+strong agreement with the fitted line. This agrees with the low value for 
+R-squared obtained earlier:
+
+
+```python
+sg.plot_ocs_property_relationships()
+```
+
+
+
+
+    
+![png](README_files/README_7_0.png)
+    
+
+
+
 ## Disclaimers
 
 *   Use of this package is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).
