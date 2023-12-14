@@ -58,7 +58,7 @@ class SoilGrids:
                    value: Union[str, list[str], None] = None) -> pd.DataFrame:
         """Query Soilgrids for soil properties at specified locations.
     
-        This function is a wrapper for the Soilgrids API. The returned geojson is
+        This method is a wrapper for the Soilgrids API. The returned geojson is
         parsed into a pandas DataFrame, with a row for each combination of 
         `lat`, `lon`, `soil_property`, and `depth`, and a column for each `value`.
         After running this method, the returned data can be obtained using the
@@ -117,20 +117,20 @@ class SoilGrids:
     def get_points_sample(self, 
                           n: int =5, 
                           *, 
-                          lat_min: float =-90, 
-                          lat_max: float =90, 
-                          lon_min: float =-180, 
-                          lon_max: float =180,
+                          lat_a: float =-90, 
+                          lon_a: float =-180, 
+                          lat_b: float =90, 
+                          lon_b: float =180,
                           soil_property: Union[str, list[str], None] = None, 
                           depth: Union[str, list[str], None] = None, 
                           value: Union[str, list[str], None] = None) -> pd.DataFrame:
         """Query Soilgrids for a random set of coordinates.
         
-        This function is a wrapper for the Soilgrids API. The returned geojson 
+        This method is a wrapper for the Soilgrids API. The returned geojson 
         is parsed into a pandas DataFrame, with a row for each combination of 
         `lat`, `lon`, `soil_property`, and `depth`, and a column for each 
         `value`. After running this method, the returned data can be obtained 
-        using the `data` property. The points returned by this function are
+        using the `data` property. The points returned by this method are
         uniformly distributed throughout the specified range.
         
         More detailed information about the data returned can be obtained from
@@ -143,14 +143,10 @@ class SoilGrids:
         
         Args:
             `n`: The number of points to query.
-            `lat_min`: The minimum latitude of the points to query. Must be in 
-                the range [-90, 90].
-            `lat_max`: The maximum latitude of the points to query. Must be in 
-                the range [-90, 90].
-            `lon_min`: The minimum longitude of the points to query. Must be in 
-                the range [-180, 180].
-            `lon_max`: The maximum longitude of the points to query. Must be in
-                the range [-180, 180].
+            `lat_a`: The first bounding latitude. Must be in the range [-90, 90]
+            `lon_a`: The first bounding longitude. Must be in the range [-180, 180]
+            `lat_b`: The second bounding longitude. Must be in the range [-90, 90]
+            `lon_b`: The second bounding longitude. Must be in the range [-180, 180]
             `soil_property`: The soil property/properties to query. Must be a 
                 subset of the following or `None`, in which case all properties 
                 are returned:
@@ -178,9 +174,17 @@ class SoilGrids:
                 `lat`, `lon`, `soil_property`, and `depth`, and a column for 
                 each `value`. 
         """
+        
+        # Uncomment during testing to avoid waiting ages for data to load
+        # self._data = pd.read_csv("tests/data/soilgrids-results.csv")
+        # return 
+        
+        lat_min, lat_max = min(lat_a, lat_b), max(lat_a, lat_b)
+        lon_min, lon_max = min(lon_a, lon_b), max(lon_a, lon_b)
+        
         self._data = get_soilgrids(
-            lat_min + np.abs(lat_max - lat_min) * np.random.random_sample(n),
-            lon_min + np.abs(lon_max - lon_min) * np.random.random_sample(n),
+            lat_min + (lat_max - lat_min) * np.random.random_sample(n),
+            lon_min + (lon_max - lon_min) * np.random.random_sample(n),
             soil_property=soil_property, depth=depth, value=value
         )
         
@@ -217,7 +221,7 @@ class SoilGrids:
     def ocs_correlation(self, capture_output: bool=False) -> None | str:
         """Get the correlation between sand, silt, clay, and OCS (organic carbon stock).
         
-        This function requires R to be installed and available on the PATH in 
+        This method requires R to be installed and available on the PATH in 
         order to run.
          
         1. First, the data is aggregated to get overall means for sand, silt,
@@ -264,7 +268,7 @@ class SoilGrids:
         # Fill missing properties with zeros 
         pivoted_data = pivoted_data.reindex(
             pivoted_data.columns.union(['sand', 'silt', 'clay', 'ocs'], sort=False), 
-            axis=1, fill_value=0
+            axis=1
         )
         
         model_summary = _rscript(
@@ -282,7 +286,7 @@ class SoilGrids:
                                         bottom_depth: int=30) -> so.Plot:
         """Plot the relationships between OCS and other soil properties.
         
-        This function produces a plot with multiple panels, where each panel
+        Produces a plot with multiple panels, where each panel
         shows a scatterplot with an overlayed line of best fit, i.e. a modelled
         linear regression. Different panels are shown for each soil property
         besides OCS which is present in the data. The mean OCS is shows on the
@@ -319,7 +323,6 @@ class SoilGrids:
          
         plot_data = soil_types_data \
             .merge(ocs_data, on=['lat', 'lon'], how = 'outer') \
-            .fillna({'mean': 0, 'mean_ocs': 0}) \
             .reset_index()
         
         plot = so.Plot(plot_data, x="mean", y='mean_ocs') \
@@ -336,7 +339,7 @@ class SoilGrids:
         
         return plot
         
-    def aggregate_means(self, top_depth: int=0, bottom_depth:int=30) -> pd.DataFrame:
+    def aggregate_means(self, top_depth: int=0, bottom_depth:int=30, skipna=False) -> pd.DataFrame:
         """Aggregate the means of soil properties across depths.
         
         Soilgrids provides for different properties at different levels of
@@ -361,6 +364,9 @@ class SoilGrids:
             `bottom_depth` (`float`): The maximum bottom depth to include in the
                 aggregated results. Note that the value returned in the output
                 may be lower. Defaults to 30.
+            `skipna` (`bool`): Whether to propagate missing values when 
+                aggregating. This is set to `False` by default, since the 
+                alternative can quietly give misleading results.
 
         Returns:
             `pandas.DataFrame`: A DataFrame with columns `lat`, `lon`, 
@@ -378,7 +384,6 @@ class SoilGrids:
         ]
         
         return data \
-            .fillna({'mean': 0}) \
             .groupby(
                 # ~~ What's happening here? ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 # Say we have the following values:
@@ -412,9 +417,9 @@ class SoilGrids:
             ) \
             .apply(lambda x: x.assign(
                 thickness = lambda x: x['bottom_depth'] - x['top_depth'],
-                mean = lambda x: (x['mean'] * x['thickness'] / x['thickness'].sum()) \
-                    .round() \
-                    .astype(np.int64)
+                mean = lambda x: (x['mean'] * x['thickness'] / x['thickness'].sum()) #\
+                   # .round() \
+                   # .astype(np.float)
             )) \
             .groupby(
                 ['lat', 'lon', 'mapped_units', 'unit_depth', 'soil_property'], 
@@ -423,6 +428,6 @@ class SoilGrids:
             .agg({
                 'top_depth': 'min',
                 'bottom_depth': 'max',
-                'mean': 'sum'
+                'mean': lambda m: m.sum(skipna = skipna)
             })
 

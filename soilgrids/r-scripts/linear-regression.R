@@ -4,7 +4,12 @@ if (length(args) != 1L) {
   stop("Please supply exactly one trailing argument")
 }
 
-input_data <- read.csv(text = args)
-model <- lm(clay + sand + silt ~ ocs, data = input_data)
+soilgrids_summary <- read.csv(text = args)
+
+model <- lm(
+  clay + sand + silt ~ ocs,
+  data = soilgrids_summary,
+  na.action = na.omit
+)
 
 summary(model)

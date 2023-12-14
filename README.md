@@ -47,15 +47,15 @@ sg = SoilGrids()
 
 sg.get_points_sample(
     50,
-    lat_min=56.225297, lat_max=55.958103,
-    lon_min=8.662215, lon_max=9.354390,
+    lat_a=56.225297, lon_a=8.662215,
+    lat_b=55.958103, lon_b=9.354390,
     soil_property=['clay', 'sand', 'silt', 'ocs'],
     depth=['0-5cm', '5-15cm', '15-30cm', '0-30cm'],
     value='mean'
 )
 
 # For brevity, only a subset of the data is shown
-show(data[0:15].filter([
+show(sg.data[0:15].filter([
     'lat', 'lon', 'soil_property', 'mapped_units', 
     'target_units', 'depth', 'mean'
 ]))
@@ -64,16 +64,21 @@ show(data[0:15].filter([
 
 |     lat |     lon | soil_property   | mapped_units   | target_units   | depth   |   mean |
 |--------:|--------:|:----------------|:---------------|:---------------|:--------|-------:|
-| 56.3866 | 8.88611 | clay            | g/kg           | %              | 0-5cm   |    120 |
-| 56.3866 | 8.88611 | clay            | g/kg           | %              | 5-15cm  |    117 |
-| 56.3866 | 8.88611 | clay            | g/kg           | %              | 15-30cm |    111 |
-| 56.3866 | 8.88611 | ocs             | t/ha           | kg/m²          | 0-30cm  |     69 |
-| 56.3866 | 8.88611 | sand            | g/kg           | %              | 0-5cm   |    719 |
-| 56.3866 | 8.88611 | sand            | g/kg           | %              | 5-15cm  |    727 |
-| 56.3866 | 8.88611 | sand            | g/kg           | %              | 15-30cm |    726 |
-| 56.3866 | 8.88611 | silt            | g/kg           | %              | 0-5cm   |    161 |
-| 56.3866 | 8.88611 | silt            | g/kg           | %              | 5-15cm  |    156 |
-| 56.3866 | 8.88611 | silt            | g/kg           | %              | 15-30cm |    163 |
+| 56.0024 | 9.17168 | clay            | g/kg           | %              | 0-5cm   |     93 |
+| 56.0024 | 9.17168 | clay            | g/kg           | %              | 5-15cm  |     90 |
+| 56.0024 | 9.17168 | clay            | g/kg           | %              | 15-30cm |     85 |
+| 56.0024 | 9.17168 | ocs             | t/ha           | kg/m²          | 0-30cm  |     69 |
+| 56.0024 | 9.17168 | sand            | g/kg           | %              | 0-5cm   |    802 |
+| 56.0024 | 9.17168 | sand            | g/kg           | %              | 5-15cm  |    804 |
+| 56.0024 | 9.17168 | sand            | g/kg           | %              | 15-30cm |    820 |
+| 56.0024 | 9.17168 | silt            | g/kg           | %              | 0-5cm   |    105 |
+| 56.0024 | 9.17168 | silt            | g/kg           | %              | 5-15cm  |    106 |
+| 56.0024 | 9.17168 | silt            | g/kg           | %              | 15-30cm |     95 |
+| 56.1016 | 8.93631 | clay            | g/kg           | %              | 0-5cm   |     63 |
+| 56.1016 | 8.93631 | clay            | g/kg           | %              | 5-15cm  |     58 |
+| 56.1016 | 8.93631 | clay            | g/kg           | %              | 15-30cm |     83 |
+| 56.1016 | 8.93631 | ocs             | t/ha           | kg/m²          | 0-30cm  |     59 |
+| 56.1016 | 8.93631 | sand            | g/kg           | %              | 0-5cm   |    805 |
 
 
 ## Get the property (clay, sand, silt) with the highest value for each point
@@ -90,64 +95,65 @@ show(sg.main_properties())
 
 |     lat |     lon | soil_property   |
 |--------:|--------:|:----------------|
-| 56.227  | 8.95852 | sand            |
-| 56.2282 | 8.78386 | sand            |
-| 56.239  | 8.8889  | sand            |
-| 56.2432 | 9.01111 | sand            |
-| 56.2581 | 8.76906 | sand            |
-| 56.2614 | 9.31379 | sand            |
-| 56.2721 | 9.08447 | sand            |
-| 56.2824 | 9.16308 | sand            |
-| 56.2889 | 8.81124 | sand            |
-| 56.2929 | 8.72278 | sand            |
-| 56.2946 | 8.96107 | sand            |
-| 56.3012 | 9.21258 | sand            |
-| 56.302  | 8.86036 | sand            |
-| 56.3059 | 9.27081 | sand            |
-| 56.3111 | 8.72808 | sand            |
-| 56.3184 | 9.05734 | sand            |
-| 56.3209 | 9.108   | sand            |
-| 56.3273 | 8.74746 | sand            |
-| 56.3285 | 8.86959 | sand            |
-| 56.329  | 9.02623 | sand            |
-| 56.3359 | 8.91845 | sand            |
-| 56.3488 | 9.13769 | sand            |
-| 56.3513 | 9.26886 | sand            |
-| 56.3524 | 8.88601 | sand            |
-| 56.3581 | 8.96305 | sand            |
-| 56.3661 | 9.31728 | sand            |
-| 56.3666 | 8.93146 | sand            |
-| 56.3691 | 8.93212 | sand            |
-| 56.3707 | 9.31411 | sand            |
-| 56.3735 | 9.05815 | sand            |
-| 56.3759 | 8.79767 | sand            |
-| 56.3892 | 8.86646 | sand            |
-| 56.3925 | 9.27119 | sand            |
-| 56.3937 | 9.02506 | sand            |
-| 56.3949 | 8.80218 | sand            |
-| 56.4194 | 9.28738 | sand            |
-| 56.4219 | 8.82862 | sand            |
-| 56.4322 | 9.05632 | sand            |
-| 56.4358 | 8.69287 | sand            |
-| 56.446  | 8.69823 | sand            |
-| 56.4538 | 8.751   | sand            |
-| 56.4597 | 9.28579 | sand            |
-| 56.4727 | 8.95341 | sand            |
-| 56.4727 | 9.0427  | sand            |
-| 56.4734 | 8.71213 | sand            |
-| 56.4775 | 9.23639 | sand            |
-| 56.4795 | 8.8428  | sand            |
-| 56.4816 | 9.12634 | sand            |
-| 56.4885 | 9.35333 | sand            |
-| 56.4891 | 8.81222 | sand            |
+| 55.9681 | 9.19413 | sand            |
+| 55.969  | 8.84612 | sand            |
+| 55.9736 | 9.26458 | sand            |
+| 55.988  | 9.06893 | sand            |
+| 56.0024 | 9.17168 | sand            |
+| 56.0071 | 8.73347 | sand            |
+| 56.0079 | 9.1555  | sand            |
+| 56.0115 | 9.19478 | sand            |
+| 56.0116 | 9.11962 | sand            |
+| 56.0129 | 9.06321 | sand            |
+| 56.0152 | 9.09177 | sand            |
+| 56.0209 | 9.04625 | sand            |
+| 56.0215 | 9.01066 | sand            |
+| 56.0218 | 9.32185 | sand            |
+| 56.0227 | 8.77494 | sand            |
+| 56.0245 | 8.98394 | sand            |
+| 56.0293 | 8.80021 | sand            |
+| 56.0312 | 9.20504 | sand            |
+| 56.0312 | 9.33958 | sand            |
+| 56.0322 | 9.13423 | sand            |
+| 56.0327 | 8.69833 | sand            |
+| 56.0335 | 8.82781 | sand            |
+| 56.0421 | 8.89465 | sand            |
+| 56.0457 | 9.2178  | sand            |
+| 56.0524 | 9.05007 | sand            |
+| 56.0591 | 9.0177  | sand            |
+| 56.0706 | 9.04175 | sand            |
+| 56.0731 | 9.1996  | sand            |
+| 56.0768 | 9.11822 | sand            |
+| 56.0801 | 8.89161 | sand            |
+| 56.0936 | 8.88005 | sand            |
+| 56.1016 | 8.93631 | sand            |
+| 56.1029 | 9.29378 | sand            |
+| 56.1034 | 9.1627  | sand            |
+| 56.1084 | 9.21805 | sand            |
+| 56.1126 | 8.80794 | sand            |
+| 56.1153 | 8.81545 | sand            |
+| 56.1223 | 9.24917 | sand            |
+| 56.1239 | 8.72794 | sand            |
+| 56.124  | 8.96254 | sand            |
+| 56.127  | 8.91474 | sand            |
+| 56.1365 | 9.0808  | sand            |
+| 56.1462 | 8.93131 | clay            |
+| 56.1644 | 9.26652 | sand            |
+| 56.1707 | 8.92046 | sand            |
+| 56.177  | 8.82983 | sand            |
+| 56.1878 | 9.00154 | sand            |
+| 56.2074 | 9.23711 | sand            |
+| 56.2128 | 9.33269 | sand            |
+| 56.2192 | 8.77554 | sand            |
 
 
 ## Relationship between clay, sand, silt and organic carbon stock
 
 The `ocs_correlation()` method fits and displays summary statistics for a linear 
 model with sand, clay and silt as predictors and OCS as the response variable. 
-Based on the R-squared values returned in the summary, it doesn't look like
-these soil properties are particularly good predictors for OCS in this case:
+Based on the R-squared values returned in the summary, it looks as if these 
+properties may be somewhat effective at predicting OCS, although this hypothesis
+should be taken with a pinch of salt due to the small sample size:
 
 
 ```python
@@ -156,22 +162,23 @@ print(sg.ocs_correlation(capture_output=True))
 
     
     Call:
-    lm(formula = clay + sand + silt ~ ocs, data = input_data)
+    lm(formula = clay + sand + silt ~ ocs, data = soilgrids_summary, 
+        na.action = na.omit)
     
     Residuals:
-        Min      1Q  Median      3Q     Max 
-    -1.2765 -0.2709 -0.2256  0.7589  1.7634 
+         Min       1Q   Median       3Q      Max 
+    -0.84076 -0.01704 -0.00422  0.14481  0.49097 
     
     Coefficients:
-                 Estimate Std. Error t value Pr(>|t|)    
-    (Intercept) 1.000e+03  1.123e+00 890.668   <2e-16 ***
-    ocs         4.424e-03  1.967e-02   0.225    0.823    
+                  Estimate Std. Error  t value Pr(>|t|)    
+    (Intercept)  1.000e+03  3.564e-01 2806.408   <2e-16 ***
+    ocs         -1.603e-03  5.771e-03   -0.278    0.782    
     ---
     Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
     
-    Residual standard error: 0.8302 on 48 degrees of freedom
-    Multiple R-squared:  0.001053,	Adjusted R-squared:  -0.01976 
-    F-statistic: 0.05058 on 1 and 48 DF,  p-value: 0.823
+    Residual standard error: 0.2682 on 47 degrees of freedom
+    Multiple R-squared:  0.001639,	Adjusted R-squared:  -0.0196 
+    F-statistic: 0.07717 on 1 and 47 DF,  p-value: 0.7824
     
     
 
