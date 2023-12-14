@@ -340,7 +340,7 @@ class SoilGrids:
         
         return plot
     
-    def plot_property_map(self, property):
+    def plot_property_map(self, property, zoom=3):
         agg = self.aggregate_means().dropna(subset='mean')
 
         property_data = agg.query(f"soil_property == '{property}'").reset_index()
@@ -397,7 +397,7 @@ class SoilGrids:
             ), 
             mapbox=dict(
                 style='carto-positron',
-                zoom=3,
+                zoom=zoom,
                 center=dict(
                     lat=(latmax + latmin) / 2,
                     lon=(lonmax + lonmin) / 2

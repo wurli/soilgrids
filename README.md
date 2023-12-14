@@ -33,7 +33,8 @@ minutes to run:
 
 ```python
 import logging
-import pandas as pd
+import plotly.offline as po
+import plotly.io as pio
 from IPython.display import Markdown as md
 from soilgrids import SoilGrids
 
@@ -213,8 +214,20 @@ present in the data:
 
 
 ```python
-sg.plot_property_map('ocs')
+fig = sg.plot_property_map('ocs', zoom=8)
+
+fig.write_image("README_files/property_map.png")
+
+from IPython.display import Image
+Image("README_files/property_map.png")
 ```
+
+
+
+
+    
+![png](README_files/README_9_0.png)
+    
 
 
 
