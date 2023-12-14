@@ -1,10 +1,11 @@
 from .api_requests import get_soilgrids
-from ._utils import _rscript, _logger
+from ._utils import _rscript, _logger, _rescale
 
 from typing import Union
 import numpy as np
 import pandas as pd
 import seaborn.objects as so
+import plotly.graph_objects as go
 
 
 class SoilGrids:
@@ -176,7 +177,7 @@ class SoilGrids:
         """
         
         # Uncomment during testing to avoid waiting ages for data to load
-        # self._data = pd.read_csv("tests/data/soilgrids-results.csv")
+        # self._data = pd.read_csv("tests/data/soilgrids-results.csv")
         # return 
         
         lat_min, lat_max = min(lat_a, lat_b), max(lat_a, lat_b)
@@ -338,6 +339,79 @@ class SoilGrids:
             )
         
         return plot
+    
+    def plot_property_map(self, property):
+        agg = self.aggregate_means().dropna(subset='mean')
+
+        property_data = agg.query(f"soil_property == '{property}'").reset_index()
+        
+        label_order = [property] + sorted(list(set(agg['soil_property'])))
+
+        label_data = agg \
+            .sort_values('soil_property', key=lambda col: col.apply(label_order.index)) \
+            .assign(
+                label=lambda x: 
+                    x['soil_property'] + 
+                    ': ' + 
+                    x['mean'].astype(str) + 
+                    x['mapped_units']
+            ) \
+            .assign(
+                label=lambda x: np.where(
+                    x['soil_property'] == property, 
+                    '<b>' + x['label'] + '</b>', 
+                    '<i>' + x['label'] + '</i>'
+                )
+            ) \
+            .groupby(['lat', 'lon']) \
+            .agg(dict(label=lambda x: "<br>".join(x)))
+            
+        plot_data = property_data.merge(label_data, how='left', on=['lat', 'lon'])
+
+        trace = go.Scattermapbox(
+            lat=plot_data['lat'],
+            lon=plot_data['lon'],
+            mode='markers',
+            marker=dict(size=_rescale(plot_data['mean'], 10, 20), color='red', opacity=0.5),
+            text=plot_data['soil_property'], 
+            hovertext=plot_data['label'],
+            
+        )
+        
+        latmin, latmax = plot_data['lat'].min(), plot_data['lat'].max()
+        lonmin, lonmax = plot_data['lon'].min(), plot_data['lon'].max()
+        window_expansion = 2
+        
+        layout = go.Layout(
+            title='<b>Soil {} at {}-{}{}</b><br>' \
+                'Showing points between ({}, {}) and ({}, {})<br>' \
+                'Range for the region ({}): [{}, {}]'.format(
+                    "OCS" if property == "ocs" else property.captilize(),
+                    agg['top_depth'].min(), agg['bottom_depth'].max(), agg['unit_depth'][0],
+                    
+                    latmin, lonmin, latmax, lonmax,
+                    
+                    property_data['mapped_units'][0],
+                    int(property_data['mean'].min()), 
+                    int(property_data['mean'].max())
+            ), 
+            mapbox=dict(
+                style='carto-positron',
+                zoom=3,
+                center=dict(
+                    lat=(latmax + latmin) / 2,
+                    lon=(lonmax + lonmin) / 2
+                ),
+                bounds=dict(
+                    north=latmax + (latmax - latmin) * window_expansion, 
+                    east =lonmax + (lonmax - lonmin) * window_expansion, 
+                    south=latmin - (latmax - latmin) * window_expansion, 
+                    west =lonmin - (lonmax - lonmin) * window_expansion 
+                )
+            )
+        )
+        
+        return go.Figure(data=[trace], layout=layout)
         
     def aggregate_means(self, top_depth: int=0, bottom_depth:int=30, skipna=False) -> pd.DataFrame:
         """Aggregate the means of soil properties across depths.
@@ -417,9 +491,9 @@ class SoilGrids:
             ) \
             .apply(lambda x: x.assign(
                 thickness = lambda x: x['bottom_depth'] - x['top_depth'],
-                mean = lambda x: (x['mean'] * x['thickness'] / x['thickness'].sum()) #\
-                   # .round() \
-                   # .astype(np.float)
+                mean = lambda x: (x['mean'] * x['thickness'] / x['thickness'].sum()) \
+                    .astype(float) \
+                    .round()
             )) \
             .groupby(
                 ['lat', 'lon', 'mapped_units', 'unit_depth', 'soil_property'], 

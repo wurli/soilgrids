@@ -166,18 +166,18 @@ print(sg.ocs_correlation(capture_output=True))
     
     Residuals:
          Min       1Q   Median       3Q      Max 
-    -0.84076 -0.01704 -0.00422  0.14481  0.49097 
+    -1.90210 -0.83803  0.07654  0.14061  2.11926 
     
     Coefficients:
-                  Estimate Std. Error  t value Pr(>|t|)    
-    (Intercept)  1.000e+03  3.564e-01 2806.408   <2e-16 ***
-    ocs         -1.603e-03  5.771e-03   -0.278    0.782    
+                  Estimate Std. Error t value Pr(>|t|)    
+    (Intercept) 1000.55348    1.25964 794.314   <2e-16 ***
+    ocs           -0.01068    0.02040  -0.523    0.603    
     ---
     Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
     
-    Residual standard error: 0.2682 on 47 degrees of freedom
-    Multiple R-squared:  0.001639,	Adjusted R-squared:  -0.0196 
-    F-statistic: 0.07717 on 1 and 47 DF,  p-value: 0.7824
+    Residual standard error: 0.948 on 47 degrees of freedom
+    Multiple R-squared:  0.005796,	Adjusted R-squared:  -0.01536 
+    F-statistic: 0.274 on 1 and 47 DF,  p-value: 0.6031
     
     
 
@@ -203,6 +203,18 @@ sg.plot_ocs_property_relationships()
     
 ![png](README_files/README_7_0.png)
     
+
+
+
+The `plot_property_map()` method can display the points as they appear 
+geographically. The points are sized according to the value of the property
+you choose to plot, and the tooltip displays the values for other properties
+present in the data:
+
+
+```python
+sg.plot_property_map('ocs')
+```
 
 
 

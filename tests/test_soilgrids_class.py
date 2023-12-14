@@ -65,7 +65,7 @@ def test_ocs_correlation_works():
     lm = sg.ocs_correlation(capture_output=True)
     
     assert 'clay + sand + silt ~ ocs'        in lm, 'ocs_correlation() should return a linear model summary'
-    assert 'Residual standard error: 0.2682' in lm, 'Model summary should give a standard error of 0.2682'
+    assert 'Residual standard error: 0.948' in lm, 'Model summary should give a standard error of 0.948'
     
 def test_ocs_correlation_fails_with_missing_properties():
     sg = SoilGrids()
