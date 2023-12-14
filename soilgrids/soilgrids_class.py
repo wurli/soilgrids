@@ -177,7 +177,7 @@ class SoilGrids:
         
         # Uncomment during testing to avoid waiting ages for data to load
         # self._data = pd.read_csv("tests/data/soilgrids-results.csv")
-        # return 
+        # return 
         
         lat_min, lat_max = min(lat_a, lat_b), max(lat_a, lat_b)
         lon_min, lon_max = min(lon_a, lon_b), max(lon_a, lon_b)
