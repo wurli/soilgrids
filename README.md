@@ -185,7 +185,7 @@ print(sg.ocs_correlation(capture_output=True))
 
 ## Additional features
 
-### `SoilGrids.plot_ocs_property_relationships()`
+### Method `SoilGrids.plot_ocs_property_relationships()`
 
 The `plot_ocs_property_relationships()` method can be used to obtain a graphical
 representation of the relationships between OCS and the other soil properties 
@@ -213,7 +213,7 @@ Image("README_files/ocs_property_relationships.png")
 
 
 
-## `SoilGrids.plot_property_map()`
+### Method `SoilGrids.plot_property_map()`
 
 The `plot_property_map()` method can display the points as they appear 
 geographically. The points are sized according to the value of the property
