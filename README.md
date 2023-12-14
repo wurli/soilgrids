@@ -35,14 +35,14 @@ minutes to run:
 import logging
 import plotly.offline as po
 import plotly.io as pio
-from IPython.display import Markdown as md
+from IPython.display import Markdown, Image
 from soilgrids import SoilGrids
 
 # Turn off console logs for cleaner notebook output
 logging.getLogger('soilgrids').setLevel(logging.ERROR)
 
 # Helper for displaying tables as markdown
-show = lambda df: display(md(df.to_markdown(index=False)))
+show = lambda df: display(Markdown(df.to_markdown(index=False)))
 
 sg = SoilGrids()
 
@@ -184,6 +184,9 @@ print(sg.ocs_correlation(capture_output=True))
 
 
 ## Additional features
+
+### `SoilGrids.plot_ocs_property_relationships()`
+
 The `plot_ocs_property_relationships()` method can be used to obtain a graphical
 representation of the relationships between OCS and the other soil properties 
 present in the data. These are displayed as scatterplots with overlayed lines
@@ -195,7 +198,10 @@ R-squared obtained earlier:
 
 
 ```python
-sg.plot_ocs_property_relationships()
+fig = sg.plot_ocs_property_relationships()
+
+fig.write_image("README_files/ocs_property_relationships.png")
+Image("README_files/ocs_property_relationships.png")
 ```
 
 
@@ -207,6 +213,8 @@ sg.plot_ocs_property_relationships()
 
 
 
+## `SoilGrids.plot_property_map()`
+
 The `plot_property_map()` method can display the points as they appear 
 geographically. The points are sized according to the value of the property
 you choose to plot, and the tooltip displays the values for other properties
@@ -217,8 +225,6 @@ present in the data:
 fig = sg.plot_property_map('ocs', zoom=8)
 
 fig.write_image("README_files/property_map.png")
-
-from IPython.display import Image
 Image("README_files/property_map.png")
 ```
 

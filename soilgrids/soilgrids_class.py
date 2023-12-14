@@ -4,9 +4,8 @@ from ._utils import _rscript, _logger, _rescale
 from typing import Union
 import numpy as np
 import pandas as pd
-import seaborn.objects as so
 import plotly.graph_objects as go
-
+import plotly.express as px
 
 class SoilGrids:
     """Read and perform basic analysis of Soilgrids data.
@@ -177,8 +176,8 @@ class SoilGrids:
         """
         
         # Uncomment during testing to avoid waiting ages for data to load
-        # self._data = pd.read_csv("tests/data/soilgrids-results.csv")
-        # return 
+        # self._data = pd.read_csv("tests/data/soilgrids-results.csv")
+        # return 
         
         lat_min, lat_max = min(lat_a, lat_b), max(lat_a, lat_b)
         lon_min, lon_max = min(lon_a, lon_b), max(lon_a, lon_b)
@@ -284,7 +283,7 @@ class SoilGrids:
    
     def plot_ocs_property_relationships(self, 
                                         top_depth: int=0, 
-                                        bottom_depth: int=30) -> so.Plot:
+                                        bottom_depth: int=30) -> go.Figure:
         """Plot the relationships between OCS and other soil properties.
         
         Produces a plot with multiple panels, where each panel
@@ -311,33 +310,53 @@ class SoilGrids:
             `show()` method to display this graphically in an interactive
             context.
         """
-        
         data = self.aggregate_means(top_depth, bottom_depth) 
-         
+            
         soil_types_data = data \
-            .query("soil_property != 'ocs'")
-        
+            .query("soil_property != 'ocs'") \
+            .reset_index()
+
         ocs_data = data \
             .query("soil_property == 'ocs'") \
-            .filter(['lat', 'lon', 'mean']) \
-            .rename(columns={'mean': 'mean_ocs'})
-         
-        plot_data = soil_types_data \
-            .merge(ocs_data, on=['lat', 'lon'], how = 'outer') \
+            .rename(columns={'mean': 'mean_ocs'}) \
             .reset_index()
+            
+        plot_data = soil_types_data \
+            .merge(
+                ocs_data.filter(['lat', 'lon', 'mean_ocs']), 
+                on=['lat', 'lon'], 
+                how = 'left'
+            ) \
+            .assign(soil_property=lambda x: 
+                x['soil_property'] + ' (' + x['mapped_units'] + ')'
+            ) \
+            .reset_index()
+
+        plot = px.scatter(
+            plot_data,
+            x="mean", y="mean_ocs", 
+            facet_col="soil_property", 
+            trendline="ols", 
+            color='soil_property'
+        )
         
-        plot = so.Plot(plot_data, x="mean", y='mean_ocs') \
-            .add(so.Dots()) \
-            .add(so.Line(), so.PolyFit(1)) \
-            .facet('soil_property') \
-            .share(x=False) \
-            .label(
-                title="Mean {}".format,
-                x="",
-                y="Mean OCS",
-                color="",
-            )
-        
+        # Slight hack to set axis titles using panel titles - no easy way to do this. Yuk!
+        panel_titles = []
+        plot.for_each_annotation(lambda p: panel_titles.append(p.text))
+        panel_titles = ['Mean ' + x.split("=")[-1].capitalize() for x in reversed(panel_titles)]
+        plot = plot.for_each_xaxis(lambda x: x.update(title={'text': panel_titles.pop()}))
+            
+        plot = plot \
+            .update_xaxes(matches=None) \
+            .for_each_annotation(lambda p: p.update(text='')) \
+            .update_traces(showlegend=False) \
+            .update_layout(
+                title="Organic Carbon Stock vs Other Properties",
+                yaxis_title="Organic Carbon Stock ({})".format(
+                    ocs_data['mapped_units'][0]
+                )
+            ) 
+            
         return plot
     
     def plot_property_map(self, property, zoom=3):
@@ -374,8 +393,7 @@ class SoilGrids:
             mode='markers',
             marker=dict(size=_rescale(plot_data['mean'], 10, 20), color='red', opacity=0.5),
             text=plot_data['soil_property'], 
-            hovertext=plot_data['label'],
-            
+            hovertext=plot_data['label']
         )
         
         latmin, latmax = plot_data['lat'].min(), plot_data['lat'].max()
@@ -386,7 +404,7 @@ class SoilGrids:
             title='<b>Soil {} at {}-{}{}</b><br>' \
                 'Showing points between ({}, {}) and ({}, {})<br>' \
                 'Range for the region ({}): [{}, {}]'.format(
-                    "OCS" if property == "ocs" else property.captilize(),
+                    "Organic Carbon Stock" if property == "ocs" else property.captilize(),
                     agg['top_depth'].min(), agg['bottom_depth'].max(), agg['unit_depth'][0],
                     
                     latmin, lonmin, latmax, lonmax,
@@ -483,8 +501,8 @@ class SoilGrids:
                 #   
                 #   mean_overall = sum([1 * 5/30, 2 * 10/30, 3 * 15/30]) = 2.333
                 #
-                # (NB, rounding is because it doesn't make sense to give more 
-                # precision than the original data.)
+                # This gets rounded because it doesn't make sense to output more 
+                # precision than the original data.
                 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 ['lat', 'lon', 'mapped_units', 'unit_depth', 'soil_property'], 
                 as_index=False
