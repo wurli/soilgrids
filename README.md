@@ -239,5 +239,5 @@ Image("README_files/property_map.png")
 
 ## Disclaimers
 
-*   Use of this package is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).
+*   Use of Soilgrids data is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).
 *   This package is licensed as [GPL-2](LICENSE).
