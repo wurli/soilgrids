@@ -346,8 +346,8 @@ class SoilGrids:
         # Slight hack to set axis titles using panel titles - no easy way to do this. Yuck!
         panel_titles = []
         plot.for_each_annotation(lambda p: panel_titles.append(p.text))
-        panel_titles = ['Mean ' + x.split("=")[-1].capitalize() for x in reversed(panel_titles)]
-        plot = plot.for_each_xaxis(lambda x: x.update(title={'text': panel_titles.pop()}))
+        axis_titles = ['Mean ' + x.split("=")[-1].capitalize() for x in reversed(panel_titles)]
+        plot = plot.for_each_xaxis(lambda x: x.update(title={'text': axis_titles.pop()}))
             
         plot = plot \
             .update_xaxes(matches=None) \
