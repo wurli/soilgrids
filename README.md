@@ -1,4 +1,4 @@
-# soilgrids
+# soilgrids <a name="introduction"></a>
 
 This package provides a minimal wrapper for the ISRIC Soilgrids API, allowing 
 users to query soil properties by latitude/longitude and perform basic 
@@ -11,8 +11,8 @@ Functions:
         
 Classes:
 
-*   `SoilGrids()`: Provides methods for reading data from Soilgrids and basic 
-    including utilities for aggregating and analysing the returned data.
+*   `SoilGrids()`: Provides methods for querying data from Soilgrids and 
+    performing aggregation, analysis, and visualisation.
 
 Useful links:
 
@@ -21,22 +21,35 @@ Useful links:
 *   ISRIC data and software policy: <https://www.isric.org/about/data-policy>
 *   Soilgrids FAQ: <https://www.isric.org/explore/soilgrids/faq-soilgrids>
 
-## Querying data using `SoilGrids`
+Contents:
 
-The following code reads in the mean values for clay, sand, silt and organic 
-carbon stock (ocs) in the top 30cm of soil for a random set of 50 points 
+*   [Introduction](#introduction)
+*   [Querying data using `SoilGrids`](#querying-data)
+*   [Getting the property (clay, sand, silt) with the highest value for each point](#rank-properties)
+*   [Analysing the relationship between clay, sand, silt and organic carbon stock](#property-relationships)
+*   [Additional features](additional-features)
+    *   [Method `SoilGrids.plot_ocs_property_relationships()`](#plot_ocs_property_relationships)
+    *   [Method `SoilGrids.plot_property_map()`](#plot_property_map)
+    *   [Method `SoilGrids.aggregate_means()`](#aggregate_means)
+* [Testing](#testing)
+* [Disclaimer/licensing](#disclaimer)
+
+## Querying data using `SoilGrids` <a name="querying-data"></a>
+
+The following code reads in the mean values for clay, sand, silt, and organic 
+carbon stock (OCS) in the top 30cm of soil for a random set of 50 points 
 within roughly 25km of 
-[Herning, Denmark](https://en.wikipedia.org/wiki/Herning). Note that points can 
-be queried at a maximum rate of 5/minute, so the following code takes about 10 
-minutes to run:
+[Herning, Denmark](https://en.wikipedia.org/wiki/Herning). Points can be queried 
+at a maximum rate of 5/minute, so the following code takes about 10 minutes to 
+run:
 
 
 ```python
-import logging
-import plotly.offline as po
-import plotly.io as pio
 from IPython.display import Markdown, Image
 from soilgrids import SoilGrids
+import logging
+import plotly.io as pio
+import plotly.offline as po
 
 # Turn off console logs for cleaner notebook output
 logging.getLogger('soilgrids').setLevel(logging.ERROR)
@@ -46,6 +59,9 @@ show = lambda df: display(Markdown(df.to_markdown(index=False)))
 
 sg = SoilGrids()
 
+# get_points_sample() reads in a uniformly distributed random sample of
+# points within specified bounds. If you want to query an exact set of
+# points, you can use `SoilGrids.get_points()`.
 sg.get_points_sample(
     50,
     lat_a=56.225297, lon_a=8.662215,
@@ -55,7 +71,8 @@ sg.get_points_sample(
     value='mean'
 )
 
-# For brevity, only a subset of the data is shown
+# Once Soilgrids has been queried, the results are accessible using the 
+# `data` property. For brevity, only a subset of the data is shown here.
 show(sg.data[0:15].filter([
     'lat', 'lon', 'soil_property', 'mapped_units', 
     'target_units', 'depth', 'mean'
@@ -82,76 +99,80 @@ show(sg.data[0:15].filter([
 | 56.1016 | 8.93631 | sand            | g/kg           | %              | 0-5cm   |    805 |
 
 
-## Get the property (clay, sand, silt) with the highest value for each point
+## Getting the property (clay, sand, silt) with the highest value for each point <a name="rank-properties"></a>
 
-The `SoilGrids` class provides a handy utility `main_properties()` for finding
-the most abundant soil type (i.e. property) for each point. In this case, we
-see that the Herning region is quite sandy:
+The `SoilGrids` class provides a handy utility `rank_properties()` for finding
+the most abundant soil types (i.e. properties) for each point. We see that 
+throughout the Herning region, the main soil properties are, in order, sand, 
+silt, and clay:
 
 
 ```python
-show(sg.main_properties())
+show(sg.rank_properties(
+    subset=['clay', 'sand', 'silt'], 
+    top_depth=0, 
+    bottom_depth=30
+))
 ```
 
 
-|     lat |     lon | soil_property   |
-|--------:|--------:|:----------------|
-| 55.9681 | 9.19413 | sand            |
-| 55.969  | 8.84612 | sand            |
-| 55.9736 | 9.26458 | sand            |
-| 55.988  | 9.06893 | sand            |
-| 56.0024 | 9.17168 | sand            |
-| 56.0071 | 8.73347 | sand            |
-| 56.0079 | 9.1555  | sand            |
-| 56.0115 | 9.19478 | sand            |
-| 56.0116 | 9.11962 | sand            |
-| 56.0129 | 9.06321 | sand            |
-| 56.0152 | 9.09177 | sand            |
-| 56.0209 | 9.04625 | sand            |
-| 56.0215 | 9.01066 | sand            |
-| 56.0218 | 9.32185 | sand            |
-| 56.0227 | 8.77494 | sand            |
-| 56.0245 | 8.98394 | sand            |
-| 56.0293 | 8.80021 | sand            |
-| 56.0312 | 9.20504 | sand            |
-| 56.0312 | 9.33958 | sand            |
-| 56.0322 | 9.13423 | sand            |
-| 56.0327 | 8.69833 | sand            |
-| 56.0335 | 8.82781 | sand            |
-| 56.0421 | 8.89465 | sand            |
-| 56.0457 | 9.2178  | sand            |
-| 56.0524 | 9.05007 | sand            |
-| 56.0591 | 9.0177  | sand            |
-| 56.0706 | 9.04175 | sand            |
-| 56.0731 | 9.1996  | sand            |
-| 56.0768 | 9.11822 | sand            |
-| 56.0801 | 8.89161 | sand            |
-| 56.0936 | 8.88005 | sand            |
-| 56.1016 | 8.93631 | sand            |
-| 56.1029 | 9.29378 | sand            |
-| 56.1034 | 9.1627  | sand            |
-| 56.1084 | 9.21805 | sand            |
-| 56.1126 | 8.80794 | sand            |
-| 56.1153 | 8.81545 | sand            |
-| 56.1223 | 9.24917 | sand            |
-| 56.1239 | 8.72794 | sand            |
-| 56.124  | 8.96254 | sand            |
-| 56.127  | 8.91474 | sand            |
-| 56.1365 | 9.0808  | sand            |
-| 56.1462 | 8.93131 | clay            |
-| 56.1644 | 9.26652 | sand            |
-| 56.1707 | 8.92046 | sand            |
-| 56.177  | 8.82983 | sand            |
-| 56.1878 | 9.00154 | sand            |
-| 56.2074 | 9.23711 | sand            |
-| 56.2128 | 9.33269 | sand            |
-| 56.2192 | 8.77554 | sand            |
+|     lat |     lon | depth   | mapped_units   | property_no1   | property_no2   | property_no3   |
+|--------:|--------:|:--------|:---------------|:---------------|:---------------|:---------------|
+| 55.9681 | 9.19413 | 0-30cm  | g/kg           | sand: 863      | silt:  75      | clay:  62      |
+| 55.969  | 8.84612 | 0-30cm  | g/kg           | sand: 858      | silt:  89      | clay:  52      |
+| 55.9736 | 9.26458 | 0-30cm  | g/kg           | sand: 846      | silt:  92      | clay:  63      |
+| 55.988  | 9.06893 | 0-30cm  | g/kg           | sand: 852      | silt:  96      | clay:  51      |
+| 56.0024 | 9.17168 | 0-30cm  | g/kg           | sand: 812      | silt: 101      | clay:  88      |
+| 56.0071 | 8.73347 | 0-30cm  | g/kg           | sand: 846      | silt:  98      | clay:  55      |
+| 56.0079 | 9.1555  | 0-30cm  | g/kg           | sand: 847      | silt: 101      | clay:  52      |
+| 56.0115 | 9.19478 | 0-30cm  | g/kg           | sand: 876      | silt:  73      | clay:  50      |
+| 56.0116 | 9.11962 | 0-30cm  | g/kg           | sand: 854      | silt:  95      | clay:  51      |
+| 56.0129 | 9.06321 | 0-30cm  | g/kg           | sand: 865      | silt:  81      | clay:  54      |
+| 56.0152 | 9.09177 | 0-30cm  | g/kg           | sand: 855      | silt:  93      | clay:  52      |
+| 56.0209 | 9.04625 | 0-30cm  | g/kg           | sand: 868      | silt:  75      | clay:  57      |
+| 56.0215 | 9.01066 | 0-30cm  | g/kg           | sand: 870      | silt:  92      | clay:  37      |
+| 56.0218 | 9.32185 | 0-30cm  | g/kg           | sand: 793      | silt: 129      | clay:  78      |
+| 56.0227 | 8.77494 | 0-30cm  | g/kg           | sand: 659      | silt: 263      | clay:  77      |
+| 56.0245 | 8.98394 | 0-30cm  | g/kg           | sand: 858      | silt:  96      | clay:  45      |
+| 56.0293 | 8.80021 | 0-30cm  | g/kg           | sand: 786      | silt: 134      | clay:  80      |
+| 56.0312 | 9.20504 | 0-30cm  | g/kg           | sand: 838      | silt: 102      | clay:  60      |
+| 56.0312 | 9.33958 | 0-30cm  | g/kg           | sand: 807      | silt: 121      | clay:  71      |
+| 56.0322 | 9.13423 | 0-30cm  | g/kg           | sand: 864      | silt:  83      | clay:  55      |
+| 56.0327 | 8.69833 | 0-30cm  | g/kg           | sand: 857      | silt:  93      | clay:  50      |
+| 56.0335 | 8.82781 | 0-30cm  | g/kg           | sand: 820      | silt: 112      | clay:  67      |
+| 56.0421 | 8.89465 | 0-30cm  | g/kg           | sand: 819      | silt: 106      | clay:  74      |
+| 56.0457 | 9.2178  | 0-30cm  | g/kg           | sand: 848      | silt: 101      | clay:  50      |
+| 56.0524 | 9.05007 | 0-30cm  | g/kg           | sand: 846      | silt:  98      | clay:  57      |
+| 56.0591 | 9.0177  | 0-30cm  | g/kg           | sand: 815      | silt: 112      | clay:  73      |
+| 56.0706 | 9.04175 | 0-30cm  | g/kg           | sand: 840      | silt: 108      | clay:  53      |
+| 56.0731 | 9.1996  | 0-30cm  | g/kg           | sand: 845      | silt:  93      | clay:  61      |
+| 56.0768 | 9.11822 | 0-30cm  | g/kg           | sand: 857      | silt:  93      | clay:  50      |
+| 56.0801 | 8.89161 | 0-30cm  | g/kg           | sand: 830      | silt: 106      | clay:  62      |
+| 56.0936 | 8.88005 | 0-30cm  | g/kg           | sand: 841      | silt:  92      | clay:  65      |
+| 56.1016 | 8.93631 | 0-30cm  | g/kg           | sand: 791      | silt: 138      | clay:  71      |
+| 56.1029 | 9.29378 | 0-30cm  | g/kg           | sand: 759      | silt: 132      | clay: 111      |
+| 56.1034 | 9.1627  | 0-30cm  | g/kg           | sand: 864      | silt:  87      | clay:  49      |
+| 56.1084 | 9.21805 | 0-30cm  | g/kg           | sand: 846      | silt:  84      | clay:  71      |
+| 56.1126 | 8.80794 | 0-30cm  | g/kg           | sand: 836      | silt:  98      | clay:  65      |
+| 56.1153 | 8.81545 | 0-30cm  | g/kg           | sand: 833      | silt: 107      | clay:  60      |
+| 56.1223 | 9.24917 | 0-30cm  | g/kg           | sand: 838      | silt:  95      | clay:  67      |
+| 56.1239 | 8.72794 | 0-30cm  | g/kg           | sand: 826      | silt: 109      | clay:  65      |
+| 56.124  | 8.96254 | 0-30cm  | g/kg           | sand: 810      | silt: 125      | clay:  66      |
+| 56.127  | 8.91474 | 0-30cm  | g/kg           | sand: 649      | silt: 252      | clay: 100      |
+| 56.1365 | 9.0808  | 0-30cm  | g/kg           | sand: 786      | silt: 111      | clay: 104      |
+| 56.1644 | 9.26652 | 0-30cm  | g/kg           | sand: 801      | silt: 117      | clay:  84      |
+| 56.1707 | 8.92046 | 0-30cm  | g/kg           | sand: 802      | silt: 128      | clay:  70      |
+| 56.177  | 8.82983 | 0-30cm  | g/kg           | sand: 807      | silt: 136      | clay:  57      |
+| 56.1878 | 9.00154 | 0-30cm  | g/kg           | sand: 870      | silt:  86      | clay:  44      |
+| 56.2074 | 9.23711 | 0-30cm  | g/kg           | sand: 807      | silt: 118      | clay:  75      |
+| 56.2128 | 9.33269 | 0-30cm  | g/kg           | sand: 729      | silt: 183      | clay:  87      |
+| 56.2192 | 8.77554 | 0-30cm  | g/kg           | sand: 820      | silt: 115      | clay:  64      |
 
 
-## Relationship between clay, sand, silt and organic carbon stock
+## Analysing the relationship between clay, sand, silt and organic carbon stock <a name="property-relationships"></a>
 
 The `ocs_correlation()` method fits and displays summary statistics for a linear 
-model with sand, clay and silt as predictors and OCS as the response variable. 
+model with clay, sand, and silt as predictors, and OCS as the response variable. 
 Based on the R-squared values returned in the summary, it doesn't look like 
 these soil properties are particularly good predictors for OCS in this case:
 
@@ -183,18 +204,18 @@ print(sg.ocs_correlation(capture_output=True))
     
 
 
-## Additional features
+## Additional features <a name="additional-features"></a>
 
-### Method `SoilGrids.plot_ocs_property_relationships()`
+### Method `SoilGrids.plot_ocs_property_relationships()` <a name="plot_ocs_property_relationships"></a>
 
 The `plot_ocs_property_relationships()` method can be used to obtain a graphical
 representation of the relationships between OCS and the other soil properties 
 present in the data. These are displayed as scatterplots with overlayed lines
 of best fit, i.e. the values predicted by a fitted linear regression.
 
-In this case we can see that there is no panel where the plotted points show
-strong agreement with the fitted line. This agrees with the low value for 
-R-squared obtained earlier:
+In this case we can see that the plotted points never show particularly strong 
+agreement with the fitted line, again providing evidence that clay, sand,
+and silt are not particularly good predictors for OCS:
 
 
 ```python
@@ -213,19 +234,19 @@ Image("README_files/ocs_property_relationships.png")
 
 
 
-### Method `SoilGrids.plot_property_map()`
+### Method `SoilGrids.plot_property_map()` <a name="plot_property_map"></a>
 
 The `plot_property_map()` method can display the points as they appear 
 geographically. The points are sized according to the value of the property
-you choose to plot, and the tooltip displays the values for other properties
-present in the data:
+you choose to plot, and the tooltip also displays the values for other 
+properties present in the data:
 
 
 ```python
 fig = sg.plot_property_map('ocs', zoom=8)
 
-fig.write_image("README_files/property_map.png")
-Image("README_files/property_map.png")
+fig.write_image("README_files/property_map_ocs.png")
+Image("README_files/property_map_ocs.png")
 ```
 
 
@@ -237,7 +258,67 @@ Image("README_files/property_map.png")
 
 
 
-## Disclaimers
+### Method `SoilGrids.aggregate_means()` <a name="aggregate_means"></a>
 
-*   Use of this package is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).
+Working with data from SoilGrids poses a challenge since different soil 
+properties are measured at different levels of granularity. For example, values
+for clay are provided at depths 0-5cm, 5-15cm, and 15-30cm, whereas OCS is 
+provided as a single value for 0-30cm as a whole.
+
+In order to compare OCS with clay, we need to aggregate the values for clay to 
+get a representative mean value for the whole 0-30cm. However, since the 3 
+values for clay don't all cover the same amount of depth (they cover 5, 10 and 
+15 centimetres respectively), we can't simply take another average to obtain
+a figure.
+
+`SoilGrids.aggregate_means()` is a utility for aggregating the mean values
+provided by Soilgrids by weighting individual values according to the total 
+depth they represent. This method is crucial to most of the data analysis in 
+this package. The following shows how mean values are aggregated for a single 
+point:
+
+
+```python
+small_datasets = [
+    dataset \
+        .filter(['lat', 'lon', 'soil_property', 'depth', 'mean']) \
+        .query(
+            "lat == 55.968112 & lon == 9.194132 &"
+            "soil_property in ['clay', 'ocs']"
+        )
+    for dataset in [sg.data, sg.aggregate_means(top_depth=0, bottom_depth=30)]
+]
+
+for dataset in small_datasets:
+    show(dataset)
+```
+
+
+|     lat |     lon | soil_property   | depth   |   mean |
+|--------:|--------:|:----------------|:--------|-------:|
+| 55.9681 | 9.19413 | clay            | 0-5cm   |     58 |
+| 55.9681 | 9.19413 | clay            | 5-15cm  |     49 |
+| 55.9681 | 9.19413 | clay            | 15-30cm |     72 |
+| 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
+
+
+
+|     lat |     lon | soil_property   | depth   |   mean |
+|--------:|--------:|:----------------|:--------|-------:|
+| 55.9681 | 9.19413 | clay            | 0-30cm  |     62 |
+| 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
+
+
+## Testing <a name="testing"></a>
+
+This package is thoroughly tested using 
+[pytest](https://docs.pytest.org/en/7.4.x/). To run the test suite, use:
+
+```bash
+python -m pytest tests
+```
+
+## Disclaimer/licensing <a name="disclaimer"></a>
+
+*   Use of Soilgrids data is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).
 *   This package is licensed as [GPL-2](LICENSE).

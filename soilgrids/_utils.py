@@ -1,9 +1,9 @@
+import importlib.resources
 import logging
 import subprocess
 import time
-import importlib.resources
 
-_logger = logging.getLogger("soilgrids")
+_logger = logging.getLogger('soilgrids')
 
 def _check_arg(arg, name, allowed_vals):
     """Check that a function argument is either None or a subset of allowed_vals."""
@@ -26,6 +26,7 @@ def _check_arg(arg, name, allowed_vals):
     
     return arg
 
+
 def _to_list(x):
     """Convert a scalar to a list, or leave a list unchanged."""
     try:
@@ -33,6 +34,7 @@ def _to_list(x):
     except TypeError:
         x = [x]
     return x
+
 
 class _Throttle():
     """Sleep for a specified minimum interval between calls"""
@@ -50,7 +52,7 @@ class _Throttle():
         time_to_wait = self.interval - time_since_last_request
         
         if time_to_wait > 0:
-            _logger.info(f"Waiting {time_to_wait:.1f}s before next request...")
+            _logger.info(f'Waiting {time_to_wait:.1f}s before next request...')
             time.sleep(time_to_wait)
             
         self.last_request_time = time.time()
@@ -80,8 +82,8 @@ def _check_r_available():
     """Check that R can be called from Python."""
     if not _r_available():
         raise RuntimeError(
-            "No R installation detected\n" \
-            "  i: Make sure your R installation can be found on the PATH"
+            'No R installation detected\n' \
+            '  i: Make sure your R installation can be found on the PATH'
         )
 
 
@@ -97,6 +99,7 @@ def _pkg_file(path):
         .files('soilgrids') \
         .joinpath(path)
     return str(path)
+
 
 def _rescale(x, a=0, b=1):
     """Rescale an array to fall within [a, b]"""

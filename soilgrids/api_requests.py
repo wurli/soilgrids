@@ -1,9 +1,9 @@
+from decimal import Decimal
 from typing import Union
+import numpy as np
+import pandas as pd
 import requests
 import time
-import pandas as pd
-import numpy as np
-from decimal import Decimal
 
 from ._utils import _Throttle, _check_arg, _to_list, _logger
 
@@ -70,20 +70,20 @@ def get_soilgrids(lat: float | list[float],
     # avoid burdensome requests to Soilgrids, if not to provide better error 
     # messages to the user.
     assert np.array(np.abs(lat) <= 90).all(), \
-        "Invalid `lat`. \n  i: Check `lat` is in the range [-90, 90]."
+        'Invalid `lat`. \n  i: Check `lat` is in the range [-90, 90].'
     
     assert np.array(np.abs(lon) <= 180).all(), \
-        "Invalid `lon`. \n  i: Check `lon` is in the range [-180, 180]."
+        'Invalid `lon`. \n  i: Check `lon` is in the range [-180, 180].'
     
-    soil_property = _check_arg(soil_property, name="soil_property", allowed_vals=[
+    soil_property = _check_arg(soil_property, name='soil_property', allowed_vals=[
         'bdod', 'cec', 'cfvo', 'clay', 'nitrogen', 'ocd', 'ocs', 'phh2o', 
         'sand', 'silt', 'soc', 'wv0010', 'wv0033', 'wv1500'
     ])
-    depth = _check_arg(depth, name="depth", allowed_vals=[
+    depth = _check_arg(depth, name='depth', allowed_vals=[
         '0-5cm', '0-30cm', '5-15cm', '15-30cm', '30-60cm', '60-100cm', 
         '100-200cm'
     ])
-    value = _check_arg(value, name="value", allowed_vals=[
+    value = _check_arg(value, name='value', allowed_vals=[
         'Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty'
     ])
     value = list(set(value + ['mean']))
@@ -115,7 +115,7 @@ def _query_soilgrids(lat, lon, soil_property=None, depth=None, value=None):
     lat, lon = round(Decimal(float(lat)), 6), round(Decimal(float(lon)), 6)
     
     _throttle_requests()
-    _logger.info(f"Querying Soilgrids for lat={lat}, lon={lon}")
+    _logger.info(f'Querying Soilgrids for lat={lat}, lon={lon}')
     
     def perform_request():
         return requests.get(
@@ -135,8 +135,8 @@ def _query_soilgrids(lat, lon, soil_property=None, depth=None, value=None):
     resp = perform_request()
     
     if resp.status_code == 429:
-        _logger.info("429: Too Many Requests")
-        _logger.info("  Waiting 60s before retrying...")
+        _logger.info('429: Too Many Requests')
+        _logger.info('  Waiting 60s before retrying...')
         time.sleep(60)
         resp = perform_request()
     
@@ -160,12 +160,12 @@ def _parse_response(x):
     try:
         # Should both be scalars. Note these are returned in reverse order to 
         # that used throughout this package
-        lon, lat = x["geometry"]["coordinates"]    
+        lon, lat = x['geometry']['coordinates']    
         
-        layers = pd.concat([_parse_property(l) for l in x["properties"]["layers"]])
+        layers = pd.concat([_parse_property(p) for p in x['properties']['layers']])
         
-        layers.insert(0, "lon", lon)
-        layers.insert(0, "lat", lat)   
+        layers.insert(0, 'lon', lon)
+        layers.insert(0, 'lat', lat)   
         
         layers.reset_index(drop=True, inplace=True)
 
@@ -182,12 +182,12 @@ def _parse_property(x):
     
     # Should be <=1 row per property
     unit_measures = pd.DataFrame({
-        "soil_property": [x["name"]],
-        **x["unit_measure"]
+        'soil_property': [x['name']],
+        **x['unit_measure']
     })
     
     # Should be <=1 row per depth, <=1 col per value
-    depths = pd.concat([_parse_depth(d) for d in x["depths"]])
+    depths = pd.concat([_parse_depth(d) for d in x['depths']])
     
     return pd.DataFrame.merge(unit_measures, depths, how='cross')
 
@@ -198,8 +198,8 @@ def _parse_depth(x):
     _query_soilgrids() into a DataFrame."""
     
     return pd.DataFrame({
-        "depth": [x["label"]], 
-        **x["range"], 
-        **x["values"]
+        'depth': [x['label']], 
+        **x['range'], 
+        **x['values']
     })
 
