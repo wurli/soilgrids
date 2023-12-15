@@ -26,6 +26,7 @@ def _check_arg(arg, name, allowed_vals):
     
     return arg
 
+
 def _to_list(x):
     """Convert a scalar to a list, or leave a list unchanged."""
     try:
@@ -33,6 +34,7 @@ def _to_list(x):
     except TypeError:
         x = [x]
     return x
+
 
 class _Throttle():
     """Sleep for a specified minimum interval between calls"""
@@ -97,6 +99,7 @@ def _pkg_file(path):
         .files('soilgrids') \
         .joinpath(path)
     return str(path)
+
 
 def _rescale(x, a=0, b=1):
     """Rescale an array to fall within [a, b]"""
