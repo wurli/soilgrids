@@ -1,9 +1,11 @@
 from .api_requests import get_soilgrids
-from ._utils import _rscript, _logger
+from ._utils import _rscript, _logger, _rescale
 
 from typing import Union
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
 
 
 class SoilGrids:
@@ -32,7 +34,7 @@ class SoilGrids:
         self._data = None
     
     @property
-    def data(self):
+    def data(self) -> pd.DataFrame:
         """Data returned by the last call to `get_points()` or `get_points_sample()`.
 
         Raises:
@@ -57,7 +59,7 @@ class SoilGrids:
                    value: Union[str, list[str], None] = None) -> pd.DataFrame:
         """Query Soilgrids for soil properties at specified locations.
     
-        This function is a wrapper for the Soilgrids API. The returned geojson is
+        This method is a wrapper for the Soilgrids API. The returned geojson is
         parsed into a pandas DataFrame, with a row for each combination of 
         `lat`, `lon`, `soil_property`, and `depth`, and a column for each `value`.
         After running this method, the returned data can be obtained using the
@@ -101,6 +103,8 @@ class SoilGrids:
                 ```python
                 ['Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty']
                 ```
+                Note that the mean is always returned, regardless of the 
+                selection.
 
         Returns:
             `pd.DataFrame`: A data frame with a row for each combination of 
@@ -116,20 +120,20 @@ class SoilGrids:
     def get_points_sample(self, 
                           n: int =5, 
                           *, 
-                          lat_min: float =-90, 
-                          lat_max: float =90, 
-                          lon_min: float =-180, 
-                          lon_max: float =180,
+                          lat_a: float =-90, 
+                          lon_a: float =-180, 
+                          lat_b: float =90, 
+                          lon_b: float =180,
                           soil_property: Union[str, list[str], None] = None, 
                           depth: Union[str, list[str], None] = None, 
                           value: Union[str, list[str], None] = None) -> pd.DataFrame:
         """Query Soilgrids for a random set of coordinates.
         
-        This function is a wrapper for the Soilgrids API. The returned geojson 
+        This method is a wrapper for the Soilgrids API. The returned geojson 
         is parsed into a pandas DataFrame, with a row for each combination of 
         `lat`, `lon`, `soil_property`, and `depth`, and a column for each 
         `value`. After running this method, the returned data can be obtained 
-        using the `data` property. The points returned by this function are
+        using the `data` property. The points returned by this method are
         uniformly distributed throughout the specified range.
         
         More detailed information about the data returned can be obtained from
@@ -142,14 +146,10 @@ class SoilGrids:
         
         Args:
             `n`: The number of points to query.
-            `lat_min`: The minimum latitude of the points to query. Must be in 
-                the range [-90, 90].
-            `lat_max`: The maximum latitude of the points to query. Must be in 
-                the range [-90, 90].
-            `lon_min`: The minimum longitude of the points to query. Must be in 
-                the range [-180, 180].
-            `lon_max`: The maximum longitude of the points to query. Must be in
-                the range [-180, 180].
+            `lat_a`: The first bounding latitude. Must be in the range [-90, 90]
+            `lon_a`: The first bounding longitude. Must be in the range [-180, 180]
+            `lat_b`: The second bounding longitude. Must be in the range [-90, 90]
+            `lon_b`: The second bounding longitude. Must be in the range [-180, 180]
             `soil_property`: The soil property/properties to query. Must be a 
                 subset of the following or `None`, in which case all properties 
                 are returned:
@@ -171,15 +171,25 @@ class SoilGrids:
                 ```python
                 ['Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty']
                 ```
+                Note that the mean is always returned, regardless of the 
+                selection.
 
         Returns:
             `pd.DataFrame`: A data frame with a row for each combination of 
                 `lat`, `lon`, `soil_property`, and `depth`, and a column for 
                 each `value`. 
         """
+        
+        # Uncomment during testing to avoid waiting ages for data to load
+        # self._data = pd.read_csv("tests/data/soilgrids-results.csv")
+        # return 
+        
+        lat_min, lat_max = min(lat_a, lat_b), max(lat_a, lat_b)
+        lon_min, lon_max = min(lon_a, lon_b), max(lon_a, lon_b)
+        
         self._data = get_soilgrids(
-            lat_min + np.abs(lat_max - lat_min) * np.random.random_sample(n),
-            lon_min + np.abs(lon_max - lon_min) * np.random.random_sample(n),
+            lat_min + (lat_max - lat_min) * np.random.random_sample(n),
+            lon_min + (lon_max - lon_min) * np.random.random_sample(n),
             soil_property=soil_property, depth=depth, value=value
         )
         
@@ -213,10 +223,10 @@ class SoilGrids:
             .filter(['lat', 'lon', 'soil_property'])
             
     
-    def ocs_correlation(self, capture_output=False) -> None | str:
+    def ocs_correlation(self, capture_output: bool=False) -> None | str:
         """Get the correlation between sand, silt, clay, and OCS (organic carbon stock).
         
-        This function requires R to be installed and available on the PATH in 
+        This method requires R to be installed and available on the PATH in 
         order to run.
          
         1. First, the data is aggregated to get overall means for sand, silt,
@@ -263,7 +273,7 @@ class SoilGrids:
         # Fill missing properties with zeros 
         pivoted_data = pivoted_data.reindex(
             pivoted_data.columns.union(['sand', 'silt', 'clay', 'ocs'], sort=False), 
-            axis=1, fill_value=0
+            axis=1
         )
         
         model_summary = _rscript(
@@ -275,9 +285,184 @@ class SoilGrids:
             return model_summary
         
         _logger.info(model_summary)
+   
+   
+    def plot_ocs_property_relationships(self, 
+                                        top_depth: int=0, 
+                                        bottom_depth: int=30) -> go.Figure:
+        """Plot the relationships between OCS and other soil properties.
+        
+        Produces a plot with multiple panels, where each panel
+        shows a scatterplot with an overlayed line of best fit, i.e. a modelled
+        linear regression. Different panels are shown for each soil property
+        besides OCS which is present in the data. The mean OCS is shows on the
+        y-axis, and the other property is shown on the x-axis.
+        
+        Before plotting, the data is aggregated so that a single value is given
+        for each point (i.e. combination of latitude and longitude). The values
+        included in the aggregated data can be controlled using `top_depth` and
+        `bottom_depth`.
+        
+        Args:
+            `top_depth` (`float`): The minimum top depth to include in the 
+                aggregated results. Note that the value returned in the output 
+                may be higher. Defaults to 0.
+            `bottom_depth` (`float`): The maximum bottom depth to include in the
+                aggregated results. Note that the value returned in the output
+                may be lower. Defaults to 30.
+                
+        Returns:
+            `plotly.graph_objects.Plot`: An object representing the plot. Use 
+            the `show()` method to display this graphically in an interactive
+            context.
+        """
+        data = self.aggregate_means(top_depth, bottom_depth) 
+            
+        soil_types_data = data \
+            .query("soil_property != 'ocs'") \
+            .reset_index()
+
+        ocs_data = data \
+            .query("soil_property == 'ocs'") \
+            .rename(columns={'mean': 'mean_ocs'}) \
+            .reset_index()
+            
+        plot_data = soil_types_data \
+            .merge(
+                ocs_data.filter(['lat', 'lon', 'mean_ocs']), 
+                on=['lat', 'lon'], 
+                how = 'left'
+            ) \
+            .assign(soil_property=lambda x: 
+                x['soil_property'] + ' (' + x['mapped_units'] + ')'
+            ) \
+            .reset_index()
+
+        plot = px.scatter(
+            plot_data,
+            x="mean", y="mean_ocs", 
+            facet_col="soil_property", 
+            trendline="ols", 
+            color='soil_property'
+        )
+        
+        # Slight hack to set axis titles using panel titles - no easy way to do this. Yuck!
+        panel_titles = []
+        plot.for_each_annotation(lambda p: panel_titles.append(p.text))
+        panel_titles = ['Mean ' + x.split("=")[-1].capitalize() for x in reversed(panel_titles)]
+        plot = plot.for_each_xaxis(lambda x: x.update(title={'text': panel_titles.pop()}))
+            
+        plot = plot \
+            .update_xaxes(matches=None) \
+            .for_each_annotation(lambda p: p.update(text='')) \
+            .update_traces(showlegend=False) \
+            .update_layout(
+                title="Organic Carbon Stock vs Other Properties",
+                yaxis_title="Organic Carbon Stock ({})".format(
+                    ocs_data['mapped_units'][0]
+                )
+            ) 
+            
+        return plot
     
     
-    def aggregate_means(self, top_depth=0, bottom_depth=30):
+    def plot_property_map(self, soil_property: str, zoom: int=3) -> go.Figure:
+        """Plot points on a map.
+        
+        Produces a plot of points on a map, sized according to the 
+        `soil_property` selected, with other properties viewable through the
+        plot tooltip when viewing in an interactive context.
+
+        Args:
+            `soil_property` (`str`): The property to use to scale the plotted
+                points. This should correspond to one of the values for
+                `soil_property` selected in the last call to `get_points()`
+                or `get_points_sample()`.
+            `zoom` (`int`): _description_. The initial zoom level for the 
+                output. Can be set to a higher value to get a more zoomed-in
+                map.
+
+        Returns:
+            `plotly.graph_objects.Plot`: An object representing the plot. Use 
+            the `show()` method to display this graphically in an interactive
+            context.
+        """
+        agg = self.aggregate_means().dropna(subset='mean')
+
+        property_data = agg \
+            .query(f"soil_property == '{soil_property}'") \
+            .reset_index()
+        
+        label_order = [soil_property] + sorted(list(set(agg['soil_property'])))
+
+        label_data = agg \
+            .sort_values('soil_property', key=lambda col: col.apply(label_order.index)) \
+            .assign(
+                label=lambda x: 
+                    x['soil_property'] + 
+                    ': ' + 
+                    x['mean'].astype(str) + 
+                    x['mapped_units']
+            ) \
+            .assign(
+                label=lambda x: np.where(
+                    x['soil_property'] == soil_property, 
+                    '<b>' + x['label'] + '</b>', 
+                    '<i>' + x['label'] + '</i>'
+                )
+            ) \
+            .groupby(['lat', 'lon']) \
+            .agg(dict(label=lambda x: "<br>".join(x)))
+            
+        plot_data = property_data.merge(label_data, how='left', on=['lat', 'lon'])
+
+        trace = go.Scattermapbox(
+            lat=plot_data['lat'],
+            lon=plot_data['lon'],
+            mode='markers',
+            marker=dict(size=_rescale(plot_data['mean'], 10, 20), color='red', opacity=0.5),
+            text=plot_data['soil_property'], 
+            hovertext=plot_data['label']
+        )
+        
+        latmin, latmax = plot_data['lat'].min(), plot_data['lat'].max()
+        lonmin, lonmax = plot_data['lon'].min(), plot_data['lon'].max()
+        window_expansion = 2
+        
+        layout = go.Layout(
+            title='<b>Mean Soil {} at {}-{}{}</b><br>' \
+                'Showing points between ({}, {}) and ({}, {})<br>' \
+                'Range for the region ({}): [{}, {}]'.format(
+                    
+                "Organic Carbon Stock" if soil_property == "ocs" else soil_property.captilize(),
+                agg['top_depth'].min(), agg['bottom_depth'].max(), agg['unit_depth'][0],
+                
+                latmin, lonmin, latmax, lonmax,
+                
+                property_data['mapped_units'][0],
+                int(property_data['mean'].min()), 
+                int(property_data['mean'].max())
+            ), 
+            mapbox=dict(
+                style='carto-positron',
+                zoom=zoom,
+                center=dict(
+                    lat=(latmax + latmin) / 2,
+                    lon=(lonmax + lonmin) / 2
+                ),
+                bounds=dict(
+                    north=latmax + (latmax - latmin) * window_expansion, 
+                    east =lonmax + (lonmax - lonmin) * window_expansion, 
+                    south=latmin - (latmax - latmin) * window_expansion, 
+                    west =lonmin - (lonmax - lonmin) * window_expansion 
+                )
+            )
+        )
+        
+        return go.Figure(data=[trace], layout=layout)
+    
+        
+    def aggregate_means(self, top_depth: int=0, bottom_depth:int=30, skipna=False) -> pd.DataFrame:
         """Aggregate the means of soil properties across depths.
         
         Soilgrids provides for different properties at different levels of
@@ -302,6 +487,9 @@ class SoilGrids:
             `bottom_depth` (`float`): The maximum bottom depth to include in the
                 aggregated results. Note that the value returned in the output
                 may be lower. Defaults to 30.
+            `skipna` (`bool`): Whether to propagate missing values when 
+                aggregating. This is set to `False` by default, since the 
+                alternative can quietly give misleading results.
 
         Returns:
             `pandas.DataFrame`: A DataFrame with columns `lat`, `lon`, 
@@ -319,7 +507,6 @@ class SoilGrids:
         ]
         
         return data \
-            .fillna({'mean': 0}) \
             .groupby(
                 # ~~ What's happening here? ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 # Say we have the following values:
@@ -345,8 +532,8 @@ class SoilGrids:
                 #   
                 #   mean_overall = sum([1 * 5/30, 2 * 10/30, 3 * 15/30]) = 2.333
                 #
-                # (NB, rounding is because it doesn't make sense to give more 
-                # precision than the original data.)
+                # This gets rounded because it doesn't make sense to output more 
+                # precision than the original data.
                 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 ['lat', 'lon', 'mapped_units', 'unit_depth', 'soil_property'], 
                 as_index=False
@@ -354,8 +541,8 @@ class SoilGrids:
             .apply(lambda x: x.assign(
                 thickness = lambda x: x['bottom_depth'] - x['top_depth'],
                 mean = lambda x: (x['mean'] * x['thickness'] / x['thickness'].sum()) \
-                    .round() \
-                    .astype(np.int64)
+                    .astype(float) \
+                    .round()
             )) \
             .groupby(
                 ['lat', 'lon', 'mapped_units', 'unit_depth', 'soil_property'], 
@@ -364,6 +551,6 @@ class SoilGrids:
             .agg({
                 'top_depth': 'min',
                 'bottom_depth': 'max',
-                'mean': 'sum'
+                'mean': lambda m: m.sum(skipna = skipna)
             })
 

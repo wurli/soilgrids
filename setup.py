@@ -3,12 +3,6 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as readme_file:
     long_description = readme_file.read()
 
-name = "soilgrids"
-version = "0.1.0"
-dependencies = [
-
-]
-
 setup(
     name='soilgrids',
     version='0.1.0',
@@ -24,7 +18,7 @@ setup(
     install_requires=[
         'numpy >= 1.26.0',
         'pandas >= 2.1.0',
-        'requests >= 2.31',
-        "importlib-metadata; python_version<'3.12'",
+        'plotly >= 5.18.0',
+        'requests >= 2.31'
     ]
 )

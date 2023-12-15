@@ -1,5 +1,3 @@
-import pytest
-
 import soilgrids
 import pandas as pd
     

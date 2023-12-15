@@ -97,3 +97,8 @@ def _pkg_file(path):
         .files('soilgrids') \
         .joinpath(path)
     return str(path)
+
+def _rescale(x, a=0, b=1):
+    """Rescale an array to fall within [a, b]"""
+    xmax, xmin = x.max(), x.min()
+    return a + (x - xmin) * (b - a) / (xmax - xmin)

@@ -56,6 +56,7 @@ def get_soilgrids(lat: float | list[float],
             ```python
             ['Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty']
             ```
+            Note that the mean is always returned, regardless of the selection.
 
     Returns:
         `pd.DataFrame`: A data frame with a row for each combination of `lat`, 
@@ -85,6 +86,7 @@ def get_soilgrids(lat: float | list[float],
     value = _check_arg(value, name="value", allowed_vals=[
         'Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty'
     ])
+    value = list(set(value + ['mean']))
     
     results = [
         _query_soilgrids(
@@ -110,7 +112,7 @@ def _query_soilgrids(lat, lon, soil_property=None, depth=None, value=None):
     
     # The `float` type doesn't always give exactly 6 decimal places, which 
     # causes Soilgrids to give a much more precise response than required.
-    lat, lon = round(Decimal(lat), 6), round(Decimal(lon), 6)
+    lat, lon = round(Decimal(float(lat)), 6), round(Decimal(float(lon)), 6)
     
     _throttle_requests()
     _logger.info(f"Querying Soilgrids for lat={lat}, lon={lon}")
