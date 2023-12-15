@@ -3,7 +3,7 @@ import subprocess
 import time
 import importlib.resources
 
-_logger = logging.getLogger("soilgrids")
+_logger = logging.getLogger('soilgrids')
 
 def _check_arg(arg, name, allowed_vals):
     """Check that a function argument is either None or a subset of allowed_vals."""
@@ -50,7 +50,7 @@ class _Throttle():
         time_to_wait = self.interval - time_since_last_request
         
         if time_to_wait > 0:
-            _logger.info(f"Waiting {time_to_wait:.1f}s before next request...")
+            _logger.info(f'Waiting {time_to_wait:.1f}s before next request...')
             time.sleep(time_to_wait)
             
         self.last_request_time = time.time()
@@ -80,8 +80,8 @@ def _check_r_available():
     """Check that R can be called from Python."""
     if not _r_available():
         raise RuntimeError(
-            "No R installation detected\n" \
-            "  i: Make sure your R installation can be found on the PATH"
+            'No R installation detected\n' \
+            '  i: Make sure your R installation can be found on the PATH'
         )
 
 
