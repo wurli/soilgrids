@@ -256,7 +256,9 @@ respectively, so we can't simply take the mean across each value.
 `SoilGrids.aggregate_means()` is a utility for aggregating Soilgrids data whilst
 weighting individual values according to the total depth they represent, and 
 it is used to power other methods such as `plot_ocs_property_relationships()`, 
-`plot_property_map()` and `ocs_correlation()`.
+`plot_property_map()` and `ocs_correlation()`. The following shows how values
+are aggregated for a single point:
+
 
 ```python
 small_datasets = [
@@ -266,7 +268,7 @@ small_datasets = [
             "lat == 55.968112 & lon == 9.194132 &"
             "soil_property in ['clay', 'ocs']"
         )
-    for dataset in [sg.data, sg.aggregate_means()]
+    for dataset in [sg.data, sg.aggregate_means(top_depth=0, bottom_depth=30)]
 ]
 
 for dataset in small_datasets:
