@@ -265,18 +265,20 @@ this way, and it is used to power other methods such as
 `plot_ocs_property_relationships()`, `plot_property_map()` and 
 `ocs_correlation()`.
 
-### Unaggregated data:
-
 
 ```python
-unaggregated_data = sg.data \
-    .filter(['lat', 'lon', 'soil_property', 'depth', 'mean']) \
-    .query(
-        "lat == 55.968112 & lon == 9.194132 &"
-        "soil_property in ['clay', 'ocs']"
-    )
-    
-show(unaggregated_data)
+small_datasets = [
+    dataset \
+        .filter(['lat', 'lon', 'soil_property', 'depth', 'mean']) \
+        .query(
+            "lat == 55.968112 & lon == 9.194132 &"
+            "soil_property in ['clay', 'ocs']"
+        )
+    for dataset in [sg.data, sg.aggregate_means()]
+]
+
+for dataset in small_datasets:
+    show(dataset)
 ```
 
 
@@ -309,7 +311,7 @@ show(aggregated_data)
 | 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
 
 
-## Testing
+## Testing
 
 This package is thoroughly tested using 
 [pytest](https://docs.pytest.org/en/7.4.x/). To run the test suite, use:
