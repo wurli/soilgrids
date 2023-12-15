@@ -279,6 +279,15 @@ unaggregated_data = sg.data \
 show(unaggregated_data)
 ```
 
+
+|     lat |     lon | soil_property   | depth   |   mean |
+|--------:|--------:|:----------------|:--------|-------:|
+| 55.9681 | 9.19413 | clay            | 0-5cm   |     58 |
+| 55.9681 | 9.19413 | clay            | 5-15cm  |     49 |
+| 55.9681 | 9.19413 | clay            | 15-30cm |     72 |
+| 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
+
+
 ### Aggregated data
 
 
@@ -292,6 +301,13 @@ aggregated_data = sg.aggregate_means() \
     
 show(aggregated_data)
 ```
+
+
+|     lat |     lon | soil_property   | depth   |   mean |
+|--------:|--------:|:----------------|:--------|-------:|
+| 55.9681 | 9.19413 | clay            | 0-30cm  |     62 |
+| 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
+
 
 ## Testing
 
