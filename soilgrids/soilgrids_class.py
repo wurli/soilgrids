@@ -103,6 +103,8 @@ class SoilGrids:
                 ```python
                 ['Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty']
                 ```
+                Note that the mean is always returned, regardless of the 
+                selection.
 
         Returns:
             `pd.DataFrame`: A data frame with a row for each combination of 
@@ -169,6 +171,8 @@ class SoilGrids:
                 ```python
                 ['Q0.5', 'Q0.05', 'Q0.95', 'mean', 'uncertainty']
                 ```
+                Note that the mean is always returned, regardless of the 
+                selection.
 
         Returns:
             `pd.DataFrame`: A data frame with a row for each combination of 
@@ -178,7 +182,7 @@ class SoilGrids:
         
         # Uncomment during testing to avoid waiting ages for data to load
         # self._data = pd.read_csv("tests/data/soilgrids-results.csv")
-        # return 
+        # return 
         
         lat_min, lat_max = min(lat_a, lat_b), max(lat_a, lat_b)
         lon_min, lon_max = min(lon_a, lon_b), max(lon_a, lon_b)
@@ -426,7 +430,7 @@ class SoilGrids:
         window_expansion = 2
         
         layout = go.Layout(
-            title='<b>Soil {} at {}-{}{}</b><br>' \
+            title='<b>Mean Soil {} at {}-{}{}</b><br>' \
                 'Showing points between ({}, {}) and ({}, {})<br>' \
                 'Range for the region ({}): [{}, {}]'.format(
                     
