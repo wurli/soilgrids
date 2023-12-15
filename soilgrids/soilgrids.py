@@ -264,7 +264,7 @@ class SoilGrids:
             .reset_index()
         
         assert len(pivoted_data) >= 20, \
-            "At least 20 distinct values for `lat` and `lon` are needed to fit a linear model."
+            'At least 20 distinct values for `lat` and `lon` are needed to fit a linear model.'
         
         # Missing columns will be all NaN, which will throw a better error on 
         # the R side
@@ -337,9 +337,9 @@ class SoilGrids:
 
         plot = px.scatter(
             plot_data,
-            x="mean", y="mean_ocs", 
-            facet_col="soil_property", 
-            trendline="ols", 
+            x='mean', y='mean_ocs', 
+            facet_col='soil_property', 
+            trendline='ols', 
             color='soil_property'
         )
         
@@ -354,8 +354,8 @@ class SoilGrids:
             .for_each_annotation(lambda p: p.update(text='')) \
             .update_traces(showlegend=False) \
             .update_layout(
-                title="Organic Carbon Stock vs Other Properties",
-                yaxis_title="Organic Carbon Stock ({})".format(
+                title='Organic Carbon Stock vs Other Properties',
+                yaxis_title='Organic Carbon Stock ({})'.format(
                     ocs_data['mapped_units'][0]
                 )
             ) 
@@ -409,7 +409,7 @@ class SoilGrids:
                 )
             ) \
             .groupby(['lat', 'lon']) \
-            .agg(dict(label=lambda x: "<br>".join(x)))
+            .agg(dict(label=lambda x: '<br>'.join(x)))
             
         plot_data = property_data.merge(label_data, how='left', on=['lat', 'lon'])
 
@@ -431,7 +431,7 @@ class SoilGrids:
                 'Showing points between ({}, {}) and ({}, {})<br>' \
                 'Range for the region ({}): [{}, {}]'.format(
                     
-                "Organic Carbon Stock" if soil_property == "ocs" else soil_property.captilize(),
+                'Organic Carbon Stock' if soil_property == 'ocs' else soil_property.captilize(),
                 agg['top_depth'].min(), agg['bottom_depth'].max(), agg['unit_depth'][0],
                 
                 latmin, lonmin, latmax, lonmax,
