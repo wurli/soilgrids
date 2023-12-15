@@ -23,20 +23,20 @@ Useful links:
 
 ## Querying data using `SoilGrids`
 
-The following code reads in the mean values for clay, sand, silt and organic 
-carbon stock (ocs) in the top 30cm of soil for a random set of 50 points 
+The following code reads in the mean values for clay, sand, silt, and organic 
+carbon stock (OCS) in the top 30cm of soil for a random set of 50 points 
 within roughly 25km of 
-[Herning, Denmark](https://en.wikipedia.org/wiki/Herning). Note that points can 
-be queried at a maximum rate of 5/minute, so the following code takes about 10 
-minutes to run:
+[Herning, Denmark](https://en.wikipedia.org/wiki/Herning). Points can be queried 
+at a maximum rate of 5/minute, so the following code takes about 10 minutes to 
+run:
 
 
 ```python
-import logging
-import plotly.offline as po
-import plotly.io as pio
 from IPython.display import Markdown, Image
 from soilgrids import SoilGrids
+import logging
+import plotly.io as pio
+import plotly.offline as po
 
 # Turn off console logs for cleaner notebook output
 logging.getLogger('soilgrids').setLevel(logging.ERROR)
@@ -46,6 +46,9 @@ show = lambda df: display(Markdown(df.to_markdown(index=False)))
 
 sg = SoilGrids()
 
+# get_points_sample() reads in a uniformly distributed random sample of
+# points within specified bounds. If you want to query an exact set of
+# points, you can use `SoilGrids.get_points()`.
 sg.get_points_sample(
     50,
     lat_a=56.225297, lon_a=8.662215,
@@ -55,7 +58,8 @@ sg.get_points_sample(
     value='mean'
 )
 
-# For brevity, only a subset of the data is shown
+# Once Soilgrids has been queried, the results are accessible using the 
+# `data` property. For brevity, only a subset of the data is shown here.
 show(sg.data[0:15].filter([
     'lat', 'lon', 'soil_property', 'mapped_units', 
     'target_units', 'depth', 'mean'
