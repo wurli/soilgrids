@@ -512,7 +512,7 @@ class SoilGrids:
             (data['bottom_depth'] <= bottom_depth)
         ]
         
-        return data \
+        out = data \
             .groupby(
                 # ~~ What's happening here? ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 # Say we have the following values:
@@ -558,5 +558,14 @@ class SoilGrids:
                 'top_depth': 'min',
                 'bottom_depth': 'max',
                 'mean': lambda m: m.sum(skipna = skipna)
-            })
-
+            }) 
+        
+        # Re-create the 'depth' col for convenience
+        out.insert(3, 'depth', 
+            out['top_depth'].astype(str) + 
+            '-' + 
+            out['bottom_depth'].astype(str) + 
+            out['unit_depth']
+        )
+        
+        return out

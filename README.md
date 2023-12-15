@@ -241,6 +241,58 @@ Image("README_files/property_map.png")
 
 
 
+## Method `SoilGrids.aggregate_means()`
+
+Working with data from SoilGrids poses a challenge since different soil 
+properties are measured at different levels of granularity. For instance, the
+data returned by Soilgrids might look something like this:
+
+| Property         | Measurement            |
+|------------------|------------------------|
+| ocs              | 0-30cm                 |
+| clay             | 0-5cm                  |
+| clay             | 5-15cm                 |
+| clay             | 15-30cm                |
+
+In order to easily compare, say, `ocs` with `clay`, it is thus necessary to
+aggregate the values for `clay` to get a representative measurement for the 
+whole 0-30cm. However, the 3 values for clay cover 5, 10 and 15 cm of depth
+respectively, so they must be appropriately weighted when 'averaged' to get
+a representative value for the whole 0-30 cm.
+
+`SoilGrids.aggregate_means()` is a utility for aggregating Soilgrids data in
+this way, and it is used to power other methods such as 
+`plot_ocs_property_relationships()`, `plot_property_map()` and 
+`ocs_correlation()`.
+
+### Unaggregated data:
+
+
+```python
+unaggregated_data = sg.data \
+    .filter(['lat', 'lon', 'soil_property', 'depth', 'mean']) \
+    .query(
+        "lat == 55.968112 & lon == 9.194132 &"
+        "soil_property in ['clay', 'ocs']"
+    )
+    
+show(unaggregated_data)
+```
+
+### Aggregated data
+
+
+```python
+aggregated_data = sg.aggregate_means() \
+    .filter(['lat', 'lon', 'soil_property', 'depth', 'mean']) \
+    .query(
+        "lat == 55.968112 & lon == 9.194132 &"
+        "soil_property in ['clay', 'ocs']"
+    )
+    
+show(aggregated_data)
+```
+
 ## Testing
 
 This package is thoroughly tested using 
