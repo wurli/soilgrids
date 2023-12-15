@@ -1,6 +1,6 @@
+from soilgrids import SoilGrids
 import pandas as pd
 import plotly.graph_objects as go
-from soilgrids import SoilGrids
 
 # These tests don't verify rendering of plots - this is outside of the
 # scope of this package. Insted, they check the structure of the 

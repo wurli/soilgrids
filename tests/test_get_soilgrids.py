@@ -1,7 +1,7 @@
 import pytest
 
-import soilgrids
 from urllib import request
+import soilgrids
 
 # NB, get_soilgrids() itself isn't tested as its logic is pretty simple. 
 # The sub-functions it calls are tested below and in other files.
