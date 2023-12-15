@@ -25,8 +25,8 @@ Contents:
 
 *   [Introduction](#introduction)
 *   [Querying data using `SoilGrids`](#querying-data)
-*   [Get the property (clay, sand, silt) with the highest value for each point](#top-properties)
-*   [Relationship between clay, sand, silt and organic carbon stock](#property-relationships)
+*   [Getting the property (clay, sand, silt) with the highest value for each point](#top-properties)
+*   [Analysing the relationship between clay, sand, silt and organic carbon stock](#property-relationships)
 *   [Additional features](additional-features)
     *   [Method `SoilGrids.plot_ocs_property_relationships()`](#plot_ocs_property_relationships)
     *   [Method `SoilGrids.plot_property_map()`](#plot_property_map)
@@ -99,7 +99,7 @@ show(sg.data[0:15].filter([
 | 56.1016 | 8.93631 | sand            | g/kg           | %              | 0-5cm   |    805 |
 
 
-## Get the property (clay, sand, silt) with the highest value for each point <a name="top-properties"></a>
+## Getting the property (clay, sand, silt) with the highest value for each point <a name="top-properties"></a>
 
 The `SoilGrids` class provides a handy utility `main_properties()` for finding
 the most abundant soil type (i.e. property) for each point. In this case, we
@@ -165,7 +165,7 @@ show(sg.main_properties())
 | 56.2192 | 8.77554 | sand            |
 
 
-## Relationship between clay, sand, silt and organic carbon stock <a name="property-relationships"></a>
+## Analysing the relationship between clay, sand, silt and organic carbon stock <a name="property-relationships"></a>
 
 The `ocs_correlation()` method fits and displays summary statistics for a linear 
 model with sand, clay and silt as predictors and OCS as the response variable. 
