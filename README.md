@@ -1,4 +1,4 @@
-# soilgrids
+# soilgrids <a name="introduction"></a>
 
 This package provides a minimal wrapper for the ISRIC Soilgrids API, allowing 
 users to query soil properties by latitude/longitude and perform basic 
@@ -21,7 +21,20 @@ Useful links:
 *   ISRIC data and software policy: <https://www.isric.org/about/data-policy>
 *   Soilgrids FAQ: <https://www.isric.org/explore/soilgrids/faq-soilgrids>
 
-## Querying data using `SoilGrids`
+Contents:
+
+*   [Introduction](#introduction)
+*   [Querying data using `SoilGrids`](#querying-data)
+*   [Get the property (clay, sand, silt) with the highest value for each point](#top-properties)
+*   [Relationship between clay, sand, silt and organic carbon stock](#property-relationships)
+*   [Additional features](additional-features)
+    *   [Method `SoilGrids.plot_ocs_property_relationships()`](#plot_ocs_property_relationships)
+    *   [Method `SoilGrids.plot_property_map()`](#plot_property_map)
+    *   [Method `SoilGrids.aggregate_means()`](#aggregate_means)
+* [Testing](#testing)
+* [Disclaimer/licensing](#disclaimer)
+
+## Querying data using `SoilGrids` <a name="querying-data"></a>
 
 The following code reads in the mean values for clay, sand, silt, and organic 
 carbon stock (OCS) in the top 30cm of soil for a random set of 50 points 
@@ -86,7 +99,7 @@ show(sg.data[0:15].filter([
 | 56.1016 | 8.93631 | sand            | g/kg           | %              | 0-5cm   |    805 |
 
 
-## Get the property (clay, sand, silt) with the highest value for each point
+## Get the property (clay, sand, silt) with the highest value for each point <a name="top-properties"></a>
 
 The `SoilGrids` class provides a handy utility `main_properties()` for finding
 the most abundant soil type (i.e. property) for each point. In this case, we
@@ -152,7 +165,7 @@ show(sg.main_properties())
 | 56.2192 | 8.77554 | sand            |
 
 
-## Relationship between clay, sand, silt and organic carbon stock
+## Relationship between clay, sand, silt and organic carbon stock <a name="property-relationships"></a>
 
 The `ocs_correlation()` method fits and displays summary statistics for a linear 
 model with sand, clay and silt as predictors and OCS as the response variable. 
@@ -187,9 +200,9 @@ print(sg.ocs_correlation(capture_output=True))
     
 
 
-## Additional features
+## Additional features <a name="additional-features"></a>
 
-### Method `SoilGrids.plot_ocs_property_relationships()`
+### Method `SoilGrids.plot_ocs_property_relationships()` <a name="plot_ocs_property_relationships"></a>
 
 The `plot_ocs_property_relationships()` method can be used to obtain a graphical
 representation of the relationships between OCS and the other soil properties 
@@ -217,7 +230,7 @@ Image("README_files/ocs_property_relationships.png")
 
 
 
-### Method `SoilGrids.plot_property_map()`
+### Method `SoilGrids.plot_property_map()` <a name="plot_property_map"></a>
 
 The `plot_property_map()` method can display the points as they appear 
 geographically. The points are sized according to the value of the property
@@ -241,7 +254,7 @@ Image("README_files/property_map.png")
 
 
 
-## Method `SoilGrids.aggregate_means()`
+### Method `SoilGrids.aggregate_means()` <a name="aggregate_means"></a>
 
 Working with data from SoilGrids poses a challenge since different soil 
 properties are measured at different levels of granularity. For example, values
@@ -291,7 +304,7 @@ for dataset in small_datasets:
 | 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
 
 
-## Testing
+## Testing <a name="testing"></a>
 
 This package is thoroughly tested using 
 [pytest](https://docs.pytest.org/en/7.4.x/). To run the test suite, use:
@@ -300,7 +313,7 @@ This package is thoroughly tested using
 python -m pytest tests
 ```
 
-## Disclaimers
+## Disclaimer/licensing <a name="disclaimer"></a>
 
 *   Use of Soilgrids data is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).
 *   This package is licensed as [GPL-2](LICENSE).
