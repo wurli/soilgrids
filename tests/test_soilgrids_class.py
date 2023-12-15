@@ -64,7 +64,7 @@ def test_ocs_correlation_works():
 
     lm = sg.ocs_correlation(capture_output=True)
     
-    assert 'clay + sand + silt ~ ocs'        in lm, 'ocs_correlation() should return a linear model summary'
+    assert 'clay + sand + silt ~ ocs'       in lm, 'ocs_correlation() should return a linear model summary'
     assert 'Residual standard error: 0.948' in lm, 'Model summary should give a standard error of 0.948'
     
 def test_ocs_correlation_fails_with_missing_properties():
@@ -93,7 +93,7 @@ def test_ocs_correlation_fails_with_limited_data():
     with pytest.raises(AssertionError) as err:
         sg.ocs_correlation(capture_output=True)
     
-    assert "20 distinct values for `lat` and `lon` are needed" in str(err.value), \
+    assert '20 distinct values for `lat` and `lon` are needed' in str(err.value), \
         'Error message should indicate not enough data'
     
 def test_aggregate_means(): 

@@ -4,9 +4,9 @@ import pandas as pd
     
 def test_parse_depth():
     ocs_depth = {
-        "range": {"top_depth": 0, "bottom_depth": 30, "unit_depth": "cm"}, 
-        "label": "0-30cm", 
-        "values": {"mean": 87, "uncertainty": 10}
+        'range': {'top_depth': 0, 'bottom_depth': 30, 'unit_depth': 'cm'}, 
+        'label': '0-30cm', 
+        'values': {'mean': 87, 'uncertainty': 10}
     }
 
     ocs = soilgrids.api_requests._parse_depth(ocs_depth)
