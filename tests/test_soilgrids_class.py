@@ -29,12 +29,12 @@ def test_soilgrids_data():
     assert type(sg.data) == pd.DataFrame, 'pd.data should be a pandas DataFrame'
 
     
-def test_main_properties():
+def test_rank_properties():
     sg = SoilGrids()
     sg._data = pd.DataFrame({
         'lat': {0: 8.663411, 1: 8.663411, 3: 8.663411, 10: 8.680699, 11: 8.680699, 13: 8.680699}, 
         'lon': {0: 56.323929, 1: 56.323929, 3: 56.323929, 10: 56.441106, 11: 56.441106, 13: 56.441106}, 
-        'soil_property': {0: 'clay', 1: 'clay', 3: 'ocs', 10: 'sand', 11: 'clay', 13: 'ocs'}, 
+        'soil_property': {0: 'clay', 1: 'clay', 3: 'ocs', 10: 'sand', 11: 'sand', 13: 'ocs'}, 
         'd_factor': {0: 10, 1: 10, 3: 10, 10: 10, 11: 10, 13: 10}, 
         'mapped_units': {0: 'g/kg', 1: 'g/kg', 3: 't/ha', 10: 'g/kg', 11: 'g/kg', 13: 't/ha'}, 
         'target_units': {0: '%', 1: '%', 3: 'kg/m²', 10: '%', 11: '%', 13: 'kg/m²'}, 
@@ -46,15 +46,17 @@ def test_main_properties():
         'mean': {0: 63.0, 1: 64.0, 3: 60.0, 10: 128.0, 11: 124.0, 13: 55.0}
     })
 
-    props = sg.main_properties()
+    props = sg.rank_properties(['clay', 'sand'], top_depth=0, bottom_depth=30)
+    
+    assert len(props) == 2, 'rank_properties() should return a row for each point'
 
-    assert len(props) == 2, 'main_properties() should return a row for each point'
-
-    assert set(props.columns) == {'lat', 'lon', 'soil_property'}, \
-        "main_properties() should return a DataFrame with columns 'lat', 'lon', 'soil_property'"
-            
-    assert list(props['soil_property'][0:2]) == ['clay', 'sand'], \
-        'First two main properties should be sand and clay'
+    assert set(props.columns) == {'lat', 'lon', 'depth', 'mapped_units', 'property_no1'}, \
+        "main_properties() should return a DataFrame with columns 'lat', 'lon', 'depth', 'mapped_units', 'property_no1'"
+         
+    assert list(props['property_no1'][0:2]) == ['clay:  64', 'sand: 126'], \
+        "First two main properties should be 'clay:  64' and 'sand: 126'"
+        
+    assert props['depth'][0] == '0-15cm', "Output depth should be '0-15cm'"
 
         
 def test_ocs_correlation_works():

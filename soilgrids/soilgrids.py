@@ -190,23 +190,43 @@ class SoilGrids:
         )
         
     
-    def main_properties(self):
+    def rank_properties(self, 
+                        subset: list[str] | None=None, 
+                        top_depth: int | None=None, 
+                        bottom_depth: int | None=None) -> pd.DataFrame:
         """Get the most prevalent soil property (sand, silt, or clay) for each location.
         
         This is a utility method for quickly determining the most prevalent soil
         type for each location.
         
-        Note that for this method to work, the column `mean` must be present in
-        the data. This can be achieved by calling `get_points()` or 
-        `get_points_sample()` with `value='mean'`.
+        Args:
+            `subset`: A list giving the properties to include in the output. 
+                This may be useful if the properties present are not measured 
+                using the same units, in which case subsetting to a single
+                unit type may give a more readable output. Defaults to `None`,
+                in which all properties are retained.
+            `top_depth` (`float | None`): The minimum top depth to include in the 
+                aggregated results. Note that the value returned in the output 
+                may be higher. Defaults to `None`, in which case all 
+                values are incuded. 
+            `bottom_depth` (`float | None`): The maximum bottom depth to include 
+                in the aggregated results. Note that the value returned in the 
+                output may be lower. Defaults to `None`, in which case all 
+                values are incuded. 
         
         Returns:
             `pandas.DataFrame`: A data frame with columns `lat`, `lon` and 
             `soil_property`, where `soil_property` gives the most prevelant 
             property for the location.
         """
-        return self.aggregate_means() \
-            .query("soil_property in ['sand', 'silt', 'clay']") \
+        
+        out = self.aggregate_means(top_depth, bottom_depth)
+        
+        if subset is not None:
+            out=out.query(f"soil_property in {subset}")
+        
+        return out \
+            .dropna(subset='mean') \
             .sort_values(
                 ['lat', 'lon', 'mapped_units', 'unit_depth', 'mean'], 
                 ascending=False
@@ -215,13 +235,29 @@ class SoilGrids:
                 ['lat', 'lon', 'mapped_units', 'unit_depth'], 
                 as_index=False
             ) \
-            .apply(lambda g: g.iloc[0]) \
-            .filter(['lat', 'lon', 'soil_property'])
+            .apply(lambda x: x.assign(
+                rank=x['mean'].rank(method='dense', ascending=False)
+            )) \
+            .assign(
+                rank_desc=lambda x: 
+                    'property_no' + x['rank'].astype(int).astype(str),
+                mean = lambda x: 
+                    x['mean'].astype(int).astype(str),
+                property_desc=lambda x: 
+                    x.agg("{0[soil_property]}: {0[mean]:>3}".format, axis=1)
+            ) \
+            .pivot_table(
+                index=['lat', 'lon', 'depth', 'mapped_units'],
+                values='property_desc',
+                columns='rank_desc',
+                aggfunc=lambda x: "/".join(x) # Shouldn't be needed
+            ) \
+            .reset_index()
             
     
     def ocs_correlation(self,
-                        top_depth: int=0, 
-                        bottom_depth: int=30, 
+                        top_depth: int | None=None, 
+                        bottom_depth: int | None=None, 
                         capture_output: bool=False) -> None | str:
         """Get the correlation between sand, silt, clay, and OCS (organic carbon stock).
         
@@ -250,12 +286,14 @@ class SoilGrids:
         Steps 3 and 4 are performed using R. 
         
         Args:
-            `top_depth` (`float`): The minimum top depth to include in the 
+             `top_depth` (`float | None`): The minimum top depth to include in the 
                 aggregated results. Note that the value returned in the output 
-                may be higher. Defaults to 0.
-            `bottom_depth` (`float`): The maximum bottom depth to include in the
-                aggregated results. Note that the value returned in the output
-                may be lower. Defaults to 30.    
+                may be higher. Defaults to `None`, in which case all 
+                values are incuded. 
+            `bottom_depth` (`float | None`): The maximum bottom depth to include 
+                in the aggregated results. Note that the value returned in the 
+                output may be lower. Defaults to `None`, in which case all 
+                values are incuded.
             `capture_output` (`bool`): If `False` (the default), the model 
                 summary is printed to the console. If `True`, the model summary
                 is returned as a string.
@@ -294,8 +332,8 @@ class SoilGrids:
    
    
     def plot_ocs_property_relationships(self, 
-                                        top_depth: int=0, 
-                                        bottom_depth: int=30) -> go.Figure:
+                                        top_depth: int | None=None, 
+                                        bottom_depth: int | None=None) -> go.Figure:
         """Plot the relationships between OCS and other soil properties.
         
         Produces a plot with multiple panels, where each panel
@@ -310,12 +348,14 @@ class SoilGrids:
         `bottom_depth`.
         
         Args:
-            `top_depth` (`float`): The minimum top depth to include in the 
+            `top_depth` (`float | None`): The minimum top depth to include in the 
                 aggregated results. Note that the value returned in the output 
-                may be higher. Defaults to 0.
-            `bottom_depth` (`float`): The maximum bottom depth to include in the
-                aggregated results. Note that the value returned in the output
-                may be lower. Defaults to 30.
+                may be higher. Defaults to `None`, in which case all 
+                values are incuded. 
+            `bottom_depth` (`float | None`): The maximum bottom depth to include 
+                in the aggregated results. Note that the value returned in the 
+                output may be lower. Defaults to `None`, in which case all 
+                values are incuded.
                 
         Returns:
             `plotly.graph_objects.Plot`: An object representing the plot. Use 
@@ -372,18 +412,35 @@ class SoilGrids:
         return plot
     
     
-    def plot_property_map(self, soil_property: str, zoom: int=3) -> go.Figure:
+    def plot_property_map(self, 
+                          soil_property: str, 
+                          top_depth: int | None=None,
+                          bottom_depth: int | None=None,
+                          zoom: int=3) -> go.Figure:
         """Plot points on a map.
         
         Produces a plot of points on a map, sized according to the 
         `soil_property` selected, with other properties viewable through the
         plot tooltip when viewing in an interactive context.
+        
+        Before plotting, the data is aggregated to get representative figures
+        for soil between `top_depth` and `bottom_depth`. Note that any points
+        which have missing values for the selected property will be silently
+        dropped.
 
         Args:
             `soil_property` (`str`): The property to use to scale the plotted
                 points. This should correspond to one of the values for
                 `soil_property` selected in the last call to `get_points()`
                 or `get_points_sample()`.
+            `top_depth` (`float | None`): The minimum top depth to include in the 
+                aggregated results. Note that the value returned in the output 
+                may be higher. Defaults to `None`, in which case all 
+                values are incuded. 
+            `bottom_depth` (`float | None`): The maximum bottom depth to include 
+                in the aggregated results. Note that the value returned in the 
+                output may be lower. Defaults to `None`, in which case all 
+                values are incuded.
             `zoom` (`int`): _description_. The initial zoom level for the 
                 output. Can be set to a higher value to get a more zoomed-in
                 map.
@@ -393,7 +450,7 @@ class SoilGrids:
             the `show()` method to display this graphically in an interactive
             context.
         """
-        agg = self.aggregate_means().dropna(subset='mean')
+        agg = self.aggregate_means(top_depth, bottom_depth).dropna(subset='mean')
 
         property_data = agg \
             .query(f"soil_property == '{soil_property}'") \
@@ -435,20 +492,25 @@ class SoilGrids:
         lonmin, lonmax = plot_data['lon'].min(), plot_data['lon'].max()
         window_expansion = 2
         
-        layout = go.Layout(
-            title='<b>Mean Soil {} at {}-{}{}</b><br>' \
-                'Showing points between ({}, {}) and ({}, {})<br>' \
-                'Range for the region ({}): [{}, {}]'.format(
-                    
-                'Organic Carbon Stock' if soil_property == 'ocs' else soil_property.captilize(),
-                agg['top_depth'].min(), agg['bottom_depth'].max(), agg['unit_depth'][0],
-                
+        title = '<br>'.join([
+           '<b>Mean Soil {prop} at {depth_min}-{depth_max}{unit}</b>'.format(
+                prop='Organic Carbon Stock' if soil_property == 'ocs' else soil_property.captilize(),
+                depth_min=agg['top_depth'].min(), 
+                depth_max=agg['bottom_depth'].max(), 
+                unit=agg['unit_depth'][0]
+            ),
+            'Showing points between ({}, {}) and ({}, {})'.format(
                 latmin, lonmin, latmax, lonmax,
-                
-                property_data['mapped_units'][0],
-                int(property_data['mean'].min()), 
-                int(property_data['mean'].max())
-            ), 
+            ),
+            'Range for the region ({unit}): [{prop_min}, {prop_max}]'.format(
+                unit=property_data['mapped_units'][0],
+                prop_min=int(property_data['mean'].min()), 
+                prop_max=int(property_data['mean'].max())
+            )
+        ])
+        
+        layout = go.Layout(
+            title=title,
             mapbox=dict(
                 style='carto-positron',
                 zoom=zoom,
@@ -468,7 +530,10 @@ class SoilGrids:
         return go.Figure(data=[trace], layout=layout)
     
         
-    def aggregate_means(self, top_depth: int=0, bottom_depth:int=30, skipna=False) -> pd.DataFrame:
+    def aggregate_means(self, 
+                        top_depth: int | None=None, 
+                        bottom_depth: int | None=None, 
+                        skipna=False) -> pd.DataFrame:
         """Aggregate the means of soil properties across depths.
         
         Soilgrids provides for different properties at different levels of
@@ -487,12 +552,14 @@ class SoilGrids:
         with OCS.
         
         Args:
-            `top_depth` (`float`): The minimum top depth to include in the 
+            `top_depth` (`float | None`): The minimum top depth to include in the 
                 aggregated results. Note that the value returned in the output 
-                may be higher. Defaults to 0.
-            `bottom_depth` (`float`): The maximum bottom depth to include in the
-                aggregated results. Note that the value returned in the output
-                may be lower. Defaults to 30.
+                may be higher. Defaults to `None`, in which case all 
+                values are incuded. 
+            `bottom_depth` (`float | None`): The maximum bottom depth to include 
+                in the aggregated results. Note that the value returned in the 
+                output may be lower. Defaults to `None`, in which case all 
+                values are incuded.
             `skipna` (`bool`): Whether to propagate missing values when 
                 aggregating. This is set to `False` by default, since the 
                 alternative can quietly give misleading results.
@@ -507,6 +574,10 @@ class SoilGrids:
             " with `value='mean'` first."
         
         data = self.data
+        
+        top_depth = top_depth or -np.inf
+        bottom_depth = bottom_depth or np.Inf
+        
         data = data[
             (top_depth <= data['top_depth']) & 
             (data['bottom_depth'] <= bottom_depth)
