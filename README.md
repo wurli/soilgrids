@@ -245,8 +245,8 @@ properties present in the data:
 ```python
 fig = sg.plot_property_map('ocs', zoom=8)
 
-fig.write_image("README_files/property_map.png")
-Image("README_files/property_map.png")
+fig.write_image("README_files/property_map_ocs.png")
+Image("README_files/property_map_ocs.png")
 ```
 
 
@@ -257,6 +257,14 @@ Image("README_files/property_map.png")
     
 
 
+
+
+```python
+fig = sg.plot_property_map('sand', zoom=8)
+
+fig.write_image("README_files/property_map_sand.png")
+Image("README_files/property_map_sand.png")
+```
 
 ### Method `SoilGrids.aggregate_means()` <a name="aggregate_means"></a>
 

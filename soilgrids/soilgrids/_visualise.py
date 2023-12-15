@@ -53,17 +53,20 @@ def plot_ocs_property_relationships(self,
             on=['lat', 'lon'], 
             how = 'left'
         ) \
-        .assign(soil_property=lambda x: 
+        .assign(panel=lambda x: 
             x['soil_property'] + ' (' + x['mapped_units'] + ')'
         ) \
         .reset_index()
-
+    
+    properties = set(plot_data['soil_property'])
+        
     plot = px.scatter(
         plot_data,
         x='mean', y='mean_ocs', 
-        facet_col='soil_property', 
+        facet_col='panel', 
         trendline='ols', 
-        color='soil_property'
+        color='soil_property',
+        color_discrete_map={prop: _prop_to_color(prop) for prop in properties}
     )
     
     # Slight hack to set axis titles using panel titles - no easy way to do this. Yuck!
@@ -87,10 +90,10 @@ def plot_ocs_property_relationships(self,
 
 
 def plot_property_map(self, 
-                        soil_property: str, 
-                        top_depth: int | None=None,
-                        bottom_depth: int | None=None,
-                        zoom: int=2) -> go.Figure:
+                      soil_property: str, 
+                      top_depth: int | None=None,
+                      bottom_depth: int | None=None,
+                      zoom: int=2) -> go.Figure:
     """Plot points on a map.
     
     Produces a plot of points on a map, sized according to the 
@@ -157,7 +160,11 @@ def plot_property_map(self,
         lat=plot_data['lat'],
         lon=plot_data['lon'],
         mode='markers',
-        marker=dict(size=_rescale(plot_data['mean'], 10, 20), color='red', opacity=0.5),
+        marker=dict(
+            size=_rescale(plot_data['mean'], 10, 20), 
+            color=_prop_to_color(soil_property), 
+            opacity=0.8
+        ),
         text=plot_data['soil_property'], 
         hovertext=plot_data['label']
     )
@@ -168,15 +175,16 @@ def plot_property_map(self,
     
     title = '<br>'.join([
         '<b>Mean Soil {prop} at {depth_min}-{depth_max}{unit}</b>'.format(
-            prop='Organic Carbon Stock' if soil_property == 'ocs' else soil_property.captilize(),
+            prop='Organic Carbon Stock' if soil_property == 'ocs' else soil_property.capitalize(),
             depth_min=agg['top_depth'].min(), 
             depth_max=agg['bottom_depth'].max(), 
             unit=agg['unit_depth'][0]
         ),
-        'Showing points between ({}, {}) and ({}, {})'.format(
-            latmin, lonmin, latmax, lonmax,
+        'Bounds: lat=[{}, {}]; lon=[{}, {}]'.format(
+            latmin, latmax, lonmin, lonmax,
         ),
-        'Range for the region ({unit}): [{prop_min}, {prop_max}]'.format(
+        '{prop} range for the region ({unit}): [{prop_min}, {prop_max}]'.format(
+            prop='OCS' if soil_property == 'ocs' else soil_property.capitalize(),
             unit=property_data['mapped_units'][0],
             prop_min=int(property_data['mean'].min()), 
             prop_max=int(property_data['mean'].max())
@@ -203,4 +211,16 @@ def plot_property_map(self,
     
     return go.Figure(data=[trace], layout=layout)
 
-
+# Not 'colour' as it's not what plotly uses
+def _prop_to_color(prop):
+    """Colour palette for consistency in soil property visualisations"""
+    
+    pal = {
+        'ocs' : '#121212', # Dark grey
+        'sand': '#C2B280', # Yellow-grey
+        'silt': '#857E6C', # Dark brown-grey
+        'clay': '#BDBAA2', # Light brown
+        'default': '#FF0000' # Red
+    }
+    
+    return pal[prop] if prop in pal.keys() else pal['default']
