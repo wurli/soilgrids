@@ -11,8 +11,8 @@ Functions:
         
 Classes:
 
-*   `SoilGrids()`: Provides methods for reading data from Soilgrids and basic 
-    including utilities for aggregating and analysing the returned data.
+*   `SoilGrids()`: Provides methods for querying data from Soilgrids and 
+    performing aggregation, analysis, and visualisation.
 
 Useful links:
 
@@ -104,7 +104,7 @@ show(sg.data[0:15].filter([
 The `SoilGrids` class provides a handy utility `rank_properties()` for finding
 the most abundant soil types (i.e. properties) for each point. We see that 
 throughout the Herning region, the main soil properties are, in order, sand, 
-silt, and clay
+silt, and clay:
 
 
 ```python
@@ -172,7 +172,7 @@ show(sg.rank_properties(
 ## Analysing the relationship between clay, sand, silt and organic carbon stock <a name="property-relationships"></a>
 
 The `ocs_correlation()` method fits and displays summary statistics for a linear 
-model with sand, clay and silt as predictors and OCS as the response variable. 
+model with clay, sand, and silt as predictors, and OCS as the response variable. 
 Based on the R-squared values returned in the summary, it doesn't look like 
 these soil properties are particularly good predictors for OCS in this case:
 
@@ -213,9 +213,9 @@ representation of the relationships between OCS and the other soil properties
 present in the data. These are displayed as scatterplots with overlayed lines
 of best fit, i.e. the values predicted by a fitted linear regression.
 
-In this case we can see that there is no panel where the plotted points show
-strong agreement with the fitted line. This agrees with the low value for 
-R-squared obtained earlier:
+In this case we can see that the plotted points never show particularly strong 
+agreement with the fitted line, again providing evidence that clay, sand,
+and silt are not particularly good predictors for OCS:
 
 
 ```python
@@ -238,8 +238,8 @@ Image("README_files/ocs_property_relationships.png")
 
 The `plot_property_map()` method can display the points as they appear 
 geographically. The points are sized according to the value of the property
-you choose to plot, and the tooltip displays the values for other properties
-present in the data:
+you choose to plot, and the tooltip also displays the values for other 
+properties present in the data:
 
 
 ```python
@@ -262,21 +262,20 @@ Image("README_files/property_map.png")
 
 Working with data from SoilGrids poses a challenge since different soil 
 properties are measured at different levels of granularity. For example, values
-for clay will be provided at depths 0-5cm, 5-15cm, and 15-30cm, whereas OCS 
-will be provided as a single value for 0-30cm as a whole.
+for clay are provided at depths 0-5cm, 5-15cm, and 15-30cm, whereas OCS is 
+provided as a single value for 0-30cm as a whole.
 
-In order to easily compare OCS with clay, we need to
-aggregate the values for clay to get a representative measurement for the 
-whole 0-30cm. However, since the 3 values for clay don't all cover the same 
-amount of depth (they cover 5, 10 and 15 centimetres respectively), we can't 
-simply take the mean across each value.
+In order to compare OCS with clay, we need to aggregate the values for clay to 
+get a representative mean value for the whole 0-30cm. However, since the 3 
+values for clay don't all cover the same amount of depth (they cover 5, 10 and 
+15 centimetres respectively), we can't simply take another average to obtain
+a figure.
 
 `SoilGrids.aggregate_means()` is a utility for aggregating the mean values
 provided by Soilgrids by weighting individual values according to the total 
-depth they represent. This method powers other methods such as 
-`plot_ocs_property_relationships()`, `plot_property_map()` and 
-`ocs_correlation()`. The following shows how mean values are aggregated for a 
-single point:
+depth they represent. This method is crucial to most of the data analysis in 
+this package. The following shows how mean values are aggregated for a single 
+point:
 
 
 ```python
