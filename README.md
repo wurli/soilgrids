@@ -290,20 +290,6 @@ for dataset in small_datasets:
 | 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
 
 
-### Aggregated data
-
-
-```python
-aggregated_data = sg.aggregate_means() \
-    .filter(['lat', 'lon', 'soil_property', 'depth', 'mean']) \
-    .query(
-        "lat == 55.968112 & lon == 9.194132 &"
-        "soil_property in ['clay', 'ocs']"
-    )
-    
-show(aggregated_data)
-```
-
 
 |     lat |     lon | soil_property   | depth   |   mean |
 |--------:|--------:|:----------------|:--------|-------:|
