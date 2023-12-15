@@ -258,23 +258,6 @@ Image("README_files/property_map_ocs.png")
 
 
 
-
-```python
-fig = sg.plot_property_map('sand', zoom=8)
-
-fig.write_image("README_files/property_map_sand.png")
-Image("README_files/property_map_sand.png")
-```
-
-
-
-
-    
-![png](README_files/README_10_0.png)
-    
-
-
-
 ### Method `SoilGrids.aggregate_means()` <a name="aggregate_means"></a>
 
 Working with data from SoilGrids poses a challenge since different soil 
