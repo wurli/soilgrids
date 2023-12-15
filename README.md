@@ -262,19 +262,21 @@ Image("README_files/property_map.png")
 
 Working with data from SoilGrids poses a challenge since different soil 
 properties are measured at different levels of granularity. For example, values
-for clay will be provided at 0-5cm, 5-15cm, and 15-30cm, whereas OCS will be 
-provided as a single value for 0-30cm as a whole.
+for clay will be provided at depths 0-5cm, 5-15cm, and 15-30cm, whereas OCS 
+will be provided as a single value for 0-30cm as a whole.
 
-In order to easily compare, say, `ocs` with `clay`, we need to
-aggregate the values for `clay` to get a representative measurement for the 
-whole 0-30cm. However, the 3 values for clay cover 5, 10 and 15 cm of depth
-respectively, so we can't simply take the mean across each value.
+In order to easily compare OCS with clay, we need to
+aggregate the values for clay to get a representative measurement for the 
+whole 0-30cm. However, since the 3 values for clay don't all cover the same 
+amount of depth (they cover 5, 10 and 15 centimetres respectively), we can't 
+simply take the mean across each value.
 
-`SoilGrids.aggregate_means()` is a utility for aggregating Soilgrids data whilst
-weighting individual values according to the total depth they represent, and 
-it is used to power other methods such as `plot_ocs_property_relationships()`, 
-`plot_property_map()` and `ocs_correlation()`. The following shows how values
-are aggregated for a single point:
+`SoilGrids.aggregate_means()` is a utility for aggregating the mean values
+provided by Soilgrids by weighting individual values according to the total 
+depth they represent. This method powers other methods such as 
+`plot_ocs_property_relationships()`, `plot_property_map()` and 
+`ocs_correlation()`. The following shows how mean values are aggregated for a 
+single point:
 
 
 ```python
