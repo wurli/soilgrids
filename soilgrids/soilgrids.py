@@ -266,7 +266,8 @@ class SoilGrids:
         assert len(pivoted_data) >= 20, \
             "At least 20 distinct values for `lat` and `lon` are needed to fit a linear model."
         
-        # Fill missing properties with zeros 
+        # Missing columns will be all NaN, which will throw a better error on 
+        # the R side
         pivoted_data = pivoted_data.reindex(
             pivoted_data.columns.union(['sand', 'silt', 'clay', 'ocs'], sort=False), 
             axis=1
