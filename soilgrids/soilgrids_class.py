@@ -7,6 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
+
 class SoilGrids:
     """Read and perform basic analysis of Soilgrids data.
     
@@ -33,7 +34,7 @@ class SoilGrids:
         self._data = None
     
     @property
-    def data(self):
+    def data(self) -> pd.DataFrame:
         """Data returned by the last call to `get_points()` or `get_points_sample()`.
 
         Raises:
@@ -281,6 +282,7 @@ class SoilGrids:
         
         _logger.info(model_summary)
    
+   
     def plot_ocs_property_relationships(self, 
                                         top_depth: int=0, 
                                         bottom_depth: int=30) -> go.Figure:
@@ -306,8 +308,8 @@ class SoilGrids:
                 may be lower. Defaults to 30.
                 
         Returns:
-            `seaborn.objects.Plot`: An object representing the plot. Use the
-            `show()` method to display this graphically in an interactive
+            `plotly.graph_objects.Plot`: An object representing the plot. Use 
+            the `show()` method to display this graphically in an interactive
             context.
         """
         data = self.aggregate_means(top_depth, bottom_depth) 
@@ -340,7 +342,7 @@ class SoilGrids:
             color='soil_property'
         )
         
-        # Slight hack to set axis titles using panel titles - no easy way to do this. Yuk!
+        # Slight hack to set axis titles using panel titles - no easy way to do this. Yuck!
         panel_titles = []
         plot.for_each_annotation(lambda p: panel_titles.append(p.text))
         panel_titles = ['Mean ' + x.split("=")[-1].capitalize() for x in reversed(panel_titles)]
@@ -359,12 +361,35 @@ class SoilGrids:
             
         return plot
     
-    def plot_property_map(self, property, zoom=3):
+    
+    def plot_property_map(self, soil_property: str, zoom: int=3) -> go.Figure:
+        """Plot points on a map.
+        
+        Produces a plot of points on a map, sized according to the 
+        `soil_property` selected, with other properties viewable through the
+        plot tooltip when viewing in an interactive context.
+
+        Args:
+            `soil_property` (`str`): The property to use to scale the plotted
+                points. This should correspond to one of the values for
+                `soil_property` selected in the last call to `get_points()`
+                or `get_points_sample()`.
+            `zoom` (`int`): _description_. The initial zoom level for the 
+                output. Can be set to a higher value to get a more zoomed-in
+                map.
+
+        Returns:
+            `plotly.graph_objects.Plot`: An object representing the plot. Use 
+            the `show()` method to display this graphically in an interactive
+            context.
+        """
         agg = self.aggregate_means().dropna(subset='mean')
 
-        property_data = agg.query(f"soil_property == '{property}'").reset_index()
+        property_data = agg \
+            .query(f"soil_property == '{soil_property}'") \
+            .reset_index()
         
-        label_order = [property] + sorted(list(set(agg['soil_property'])))
+        label_order = [soil_property] + sorted(list(set(agg['soil_property'])))
 
         label_data = agg \
             .sort_values('soil_property', key=lambda col: col.apply(label_order.index)) \
@@ -377,7 +402,7 @@ class SoilGrids:
             ) \
             .assign(
                 label=lambda x: np.where(
-                    x['soil_property'] == property, 
+                    x['soil_property'] == soil_property, 
                     '<b>' + x['label'] + '</b>', 
                     '<i>' + x['label'] + '</i>'
                 )
@@ -404,14 +429,15 @@ class SoilGrids:
             title='<b>Soil {} at {}-{}{}</b><br>' \
                 'Showing points between ({}, {}) and ({}, {})<br>' \
                 'Range for the region ({}): [{}, {}]'.format(
-                    "Organic Carbon Stock" if property == "ocs" else property.captilize(),
-                    agg['top_depth'].min(), agg['bottom_depth'].max(), agg['unit_depth'][0],
                     
-                    latmin, lonmin, latmax, lonmax,
-                    
-                    property_data['mapped_units'][0],
-                    int(property_data['mean'].min()), 
-                    int(property_data['mean'].max())
+                "Organic Carbon Stock" if soil_property == "ocs" else soil_property.captilize(),
+                agg['top_depth'].min(), agg['bottom_depth'].max(), agg['unit_depth'][0],
+                
+                latmin, lonmin, latmax, lonmax,
+                
+                property_data['mapped_units'][0],
+                int(property_data['mean'].min()), 
+                int(property_data['mean'].max())
             ), 
             mapbox=dict(
                 style='carto-positron',
@@ -430,6 +456,7 @@ class SoilGrids:
         )
         
         return go.Figure(data=[trace], layout=layout)
+    
         
     def aggregate_means(self, top_depth: int=0, bottom_depth:int=30, skipna=False) -> pd.DataFrame:
         """Aggregate the means of soil properties across depths.
