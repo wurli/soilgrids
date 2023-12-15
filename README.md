@@ -241,6 +241,15 @@ Image("README_files/property_map.png")
 
 
 
+## Testing
+
+This package is thoroughly tested using 
+[pytest](https://docs.pytest.org/en/7.4.x/). To run the test suite, use:
+
+```bash
+python -m pytest tests
+```
+
 ## Disclaimers
 
 *   Use of Soilgrids data is subject to [ISRIC data and software policy](https://www.isric.org/about/data-policy).

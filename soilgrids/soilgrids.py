@@ -54,9 +54,9 @@ class SoilGrids:
                    lat: float | list[float], 
                    lon: float | list[float], 
                    *, 
-                   soil_property: Union[str, list[str], None] = None, 
-                   depth: Union[str, list[str], None] = None, 
-                   value: Union[str, list[str], None] = None) -> pd.DataFrame:
+                   soil_property: Union[str, list[str], None]=None, 
+                   depth: Union[str, list[str], None]=None, 
+                   value: Union[str, list[str], None]=None) -> pd.DataFrame:
         """Query Soilgrids for soil properties at specified locations.
     
         This method is a wrapper for the Soilgrids API. The returned geojson is
@@ -120,13 +120,13 @@ class SoilGrids:
     def get_points_sample(self, 
                           n: int =5, 
                           *, 
-                          lat_a: float =-90, 
-                          lon_a: float =-180, 
-                          lat_b: float =90, 
-                          lon_b: float =180,
-                          soil_property: Union[str, list[str], None] = None, 
-                          depth: Union[str, list[str], None] = None, 
-                          value: Union[str, list[str], None] = None) -> pd.DataFrame:
+                          lat_a: float=-90, 
+                          lon_a: float=-180, 
+                          lat_b: float=90, 
+                          lon_b: float=180,
+                          soil_property: Union[str, list[str], None]=None, 
+                          depth: Union[str, list[str], None]=None, 
+                          value: Union[str, list[str], None]=None) -> pd.DataFrame:
         """Query Soilgrids for a random set of coordinates.
         
         This method is a wrapper for the Soilgrids API. The returned geojson 
@@ -219,7 +219,10 @@ class SoilGrids:
             .filter(['lat', 'lon', 'soil_property'])
             
     
-    def ocs_correlation(self, capture_output: bool=False) -> None | str:
+    def ocs_correlation(self,
+                        top_depth: int=0, 
+                        bottom_depth: int=30, 
+                        capture_output: bool=False) -> None | str:
         """Get the correlation between sand, silt, clay, and OCS (organic carbon stock).
         
         This method requires R to be installed and available on the PATH in 
@@ -247,6 +250,12 @@ class SoilGrids:
         Steps 3 and 4 are performed using R. 
         
         Args:
+            `top_depth` (`float`): The minimum top depth to include in the 
+                aggregated results. Note that the value returned in the output 
+                may be higher. Defaults to 0.
+            `bottom_depth` (`float`): The maximum bottom depth to include in the
+                aggregated results. Note that the value returned in the output
+                may be lower. Defaults to 30.    
             `capture_output` (`bool`): If `False` (the default), the model 
                 summary is printed to the console. If `True`, the model summary
                 is returned as a string.
@@ -254,7 +263,7 @@ class SoilGrids:
         Returns:
             `None`: The model summary is printed to the console.
         """
-        pivoted_data = self.aggregate_means(0, 30) \
+        pivoted_data = self.aggregate_means(top_depth, bottom_depth) \
             .query("soil_property in ['sand', 'silt', 'clay', 'ocs']") \
             .pivot_table(
                 index=['lat', 'lon'],
