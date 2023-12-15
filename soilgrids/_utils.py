@@ -1,7 +1,7 @@
+import importlib.resources
 import logging
 import subprocess
 import time
-import importlib.resources
 
 _logger = logging.getLogger('soilgrids')
 

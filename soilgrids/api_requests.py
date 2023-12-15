@@ -1,9 +1,9 @@
+from decimal import Decimal
 from typing import Union
+import numpy as np
+import pandas as pd
 import requests
 import time
-import pandas as pd
-import numpy as np
-from decimal import Decimal
 
 from ._utils import _Throttle, _check_arg, _to_list, _logger
 
