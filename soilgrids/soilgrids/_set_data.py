@@ -15,7 +15,7 @@ def get_points(self,
     """Query Soilgrids for soil properties at specified locations.
 
     This method is a wrapper for the Soilgrids API. The returned geojson is
-    parsed into a pandas outDataFrame, with a row for each combination of 
+    parsed into a pandas `DataFrame`, with a row for each combination of 
     `lat`, `lon`, `soil_property`, and `depth`, and a column for each `value`.
     After running this method, the returned data can be obtained using the
     `data` property.
