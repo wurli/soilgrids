@@ -34,6 +34,12 @@ def test_plot_ocs_property_relationships():
     assert {'clay (g/kg)', 'sand (g/kg)'} <= {x['name'] for x in fig.to_dict()['data']}, \
         "Panels should have titles 'clay (g/kg)' and 'sand (g/kg)'"
         
+    axis_titles = set()
+    fig.for_each_xaxis(lambda x: axis_titles.add(x.title.text))
+    assert axis_titles == {'Mean Clay (g/kg)', 'Mean Sand (g/kg)'}, \
+        "Axis title should be {'Mean Clay (g/kg)', 'Mean Sand (g/kg)'}"
+    
+        
 
 def test_plot_property_map():
     sg = SoilGrids()
