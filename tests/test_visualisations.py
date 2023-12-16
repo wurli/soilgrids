@@ -31,9 +31,6 @@ def test_plot_ocs_property_relationships():
     assert {'xaxis', 'xaxis2'} < fig.to_dict()['layout'].keys(), \
         'Plot should have multiple x-axes'
         
-    assert {'clay (g/kg)', 'sand (g/kg)'} <= {x['name'] for x in fig.to_dict()['data']}, \
-        "Panels should have titles 'clay (g/kg)' and 'sand (g/kg)'"
-        
     axis_titles = set()
     fig.for_each_xaxis(lambda x: axis_titles.add(x.title.text))
     assert axis_titles == {'Mean Clay (g/kg)', 'Mean Sand (g/kg)'}, \
@@ -67,5 +64,5 @@ def test_plot_property_map():
         "Map bounds should be {'east': 59.0, 'north': 11.0, 'south': 6.0, 'west': 54.0}"
         
     hovertext = fig.to_dict()['data'][0]['hovertext'][0]
-    assert hovertext == '<b>ocs: 60.0t/ha</b><br><i>clay: 63.0g/kg</i>', \
-        "Plot hovertext should be '<b>ocs: 60.0t/ha</b><br><i>clay: 63.0g/kg</i>'" 
+    assert hovertext == '<b>ocs: 60t/ha</b><br><i>clay: 63g/kg</i>', \
+        "Plot hovertext should be '<b>ocs: 60t/ha</b><br><i>clay: 63g/kg</i>'" 

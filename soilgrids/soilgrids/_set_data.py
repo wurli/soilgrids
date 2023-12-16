@@ -1,4 +1,5 @@
 from ..api_requests import get_soilgrids
+from .._utils import _to_list
 
 from typing import Union
 import numpy as np
@@ -66,6 +67,12 @@ def get_points(self,
             `lat`, `lon`, `soil_property`, and `depth`, and a column for 
             each `value`. 
     """
+    
+    self._region_bounds = {
+        'lat': (min(_to_list(lat)), max(_to_list(lat))),
+        'lon': (min(_to_list(lon)), max(_to_list(lon)))
+    }
+    
     self._data = get_soilgrids(
         lat, lon, 
         soil_property=soil_property, depth=depth, value=value
@@ -138,6 +145,11 @@ def get_points_sample(self,
     lat_min, lat_max = min(lat_min, lat_max), max(lat_min, lat_max)
     lon_min, lon_max = min(lon_min, lon_max), max(lon_min, lon_max)
     
+    self._region_bounds = {
+        'lat': (lat_min, lat_max),
+        'lon': (lon_min, lon_max)
+    }
+     
     self._data = get_soilgrids(
         lat_min + (lat_max - lat_min) * np.random.random_sample(n),
         lon_min + (lon_max - lon_min) * np.random.random_sample(n),

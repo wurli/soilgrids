@@ -141,7 +141,7 @@ def plot_property_map(self,
             label=lambda x: 
                 x['soil_property'] + 
                 ': ' + 
-                x['mean'].astype(str) + 
+                x['mean'].astype(int).astype(str) + 
                 x['mapped_units']
         ) \
         .assign(
@@ -169,8 +169,8 @@ def plot_property_map(self,
         hovertext=plot_data['label']
     )
     
-    latmin, latmax = plot_data['lat'].min(), plot_data['lat'].max()
-    lonmin, lonmax = plot_data['lon'].min(), plot_data['lon'].max()
+    latmin, latmax = self.region_bounds['lat']
+    lonmin, lonmax = self.region_bounds['lon']
     window_expansion = 2
     
     title = '<br>'.join([
@@ -180,9 +180,7 @@ def plot_property_map(self,
             depth_max=agg['bottom_depth'].max(), 
             unit=agg['unit_depth'][0]
         ),
-        'Bounds: lat=[{}, {}]; lon=[{}, {}]'.format(
-            latmin, latmax, lonmin, lonmax,
-        ),
+        f'Bounds: lat=[{latmin:.6f}, {latmax:.6f}]; lon=[{lonmin:.6f}, {lonmax:.6f}]',
         '{prop} range for the region ({unit}): [{prop_min}, {prop_max}]'.format(
             prop='OCS' if soil_property == 'ocs' else soil_property.capitalize(),
             unit=property_data['mapped_units'][0],
