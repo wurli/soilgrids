@@ -14,13 +14,16 @@ class SoilGrids:
             specified locations.
         `get_points_sample()` (method): Query Soilgrids for soil properties at
             randomly sampled locations.
-        `main_properties()` (method): Determine the most prevalent property (out 
-            of sand, silt, and clay) for each location.
-        `ocs_correlation()` (method): Determine the correlation between sand, 
+        `rank_properties()` (method): Determine the relative prevalence of 
+            different properties for each location.
+        `ocs_correlation()` (method): Analyse the relationship between sand, 
             silt, clay, and OCS (organic carbon stock).
         `aggregate_means()` (method): Aggregate the means of soil properties 
             across depths.
-    """
+        `plot_ocs_property_relationships()` (method): Plot OCS against each
+            other property as a scatterplot, and fit a line between the points.
+        `plot_property_map()` (method): Plot soil properties on a map.
+"""
     
     def __init__(self):
         self._data = None
