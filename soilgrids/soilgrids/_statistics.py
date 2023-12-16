@@ -1,6 +1,7 @@
 from .._utils import _rscript, _logger
 
 def ocs_correlation(self,
+                    *,
                     top_depth: int | None=None, 
                     bottom_depth: int | None=None, 
                     capture_output: bool=False) -> None | str:
@@ -31,7 +32,7 @@ def ocs_correlation(self,
     Steps 3 and 4 are performed using R. 
     
     Args:
-            `top_depth` (`float | None`): The minimum top depth to include in the 
+        `top_depth` (`float | None`): The minimum top depth to include in the 
             aggregated results. Note that the value returned in the output 
             may be higher. Defaults to `None`, in which case all 
             values are incuded. 

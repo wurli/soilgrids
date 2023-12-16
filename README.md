@@ -60,12 +60,12 @@ show = lambda df: display(Markdown(df.to_markdown(index=False)))
 sg = SoilGrids()
 
 # get_points_sample() reads in a uniformly distributed random sample of
-# points within specified bounds. If you want to query an exact set of
-# points, you can use `SoilGrids.get_points()`.
+# points within specified bounds. If you wanted to query an exact set of
+# points, you could use `sg.get_points()`.
 sg.get_points_sample(
     50,
-    lat_a=56.225297, lon_a=8.662215,
-    lat_b=55.958103, lon_b=9.354390,
+    lat_min=55.958103, lat_max=56.225297,
+    lon_min=8.662215, lon_max=9.354390,
     soil_property=['clay', 'sand', 'silt', 'ocs'],
     depth=['0-5cm', '5-15cm', '15-30cm', '0-30cm'],
     value='mean'
