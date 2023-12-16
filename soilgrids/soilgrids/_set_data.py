@@ -107,11 +107,15 @@ def get_points_sample(self,
     are provided.
     
     Args:
-        `n`: The number of points to query.
-        `lat_min`: The first bounding latitude. Must be in the range [-90, 90]
-        `lat_max`: The second bounding longitude. Must be in the range [-90, 90]
-        `lon_min`: The first bounding longitude. Must be in the range [-180, 180]
-        `lon_max`: The second bounding longitude. Must be in the range [-180, 180]
+        `n`: The number of points to query. Defaults to 5.
+        `lat_min`: The first bounding latitude. Must be in the range [-90, 90].
+            Defaults to -90.
+        `lat_max`: The second bounding longitude. Must be in the range [-90, 90].
+            Defaults to 90.
+        `lon_min`: The first bounding longitude. Must be in the range [-180, 180].
+            Defaults to -180.
+        `lon_max`: The second bounding longitude. Must be in the range [-180, 180].
+            Defaults to 180.
         `soil_property`: The soil property/properties to query. Must be a 
             subset of the following or `None`, in which case all properties 
             are returned:
@@ -141,7 +145,6 @@ def get_points_sample(self,
             `lat`, `lon`, `soil_property`, and `depth`, and a column for 
             each `value`. 
     """
-    
     lat_min, lat_max = min(lat_min, lat_max), max(lat_min, lat_max)
     lon_min, lon_max = min(lon_min, lon_max), max(lon_min, lon_max)
     

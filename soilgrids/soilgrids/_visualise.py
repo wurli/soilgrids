@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 
 
 def plot_ocs_property_relationships(self, 
+                                    *,
                                     top_depth: int | None=None, 
                                     bottom_depth: int | None=None) -> go.Figure:
     """Plot the relationships between OCS and other soil properties.
@@ -91,6 +92,7 @@ def plot_ocs_property_relationships(self,
 
 def plot_property_map(self, 
                       soil_property: str, 
+                      *,
                       top_depth: int | None=None,
                       bottom_depth: int | None=None,
                       zoom: int=2) -> go.Figure:

@@ -1,6 +1,7 @@
 from .._utils import _rscript, _logger
 
 def ocs_correlation(self,
+                    *,
                     top_depth: int | None=None, 
                     bottom_depth: int | None=None, 
                     capture_output: bool=False) -> None | str:

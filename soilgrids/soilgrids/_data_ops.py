@@ -3,7 +3,8 @@ import pandas as pd
 
 
 def rank_properties(self, 
-                    subset: list[str] | None=None, 
+                    subset: list[str] | None=None,
+                    *, 
                     top_depth: int | None=None, 
                     bottom_depth: int | None=None) -> pd.DataFrame:
     """Get the most prevalent soil property (sand, silt, or clay) for each location.
@@ -70,6 +71,7 @@ def rank_properties(self,
 def aggregate_means(self, 
                     top_depth: int | None=None, 
                     bottom_depth: int | None=None, 
+                    *,
                     skipna=False) -> pd.DataFrame:
     """Aggregate the means of soil properties across depths.
     
