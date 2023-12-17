@@ -1,6 +1,6 @@
 import pytest
 
-from soilgrids._utils import _check_arg, _rscript, _r_available
+from soilgrids._utils import _check_arg, _rscript, _r_available, _to_list
 
 
 def test_check_arg():
@@ -38,3 +38,19 @@ def test_rscript():
     assert 'clay + sand + silt ~ ocs'        in lm_summary, 'R script should return a linear model summary'
     assert 'Residual standard error: 0.5446' in lm_summary, 'Model summary should give a standard error of 0.5446'
     assert 'Multiple R-squared:  0.3475'     in lm_summary, 'Model summary should give an R-squared of 0.3475'
+    
+def test_to_list():
+    assert _to_list('a')   == ['a'],   'Scalar should be converted to list'
+    assert _to_list(['a']) == ['a'],   'List should be unchanged'
+    assert _to_list('abc') == ['abc'], 'String should be converted to list'
+    assert _to_list(1)     == [1],     'Integer should be converted to list'
+    assert _to_list(1.0)   == [1.0],   'Float should be converted to list'
+    assert _to_list(True)  == [True],  'Boolean should be converted to list'
+    assert _to_list(False) == [False], 'Boolean should be converted to list'
+    assert _to_list(None)  == [None],  'None should be converted to list'
+    
+    with pytest.raises(TypeError) as err:
+        _to_list({'a': 1})
+    assert "Cannot convert <class 'dict'>" in str(err.value), \
+        'Invalid input should raise an error specifying the problematic type'
+    

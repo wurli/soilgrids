@@ -68,12 +68,7 @@ def get_points(self,
             each `value`. 
     """
     
-    self._region_bounds = {
-        'lat': (min(_to_list(lat)), max(_to_list(lat))),
-        'lon': (min(_to_list(lon)), max(_to_list(lon)))
-    }
-    
-    self._data = get_soilgrids(
+    self.data = get_soilgrids(
         lat, lon, 
         soil_property=soil_property, depth=depth, value=value
     )

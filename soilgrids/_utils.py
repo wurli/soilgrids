@@ -29,11 +29,13 @@ def _check_arg(arg, name, allowed_vals):
 
 def _to_list(x):
     """Convert a scalar to a list, or leave a list unchanged."""
-    try:
-        iter(x)
-    except TypeError:
-        x = [x]
-    return x
+    scalars = [str, int, float, bool, type(None)]
+    if any([isinstance(x, t) for t in scalars]):
+        return [x]
+    if isinstance(x, list):
+        return x
+    raise TypeError(f'Cannot convert {type(x)} to list')
+    
 
 
 class _Throttle():

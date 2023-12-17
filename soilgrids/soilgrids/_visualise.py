@@ -1,4 +1,4 @@
-from .._utils import _rescale
+from .._utils import _rescale, _to_list
 
 import numpy as np
 import plotly.express as px
@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 
 
 def plot_ocs_property_relationships(self, 
+                                    props: str | list[str] | None=None,
                                     *,
                                     top_depth: int | None=None, 
                                     bottom_depth: int | None=None) -> go.Figure:
@@ -23,6 +24,10 @@ def plot_ocs_property_relationships(self,
     `bottom_depth`.
     
     Args:
+        `props` (`str | list[str] | None`): A list of properties to include in 
+            the output. Defaults to `None`, in which case all properties are 
+            included. Note that when >3 properties are included, the resulting
+            plot may be difficult to read.
         `top_depth` (`float | None`): The minimum top depth to include in the 
             aggregated results. Note that the value returned in the output 
             may be higher. Defaults to `None`, in which case all 
@@ -39,10 +44,13 @@ def plot_ocs_property_relationships(self,
     """
     data = self.aggregate_means(top_depth, bottom_depth) 
         
-    soil_types_data = data \
-        .query("soil_property != 'ocs'") \
-        .reset_index()
-
+    soil_types_data = data.query("soil_property != 'ocs'")
+        
+    if props is not None:
+        soil_types_data = soil_types_data \
+            .query(f"soil_property in {_to_list(props)}") \
+            .reset_index()
+        
     ocs_data = data \
         .query("soil_property == 'ocs'") \
         .rename(columns={'mean': 'mean_ocs'}) \
@@ -63,8 +71,9 @@ def plot_ocs_property_relationships(self,
         
     plot = px.scatter(
         plot_data,
-        x='mean', y='mean_ocs', 
-        facet_col='panel', 
+        x='mean', 
+        y='mean_ocs', 
+        facet_col='panel',
         trendline='ols', 
         color='soil_property',
         color_discrete_map={prop: _prop_to_color(prop) for prop in properties}
