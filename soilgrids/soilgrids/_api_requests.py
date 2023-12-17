@@ -140,12 +140,6 @@ def get_points_sample(self,
             `lat`, `lon`, `soil_property`, and `depth`, and a column for 
             each `value`. 
     """
-    self._data = pd.read_csv("tests/data/soilgrids-results.csv")
-    self._region_bounds = {
-        'lat': (8.663411, 8.680699),
-        'lon': (56.323929, 56.441106)
-    }
-    return
     
     lat_min, lat_max = min(lat_min, lat_max), max(lat_min, lat_max)
     lon_min, lon_max = min(lon_min, lon_max), max(lon_min, lon_max)
