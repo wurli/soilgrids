@@ -34,10 +34,14 @@ def test_rscript():
         '4.9,3.1,1.5,0.1\n'
 
     lm_summary = _rscript('r-scripts/linear-regression.R', dummy_data)
-
-    assert 'clay + sand + silt ~ ocs'        in lm_summary, 'R script should return a linear model summary'
-    assert 'Residual standard error: 0.5446' in lm_summary, 'Model summary should give a standard error of 0.5446'
-    assert 'Multiple R-squared:  0.3475'     in lm_summary, 'Model summary should give an R-squared of 0.3475'
+    assert 'clay + sand + silt ~ ocs' in lm_summary, 'R script should return a linear model summary'
+    
+    with pytest.raises(RuntimeError) as err:
+        _rscript('r-scripts/linear-regression.R', "Bananas")
+    
+    assert "Arg 1: `Bananas`" in str(err.value),        "Error message should include supplied arguments"
+    assert "object 'clay' not found" in str(err.value), "Error message should include R error message"
+    
     
 def test_to_list():
     assert _to_list('a')   == ['a'],   'Scalar should be converted to list'

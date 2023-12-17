@@ -70,11 +70,18 @@ def _rscript(script, *args):
     )
     
     if res.returncode != 0:
+        args_escaped = [arg.encode('unicode_escape').decode('utf-8') for arg in args]
+        args_pretty = [f"     Arg {i+1}: `{arg}`" for i, arg in enumerate(args_escaped)]
+        args_pretty = [arg if len(arg) < 80 else arg[:77] + '...' for arg in args_pretty]
+        args_pretty = '\n'.join(args_pretty)
+        
         raise RuntimeError(
             f'R script failed with exit code {res.returncode}.\n' \
             f'  i: Check the R script at {script}.\n' \
-            f'  i: Check the arguments: {args}\n' \
-            f'  i: Check the error returned by R: {res.stderr.decode('utf-8')}.\n'
+            f'  i: Check the arguments:\n' \
+            f'     {args_pretty}\n' \
+            f'  i: Check the error returned by R: \n' \
+            f'     {res.stderr.decode('utf-8')}.'
         )
     
     return res.stdout.decode('utf-8')
