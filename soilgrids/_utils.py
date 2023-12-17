@@ -61,7 +61,8 @@ class _Throttle():
 
 
 def _rscript(script, *args):
-    """Run `Rscript script.R arg1 arg2 arg3...` and return the printed output.""" 
+    """Run `rscript script.R arg1 arg2 arg3...` and return the printed output.""" 
+    
     _check_r_available()
     
     res = subprocess.run(
@@ -71,9 +72,9 @@ def _rscript(script, *args):
     
     if res.returncode != 0:
         args_escaped = [arg.encode('unicode_escape').decode('utf-8') for arg in args]
-        args_bullets = [f"     Arg {i+1}: `{arg}`" for i, arg in enumerate(args_escaped)]
-        args_trunc   = [arg if len(arg) < 80 else arg[:77] + '...' for arg in args_bullets]
-        args_pretty  = '\n'.join(args_trunc)
+        args_bullets = [f"* Arg {i+1}: `{arg}`" for i, arg in enumerate(args_escaped)]
+        args_trunc   = [arg if len(arg) <= 80 else arg[:77] + '...' for arg in args_bullets]
+        args_pretty  = '\n     '.join(args_trunc)
         
         raise RuntimeError(
             f'R script failed with exit code {res.returncode}.\n' \
@@ -107,6 +108,10 @@ def _pkg_file(path):
     path = importlib.resources \
         .files('soilgrids') \
         .joinpath(path)
+    
+    if not path.exists():
+        raise FileNotFoundError(f'File not found: {path}')    
+    
     return str(path)
 
 

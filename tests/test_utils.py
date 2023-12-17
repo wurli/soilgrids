@@ -1,6 +1,6 @@
 import pytest
 
-from soilgrids._utils import _check_arg, _rscript, _r_available, _to_list
+from soilgrids._utils import _check_arg, _rscript, _r_available, _to_list, _pkg_file
 
 
 def test_check_arg():
@@ -21,28 +21,25 @@ def test_rscript():
     if not _r_available():
         pytest.skip('No R installation available')
         
-    dummy_data = '"clay","sand","silt","ocs"\n' + \
-        '5.1,3.5,1.4,0.2\n' + \
-        '4.9,3,1.4,0.2\n' + \
-        '4.7,3.2,1.3,0.2\n' + \
-        '4.6,3.1,1.5,0.2\n' + \
-        '5,3.6,1.4,0.2\n' + \
-        '5.4,3.9,1.7,0.4\n' + \
-        '4.6,3.4,1.4,0.3\n' + \
-        '5,3.4,1.5,0.2\n' + \
-        '4.4,2.9,1.4,0.2\n' + \
-        '4.9,3.1,1.5,0.1\n'
-
-    lm_summary = _rscript('r-scripts/linear-regression.R', dummy_data)
-    assert 'clay + sand + silt ~ ocs' in lm_summary, 'R script should return a linear model summary'
+    assert _rscript('r-scripts/eval-parse.R', 'cat(1 + 1)') == '2', \
+        'R script should return the console output of the expression'
     
     with pytest.raises(RuntimeError) as err:
-        _rscript('r-scripts/linear-regression.R', "Bananas")
+        _rscript('r-scripts/eval-parse.R', 'stop("Oh no!")')
     
-    assert "Arg 1: `Bananas`" in str(err.value),        "Error message should include supplied arguments"
-    assert "object 'clay' not found" in str(err.value), "Error message should include R error message"
+    assert 'Check the R script at r-scripts/eval-parse.R' in str(err.value), \
+        "Error message should indicate the location of the problematic script"
     
+    assert '`stop("Oh no!")' in str(err.value), \
+        "Error message should indicate the supplied arguments"
+        
+    assert 'Error in eval(parse(text = line)) : Oh no!' in str(err.value), \
+        "Error message should indicate the error returned by R"
     
+    with pytest.raises(FileNotFoundError) as err:
+        _rscript('r-scripts/bananas.R', 'cat(1 + 1)')
+    
+
 def test_to_list():
     assert _to_list('a')   == ['a'],   'Scalar should be converted to list'
     assert _to_list(['a']) == ['a'],   'List should be unchanged'
@@ -57,4 +54,15 @@ def test_to_list():
         _to_list({'a': 1})
     assert "Cannot convert <class 'dict'>" in str(err.value), \
         'Invalid input should raise an error specifying the problematic type'
+ 
     
+def test_pkg_file():
+    file = _pkg_file('../tests/test_utils.py')
+    
+    assert file.endswith('tests/test_utils.py'), \
+        "_pkg_file() should return the absolute path to the specified file"
+        
+    with pytest.raises(FileNotFoundError) as err:
+        _pkg_file('bananas.txt')
+    assert 'bananas.txt' in str(err.value), \
+        "_pkg_file() should raise an informative error if the file doesn't exist"
