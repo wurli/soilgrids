@@ -59,12 +59,10 @@ def ocs_correlation(self,
     assert len(pivoted_data) >= 20, \
         'At least 20 distinct values for `lat` and `lon` are needed to fit a linear model.'
     
-    # Missing columns will be all NaN, which will throw a better error on 
-    # the R side
-    pivoted_data = pivoted_data.reindex(
-        pivoted_data.columns.union(['sand', 'silt', 'clay', 'ocs'], sort=False), 
-        axis=1
-    )
+    missing_cols = set(['sand', 'silt', 'clay', 'ocs']) - set(pivoted_data.columns)
+    if len(missing_cols) > 0:
+        missing_cols = "', '".join(missing_cols)
+        raise RuntimeError(f"No non-missing values for '{missing_cols}'.")
     
     model_summary = _rscript(
         'r-scripts/linear-regression.R', 

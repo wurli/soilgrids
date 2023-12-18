@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 
 def test_plot_ocs_property_relationships():
     sg = SoilGrids()
-    sg._data = pd.DataFrame({
+    sg.data= pd.DataFrame({
         'lat': {0: 8.663411, 1: 8.663411, 3: 8.663411, 10: 8.680699, 11: 8.680699, 13: 8.680699}, 
         'lon': {0: 56.323929, 1: 56.323929, 3: 56.323929, 10: 56.441106, 11: 56.441106, 13: 56.441106}, 
         'soil_property': {0: 'clay', 1: 'sand', 3: 'ocs', 10: 'clay', 11: 'clay', 13: 'ocs'}, 
@@ -36,11 +36,14 @@ def test_plot_ocs_property_relationships():
     assert axis_titles == {'Mean Clay (g/kg)', 'Mean Sand (g/kg)'}, \
         "Axis title should be {'Mean Clay (g/kg)', 'Mean Sand (g/kg)'}"
     
+    fig = sg.plot_ocs_property_relationships(props=['clay'])
+    assert 'xaxis2' not in fig.to_dict()['layout'].keys(), \
+        "Plot should have only one x-axis when only one property is specified"
         
 
 def test_plot_property_map():
     sg = SoilGrids()
-    sg._data = pd.DataFrame({
+    sg.data= pd.DataFrame({
         'lat': {0: 8.0, 1: 8.1, 3: 8.0, 10: 8.3, 11: 8.4, 13: 9.0}, 
         'lon': {0: 56.0, 1: 56.2, 3: 56.0, 10: 56.3, 11: 56.4, 13: 57.0}, 
         'soil_property': {0: 'clay', 1: 'sand', 3: 'ocs', 10: 'clay', 11: 'clay', 13: 'ocs'}, 

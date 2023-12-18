@@ -11,7 +11,7 @@ def test_soilgrids_data():
         sg.data
     assert 'No data' in str(err.value), 'Error message should indicate no data loaded'
 
-    sg._data = pd.DataFrame({
+    sg.data = pd.DataFrame({
         'lat': {0: 8.663411, 1: 8.663411, 3: 8.663411, 10: 8.680699, 11: 8.680699, 13: 8.680699}, 
         'lon': {0: 56.323929, 1: 56.323929, 3: 56.323929, 10: 56.441106, 11: 56.441106, 13: 56.441106}, 
         'soil_property': {0: 'clay', 1: 'clay', 3: 'ocs', 10: 'clay', 11: 'clay', 13: 'ocs'}, 
@@ -26,12 +26,17 @@ def test_soilgrids_data():
         'mean': {0: 63.0, 1: 64.0, 3: 60.0, 10: 128.0, 11: 124.0, 13: 55.0}
     })
 
-    assert type(sg.data) == pd.DataFrame, 'pd.data should be a pandas DataFrame'
-
+    assert type(sg.data) == pd.DataFrame, 'sg.data should be a pandas DataFrame'
+    
+    assert sg._region_bounds is not None, 'region_bounds should be set when data is set'
+    
+    assert sg.region_bounds == {'lat': (8.663411, 8.680699), 'lon': (56.323929, 56.441106)}, \
+        "region_bounds should be {'lat': (8.663411, 8.680699), 'lon': (56.323929, 56.441106)}"
+        
     
 def test_rank_properties():
     sg = SoilGrids()
-    sg._data = pd.DataFrame({
+    sg.data = pd.DataFrame({
         'lat': {0: 8.663411, 1: 8.663411, 3: 8.663411, 10: 8.680699, 11: 8.680699, 13: 8.680699}, 
         'lon': {0: 56.323929, 1: 56.323929, 3: 56.323929, 10: 56.441106, 11: 56.441106, 13: 56.441106}, 
         'soil_property': {0: 'clay', 1: 'clay', 3: 'ocs', 10: 'sand', 11: 'sand', 13: 'ocs'}, 
@@ -62,7 +67,7 @@ def test_rank_properties():
 def test_ocs_correlation_works():
     sg = SoilGrids()
     data = pd.read_csv('tests/data/soilgrids-results.csv')
-    sg._data = data
+    sg.data= data
 
     lm = sg.ocs_correlation(capture_output=True)
     
@@ -72,13 +77,13 @@ def test_ocs_correlation_works():
 def test_ocs_correlation_fails_with_missing_properties():
     sg = SoilGrids()
     data = pd.read_csv('tests/data/soilgrids-results.csv')        
-    sg._data = data \
+    sg.data= data \
         .query("soil_property != 'clay'") \
         .reset_index(drop=True)
         
     with pytest.raises(RuntimeError) as err:
         sg.ocs_correlation(capture_output=True)
-    assert '0 (non-NA) cases' in str(err.value), 'ocs_correlation() should fail with all missing data'
+    assert "No non-missing values for 'clay'" in str(err.value), 'ocs_correlation() should fail with all missing data'
 
 
 def test_ocs_correlation_fails_with_limited_data():
@@ -90,7 +95,7 @@ def test_ocs_correlation_fails_with_limited_data():
         .filter(['lat', 'lon']) \
         [0:2]
 
-    sg._data = data.merge(ten_points, on=['lat', 'lon'], how='inner')
+    sg.data= data.merge(ten_points, on=['lat', 'lon'], how='inner')
 
     with pytest.raises(AssertionError) as err:
         sg.ocs_correlation(capture_output=True)
@@ -100,7 +105,7 @@ def test_ocs_correlation_fails_with_limited_data():
     
 def test_aggregate_means(): 
     sg = SoilGrids()
-    sg._data = pd.DataFrame({
+    sg.data = pd.DataFrame({
         'lat': {0: 8.663411, 1: 8.663411, 3: 8.663411, 10: 8.680699, 11: 8.680699, 13: 8.680699}, 
         'lon': {0: 56.323929, 1: 56.323929, 3: 56.323929, 10: 56.441106, 11: 56.441106, 13: 56.441106}, 
         'soil_property': {0: 'clay', 1: 'clay', 3: 'ocs', 10: 'clay', 11: 'clay', 13: 'ocs'}, 
@@ -121,7 +126,7 @@ def test_aggregate_means():
     assert set(agg['mapped_units']) == {'g/kg', 't/ha'}, 'aggregate_means() should split results by `mapped_units`'
     assert agg['mean'][0] == 11,                         '0-5cm ~ 9, 5-15cm ~ 12 should aggregate to 9 * 5/15 + 12 * 10/15 = 11'
     
-    sg._data = sg._data.drop('mean', axis=1)
+    sg.data= sg._data.drop('mean', axis=1)
     
     with pytest.raises(AssertionError) as err:
         sg.aggregate_means() 
@@ -130,7 +135,7 @@ def test_aggregate_means():
 
 def test_region_bounds():
     sg = SoilGrids()
-    sg._data = pd.DataFrame({
+    sg.data= pd.DataFrame({
         'lat': {0: 8.663411, 1: 8.663411, 3: 8.663411, 10: 8.680699, 11: 8.680699, 13: 8.680699}, 
         'lon': {0: 56.323929, 1: 56.323929, 3: 56.323929, 10: 56.441106, 11: 56.441106, 13: 56.441106}, 
         'soil_property': {0: 'clay', 1: 'clay', 3: 'ocs', 10: 'clay', 11: 'clay', 13: 'ocs'}, 

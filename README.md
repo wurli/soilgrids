@@ -169,6 +169,29 @@ show(sg.rank_properties(
 | 56.2192 | 8.77554 | 0-30cm  | g/kg           | sand: 820      | silt: 115      | clay:  64      |
 
 
+You may notice that the above table shows only 49 points; it is missing
+(56.1462, 8.93131). This is because Soilgrids returns null values if there 
+is no data available for a given point, and such cases must necessarily be 
+excluded from the ranking calculation. In this case, the missing data may be 
+explained by the point's close proximity to the [Herningsholm Stream](https://www.google.com/maps/place/56°08'46.3%22N+8°55'52.7%22E/@56.1462,8.9287351,17z/data=!3m1!4b1!4m4!3m3!8m2!3d56.1462!4d8.93131?entry=ttu):
+
+
+
+```python
+agg = sg.aggregate_means(0, 30)
+missing = agg[agg['mean'].isna()]
+show(missing.filter(['lat', 'lon', 'soil_property', 'mean']))
+```
+
+
+|     lat |     lon | soil_property   |   mean |
+|--------:|--------:|:----------------|-------:|
+| 56.1462 | 8.93131 | clay            |    nan |
+| 56.1462 | 8.93131 | sand            |    nan |
+| 56.1462 | 8.93131 | silt            |    nan |
+| 56.1462 | 8.93131 | ocs             |    nan |
+
+
 ## Analysing the relationship between clay, sand, silt and organic carbon stock <a name="property-relationships"></a>
 
 The `ocs_correlation()` method fits and displays summary statistics for a linear 
@@ -229,7 +252,7 @@ Image("README_files/ocs_property_relationships.png")
 
 
     
-![png](README_files/README_7_0.png)
+![png](README_files/README_9_0.png)
     
 
 
@@ -253,7 +276,7 @@ Image("README_files/property_map_ocs.png")
 
 
     
-![png](README_files/README_9_0.png)
+![png](README_files/README_11_0.png)
     
 
 

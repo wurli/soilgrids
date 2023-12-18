@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 import time
 
-from ._utils import _Throttle, _check_arg, _to_list, _logger
+from ._utils import _Throttle, _check_arg, _to_vector, _logger
 
 def get_soilgrids(lat: float | list[float], 
                   lon: float | list[float], 
@@ -64,7 +64,7 @@ def get_soilgrids(lat: float | list[float],
     """
     
     # Allow mixing and and matching of scalars and arrays for lat and lon
-    lat, lon = np.broadcast_arrays(_to_list(lat), _to_list(lon))
+    lat, lon = np.broadcast_arrays(_to_vector(lat), _to_vector(lon))
     
     # NB, the following checks might seem over-zealous, but they're worth it to 
     # avoid burdensome requests to Soilgrids, if not to provide better error 

@@ -2,6 +2,8 @@ import importlib.resources
 import logging
 import subprocess
 import time
+import numpy as np
+import pandas as pd
 
 _logger = logging.getLogger('soilgrids')
 
@@ -27,13 +29,16 @@ def _check_arg(arg, name, allowed_vals):
     return arg
 
 
-def _to_list(x):
+def _to_vector(x):
     """Convert a scalar to a list, or leave a list unchanged."""
-    try:
-        iter(x)
-    except TypeError:
-        x = [x]
-    return x
+    scalars = [str, int, float, bool, type(None)]
+    vectors = [list, np.ndarray, pd.Series]
+    if any([isinstance(x, t) for t in scalars]):
+        return [x]
+    if any([isinstance(x, t) for t in vectors]):
+        return x
+    raise TypeError(f'Cannot convert {type(x)} to list')
+    
 
 
 class _Throttle():
@@ -59,7 +64,8 @@ class _Throttle():
 
 
 def _rscript(script, *args):
-    """Run `Rscript script.R arg1 arg2 arg3...` and return the printed output.""" 
+    """Run `rscript script.R arg1 arg2 arg3...` and return the printed output.""" 
+    
     _check_r_available()
     
     res = subprocess.run(
@@ -68,11 +74,18 @@ def _rscript(script, *args):
     )
     
     if res.returncode != 0:
+        args_escaped = [arg.encode('unicode_escape').decode('utf-8') for arg in args]
+        args_bullets = [f"* Arg {i+1}: `{arg}`" for i, arg in enumerate(args_escaped)]
+        args_trunc   = [arg if len(arg) <= 80 else arg[:77] + '...' for arg in args_bullets]
+        args_pretty  = '\n     '.join(args_trunc)
+        
         raise RuntimeError(
             f'R script failed with exit code {res.returncode}.\n' \
             f'  i: Check the R script at {script}.\n' \
-            f'  i: Check the arguments: {args}\n' \
-            f'  i: Check the error returned by R: {res.stderr.decode('utf-8')}.\n'
+            f'  i: Check the arguments:\n' \
+            f'     {args_pretty}\n' \
+            f'  i: Check the error returned by R: \n' \
+            f'     {res.stderr.decode('utf-8')}.'
         )
     
     return res.stdout.decode('utf-8')
@@ -98,6 +111,10 @@ def _pkg_file(path):
     path = importlib.resources \
         .files('soilgrids') \
         .joinpath(path)
+    
+    if not path.exists():
+        raise FileNotFoundError(f'File not found: {path}')    
+    
     return str(path)
 
 
