@@ -1,5 +1,4 @@
 from ..api_requests import get_soilgrids
-from .._utils import _to_vector
 
 from typing import Union
 import numpy as np
