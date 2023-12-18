@@ -1,5 +1,5 @@
 from ..api_requests import get_soilgrids
-from .._utils import _to_list
+from .._utils import _to_vector
 
 from typing import Union
 import numpy as np
@@ -140,7 +140,7 @@ def get_points_sample(self,
             `lat`, `lon`, `soil_property`, and `depth`, and a column for 
             each `value`. 
     """
-    
+
     lat_min, lat_max = min(lat_min, lat_max), max(lat_min, lat_max)
     lon_min, lon_max = min(lon_min, lon_max), max(lon_min, lon_max)
     

@@ -1,4 +1,4 @@
-from .._utils import _rescale, _to_list
+from .._utils import _rescale, _to_vector
 
 import numpy as np
 import plotly.express as px
@@ -48,7 +48,7 @@ def plot_ocs_property_relationships(self,
         
     if props is not None:
         soil_types_data = soil_types_data \
-            .query(f"soil_property in {_to_list(props)}") \
+            .query(f"soil_property in {_to_vector(props)}") \
             .reset_index()
         
     ocs_data = data \

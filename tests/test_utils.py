@@ -1,6 +1,8 @@
 import pytest
 
-from soilgrids._utils import _check_arg, _rscript, _r_available, _to_list, _pkg_file
+from soilgrids._utils import _check_arg, _rscript, _r_available, _to_vector, _pkg_file
+import numpy as np
+import pandas as pd
 
 
 def test_check_arg():
@@ -40,18 +42,22 @@ def test_rscript():
         _rscript('r-scripts/bananas.R', 'cat(1 + 1)')
     
 
-def test_to_list():
-    assert _to_list('a')   == ['a'],   'Scalar should be converted to list'
-    assert _to_list(['a']) == ['a'],   'List should be unchanged'
-    assert _to_list('abc') == ['abc'], 'String should be converted to list'
-    assert _to_list(1)     == [1],     'Integer should be converted to list'
-    assert _to_list(1.0)   == [1.0],   'Float should be converted to list'
-    assert _to_list(True)  == [True],  'Boolean should be converted to list'
-    assert _to_list(False) == [False], 'Boolean should be converted to list'
-    assert _to_list(None)  == [None],  'None should be converted to list'
+def test_to_vector():
+    array = np.array([1, 2, 3])
+    series = pd.Series([1, 2, 3])
+    assert _to_vector(array)  is array,  'Numpy array should be unchanged'
+    assert _to_vector(series) is series, 'Pandas Series should be unchanged'
+    assert _to_vector('a')   == ['a'],   'Scalar should be converted to list'
+    assert _to_vector(['a']) == ['a'],   'List should be unchanged'
+    assert _to_vector('abc') == ['abc'], 'String should be converted to list'
+    assert _to_vector(1)     == [1],     'Integer should be converted to list'
+    assert _to_vector(1.0)   == [1.0],   'Float should be converted to list'
+    assert _to_vector(True)  == [True],  'Boolean should be converted to list'
+    assert _to_vector(False) == [False], 'Boolean should be converted to list'
+    assert _to_vector(None)  == [None],  'None should be converted to list'    
     
     with pytest.raises(TypeError) as err:
-        _to_list({'a': 1})
+        _to_vector({'a': 1})
     assert "Cannot convert <class 'dict'>" in str(err.value), \
         'Invalid input should raise an error specifying the problematic type'
  

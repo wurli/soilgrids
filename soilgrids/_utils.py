@@ -2,6 +2,8 @@ import importlib.resources
 import logging
 import subprocess
 import time
+import numpy as np
+import pandas as pd
 
 _logger = logging.getLogger('soilgrids')
 
@@ -27,12 +29,13 @@ def _check_arg(arg, name, allowed_vals):
     return arg
 
 
-def _to_list(x):
+def _to_vector(x):
     """Convert a scalar to a list, or leave a list unchanged."""
     scalars = [str, int, float, bool, type(None)]
+    vectors = [list, np.ndarray, pd.Series]
     if any([isinstance(x, t) for t in scalars]):
         return [x]
-    if isinstance(x, list):
+    if any([isinstance(x, t) for t in vectors]):
         return x
     raise TypeError(f'Cannot convert {type(x)} to list')
     
