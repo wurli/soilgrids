@@ -129,7 +129,7 @@ def plot_property_map(self,
             in the aggregated results. Note that the value returned in the 
             output may be lower. Defaults to `None`, in which case all 
             values are incuded.
-        `zoom` (`int`): _description_. The initial zoom level for the 
+        `zoom` (`int`): The initial zoom level for the 
             output. Can be set to a higher value to get a more zoomed-in
             map.
 
