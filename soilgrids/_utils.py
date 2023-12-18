@@ -118,7 +118,7 @@ def _find_rscript_exe():
 
 def _r_available():
     """Check that R can be called from Python.""" 
-    cmd = ['rscript', '-e', 'R.version']
+    cmd = [_find_rscript_exe(), '-e', 'R.version']
     return subprocess.run(cmd, capture_output=True).returncode == 0
 
 
