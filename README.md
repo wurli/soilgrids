@@ -251,7 +251,7 @@ and silt are not particularly good predictors for OCS:
 
 
 ```python
-# Note: plotly may require you to install statsplot
+# Note: statsmodels must be installed to fit the regression line
 fig = sg.plot_ocs_property_relationships()
 
 fig.write_image("README_files/ocs_property_relationships.png")
