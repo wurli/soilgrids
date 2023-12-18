@@ -24,6 +24,7 @@ Useful links:
 Contents:
 
 *   [Introduction](#introduction)
+*   [Installation](#installation)
 *   [Querying data using `SoilGrids`](#querying-data)
 *   [Getting the property (clay, sand, silt) with the highest value for each point](#rank-properties)
 *   [Analysing the relationship between clay, sand, silt and organic carbon stock](#property-relationships)
@@ -33,6 +34,14 @@ Contents:
     *   [Method `SoilGrids.aggregate_means()`](#aggregate_means)
 * [Testing](#testing)
 * [Disclaimer/licensing](#disclaimer)
+
+## Installatation <a name="installation"></a>
+
+This package can be installed from GitHub using `pip`:
+
+```bash
+python -m pip install git+https://github.com/wurli/soilgrids
+```
 
 ## Querying data using `SoilGrids` <a name="querying-data"></a>
 
@@ -242,6 +251,7 @@ and silt are not particularly good predictors for OCS:
 
 
 ```python
+# Note: plotly may require you to install statsplot
 fig = sg.plot_ocs_property_relationships()
 
 fig.write_image("README_files/ocs_property_relationships.png")
