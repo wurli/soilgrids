@@ -98,12 +98,16 @@ def _check_r_available():
             'No R installation detected\n' \
             '  i: Make sure your R installation can be found on the PATH'
         )
-
+        
 
 def _r_available():
     """Check that R can be called from Python.""" 
     cmd = ['rscript', '-e', 'R.version']
-    return subprocess.run(cmd, capture_output=True).returncode == 0
+    try:
+        res = subprocess.run(cmd, capture_output=True)
+    except FileNotFoundError:
+        return False
+    return res.returncode == 0
 
 
 def _pkg_file(path):
