@@ -75,7 +75,7 @@ def _rscript(script, *args):
     
     if res.returncode != 0:
         args_escaped = [arg.encode('unicode_escape').decode('utf-8') for arg in args]
-        args_bullets = [f"* Arg {i+1}: `{arg}`" for i, arg in enumerate(args_escaped)]
+        args_bullets = [f'* Arg {i+1}: `{arg}`' for i, arg in enumerate(args_escaped)]
         args_trunc   = [arg if len(arg) <= 80 else arg[:77] + '...' for arg in args_bullets]
         args_pretty  = '\n     '.join(args_trunc)
         
@@ -85,7 +85,7 @@ def _rscript(script, *args):
             f'  i: Check the arguments:\n' \
             f'     {args_pretty}\n' \
             f'  i: Check the error returned by R: \n' \
-            f'     {res.stderr.decode('utf-8')}.'
+            f'     {res.stderr.decode("utf-8")}.'
         )
     
     return res.stdout.decode('utf-8')

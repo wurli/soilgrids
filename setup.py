@@ -13,7 +13,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/wurli/soilgrids',
-    packages=find_packages(where='soilgrids', exclude=('tests*',)),
+    packages=find_packages(exclude=('tests*',)),
     include_package_data=True,
     install_requires=[
         'numpy >= 1.26.0',
