@@ -48,7 +48,7 @@ def plot_ocs_property_relationships(self,
         
     if props is not None:
         soil_types_data = soil_types_data \
-            .query(f"soil_property in {_to_vector(props)}") \
+            .query(f'soil_property in {_to_vector(props)}') \
             .reset_index()
         
     ocs_data = data \
