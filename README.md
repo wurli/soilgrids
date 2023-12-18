@@ -27,7 +27,7 @@ Contents:
 *   [Querying data using `SoilGrids`](#querying-data)
 *   [Getting the property (clay, sand, silt) with the highest value for each point](#rank-properties)
 *   [Analysing the relationship between clay, sand, silt and organic carbon stock](#property-relationships)
-*   [Additional features](additional-features)
+*   [Additional features](#additional-features)
     *   [Method `SoilGrids.plot_ocs_property_relationships()`](#plot_ocs_property_relationships)
     *   [Method `SoilGrids.plot_property_map()`](#plot_property_map)
     *   [Method `SoilGrids.aggregate_means()`](#aggregate_means)
