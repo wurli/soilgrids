@@ -15,6 +15,9 @@ setup(
     url='https://github.com/wurli/soilgrids',
     packages=find_packages(exclude=('tests*',)),
     include_package_data=True,
+    package_data={
+        'soilgrids': ['soilgrids/r-scripts/*']
+    },
     install_requires=[
         'numpy >= 1.26.0',
         'pandas >= 2.1.0',
