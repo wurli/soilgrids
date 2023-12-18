@@ -70,7 +70,7 @@ def _rscript(script, *args):
     _check_r_available()
     
     res = subprocess.run(
-        [_find_rscript_exe(), _pkg_file(script), *args], 
+        ['rscript', _pkg_file(script), *args], 
         capture_output=True
     )
     
@@ -99,27 +99,16 @@ def _check_r_available():
             'No R installation detected\n' \
             '  i: Make sure your R installation can be found on the PATH'
         )
-
-def _find_rscript_exe():
-    """Find the Rscript executable on the PATH."""
-    
-    path_dirs = os.environ.get('PATH').split(os.pathsep)
-    path_files = [
-        os.path.join(path, file)
-        for path in path_dirs if os.path.isdir(path)
-        for file in os.listdir(path)
-    ]
-    
-    for file in path_files:
-        if file.lower().endswith('rscript'):
-            return file
-    
-    raise RuntimeError('Rscript executable not found on PATH')
+        
 
 def _r_available():
     """Check that R can be called from Python.""" 
-    cmd = [_find_rscript_exe(), '-e', 'R.version']
-    return subprocess.run(cmd, capture_output=True).returncode == 0
+    cmd = ['rscript', '-e', 'R.version']
+    try:
+        res = subprocess.run(cmd, capture_output=True)
+    except FileNotFoundError:
+        return False
+    return res.returncode == 0
 
 
 def _pkg_file(path):
