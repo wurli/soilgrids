@@ -73,7 +73,8 @@ def test_ocs_correlation_works():
     
     assert 'clay + sand + silt ~ ocs'       in lm, 'ocs_correlation() should return a linear model summary'
     assert 'Residual standard error: 0.948' in lm, 'Model summary should give a standard error of 0.948'
-    
+
+
 def test_ocs_correlation_fails_with_missing_properties():
     sg = SoilGrids()
     data = pd.read_csv('tests/data/soilgrids-results.csv')        
@@ -102,7 +103,8 @@ def test_ocs_correlation_fails_with_limited_data():
     
     assert '20 distinct values for `lat` and `lon` are needed' in str(err.value), \
         'Error message should indicate not enough data'
-    
+
+
 def test_aggregate_means(): 
     sg = SoilGrids()
     sg.data = pd.DataFrame({
