@@ -55,7 +55,7 @@ import plotly.offline as po
 logging.getLogger('soilgrids').setLevel(logging.ERROR)
 
 # Helper for displaying tables as markdown
-show = lambda df, index=True: display(Markdown(df.to_markdown(index=index)))
+show = lambda df: display(Markdown(df.to_markdown(index=False)))
 
 sg = SoilGrids()
 
@@ -80,23 +80,23 @@ show(sg.data[0:15].filter([
 ```
 
 
-|    |     lat |     lon | soil_property   | mapped_units   | target_units   | depth   |   mean |
-|---:|--------:|--------:|:----------------|:---------------|:---------------|:--------|-------:|
-|  0 | 56.0024 | 9.17168 | clay            | g/kg           | %              | 0-5cm   |     93 |
-|  1 | 56.0024 | 9.17168 | clay            | g/kg           | %              | 5-15cm  |     90 |
-|  2 | 56.0024 | 9.17168 | clay            | g/kg           | %              | 15-30cm |     85 |
-|  3 | 56.0024 | 9.17168 | ocs             | t/ha           | kg/m²          | 0-30cm  |     69 |
-|  4 | 56.0024 | 9.17168 | sand            | g/kg           | %              | 0-5cm   |    802 |
-|  5 | 56.0024 | 9.17168 | sand            | g/kg           | %              | 5-15cm  |    804 |
-|  6 | 56.0024 | 9.17168 | sand            | g/kg           | %              | 15-30cm |    820 |
-|  7 | 56.0024 | 9.17168 | silt            | g/kg           | %              | 0-5cm   |    105 |
-|  8 | 56.0024 | 9.17168 | silt            | g/kg           | %              | 5-15cm  |    106 |
-|  9 | 56.0024 | 9.17168 | silt            | g/kg           | %              | 15-30cm |     95 |
-| 10 | 56.1016 | 8.93631 | clay            | g/kg           | %              | 0-5cm   |     63 |
-| 11 | 56.1016 | 8.93631 | clay            | g/kg           | %              | 5-15cm  |     58 |
-| 12 | 56.1016 | 8.93631 | clay            | g/kg           | %              | 15-30cm |     83 |
-| 13 | 56.1016 | 8.93631 | ocs             | t/ha           | kg/m²          | 0-30cm  |     59 |
-| 14 | 56.1016 | 8.93631 | sand            | g/kg           | %              | 0-5cm   |    805 |
+|     lat |     lon | soil_property   | mapped_units   | target_units   | depth   |   mean |
+|--------:|--------:|:----------------|:---------------|:---------------|:--------|-------:|
+| 56.0024 | 9.17168 | clay            | g/kg           | %              | 0-5cm   |     93 |
+| 56.0024 | 9.17168 | clay            | g/kg           | %              | 5-15cm  |     90 |
+| 56.0024 | 9.17168 | clay            | g/kg           | %              | 15-30cm |     85 |
+| 56.0024 | 9.17168 | ocs             | t/ha           | kg/m²          | 0-30cm  |     69 |
+| 56.0024 | 9.17168 | sand            | g/kg           | %              | 0-5cm   |    802 |
+| 56.0024 | 9.17168 | sand            | g/kg           | %              | 5-15cm  |    804 |
+| 56.0024 | 9.17168 | sand            | g/kg           | %              | 15-30cm |    820 |
+| 56.0024 | 9.17168 | silt            | g/kg           | %              | 0-5cm   |    105 |
+| 56.0024 | 9.17168 | silt            | g/kg           | %              | 5-15cm  |    106 |
+| 56.0024 | 9.17168 | silt            | g/kg           | %              | 15-30cm |     95 |
+| 56.1016 | 8.93631 | clay            | g/kg           | %              | 0-5cm   |     63 |
+| 56.1016 | 8.93631 | clay            | g/kg           | %              | 5-15cm  |     58 |
+| 56.1016 | 8.93631 | clay            | g/kg           | %              | 15-30cm |     83 |
+| 56.1016 | 8.93631 | ocs             | t/ha           | kg/m²          | 0-30cm  |     59 |
+| 56.1016 | 8.93631 | sand            | g/kg           | %              | 0-5cm   |    805 |
 
 
 ## Getting the property (clay, sand, silt) with the highest value for each point <a name="rank-properties"></a>
@@ -108,67 +108,88 @@ silt, and clay:
 
 
 ```python
-ranked_properties = sg.rank_properties(
+show(sg.rank_properties(
     subset=['clay', 'sand', 'silt'], 
     top_depth=0, 
     bottom_depth=30
-)
-
-show(ranked_properties, index=True)
+))
 ```
 
 
-|    |     lat |     lon | depth   | mapped_units   | property_no1   | property_no2   | property_no3   |
-|---:|--------:|--------:|:--------|:---------------|:---------------|:---------------|:---------------|
-|  0 | 55.9681 | 9.19413 | 0-30cm  | g/kg           | sand: 863      | silt:  75      | clay:  62      |
-|  1 | 55.969  | 8.84612 | 0-30cm  | g/kg           | sand: 858      | silt:  89      | clay:  52      |
-|  2 | 55.9736 | 9.26458 | 0-30cm  | g/kg           | sand: 846      | silt:  92      | clay:  63      |
-|  3 | 55.988  | 9.06893 | 0-30cm  | g/kg           | sand: 852      | silt:  96      | clay:  51      |
-|  4 | 56.0024 | 9.17168 | 0-30cm  | g/kg           | sand: 812      | silt: 101      | clay:  88      |
-|  5 | 56.0071 | 8.73347 | 0-30cm  | g/kg           | sand: 846      | silt:  98      | clay:  55      |
-|  6 | 56.0079 | 9.1555  | 0-30cm  | g/kg           | sand: 847      | silt: 101      | clay:  52      |
-|  7 | 56.0115 | 9.19478 | 0-30cm  | g/kg           | sand: 876      | silt:  73      | clay:  50      |
-|  8 | 56.0116 | 9.11962 | 0-30cm  | g/kg           | sand: 854      | silt:  95      | clay:  51      |
-|  9 | 56.0129 | 9.06321 | 0-30cm  | g/kg           | sand: 865      | silt:  81      | clay:  54      |
-| 10 | 56.0152 | 9.09177 | 0-30cm  | g/kg           | sand: 855      | silt:  93      | clay:  52      |
-| 11 | 56.0209 | 9.04625 | 0-30cm  | g/kg           | sand: 868      | silt:  75      | clay:  57      |
-| 12 | 56.0215 | 9.01066 | 0-30cm  | g/kg           | sand: 870      | silt:  92      | clay:  37      |
-| 13 | 56.0218 | 9.32185 | 0-30cm  | g/kg           | sand: 793      | silt: 129      | clay:  78      |
-| 14 | 56.0227 | 8.77494 | 0-30cm  | g/kg           | sand: 659      | silt: 263      | clay:  77      |
-| 15 | 56.0245 | 8.98394 | 0-30cm  | g/kg           | sand: 858      | silt:  96      | clay:  45      |
-| 16 | 56.0293 | 8.80021 | 0-30cm  | g/kg           | sand: 786      | silt: 134      | clay:  80      |
-| 17 | 56.0312 | 9.20504 | 0-30cm  | g/kg           | sand: 838      | silt: 102      | clay:  60      |
-| 18 | 56.0312 | 9.33958 | 0-30cm  | g/kg           | sand: 807      | silt: 121      | clay:  71      |
-| 19 | 56.0322 | 9.13423 | 0-30cm  | g/kg           | sand: 864      | silt:  83      | clay:  55      |
-| 20 | 56.0327 | 8.69833 | 0-30cm  | g/kg           | sand: 857      | silt:  93      | clay:  50      |
-| 21 | 56.0335 | 8.82781 | 0-30cm  | g/kg           | sand: 820      | silt: 112      | clay:  67      |
-| 22 | 56.0421 | 8.89465 | 0-30cm  | g/kg           | sand: 819      | silt: 106      | clay:  74      |
-| 23 | 56.0457 | 9.2178  | 0-30cm  | g/kg           | sand: 848      | silt: 101      | clay:  50      |
-| 24 | 56.0524 | 9.05007 | 0-30cm  | g/kg           | sand: 846      | silt:  98      | clay:  57      |
-| 25 | 56.0591 | 9.0177  | 0-30cm  | g/kg           | sand: 815      | silt: 112      | clay:  73      |
-| 26 | 56.0706 | 9.04175 | 0-30cm  | g/kg           | sand: 840      | silt: 108      | clay:  53      |
-| 27 | 56.0731 | 9.1996  | 0-30cm  | g/kg           | sand: 845      | silt:  93      | clay:  61      |
-| 28 | 56.0768 | 9.11822 | 0-30cm  | g/kg           | sand: 857      | silt:  93      | clay:  50      |
-| 29 | 56.0801 | 8.89161 | 0-30cm  | g/kg           | sand: 830      | silt: 106      | clay:  62      |
-| 30 | 56.0936 | 8.88005 | 0-30cm  | g/kg           | sand: 841      | silt:  92      | clay:  65      |
-| 31 | 56.1016 | 8.93631 | 0-30cm  | g/kg           | sand: 791      | silt: 138      | clay:  71      |
-| 32 | 56.1029 | 9.29378 | 0-30cm  | g/kg           | sand: 759      | silt: 132      | clay: 111      |
-| 33 | 56.1034 | 9.1627  | 0-30cm  | g/kg           | sand: 864      | silt:  87      | clay:  49      |
-| 34 | 56.1084 | 9.21805 | 0-30cm  | g/kg           | sand: 846      | silt:  84      | clay:  71      |
-| 35 | 56.1126 | 8.80794 | 0-30cm  | g/kg           | sand: 836      | silt:  98      | clay:  65      |
-| 36 | 56.1153 | 8.81545 | 0-30cm  | g/kg           | sand: 833      | silt: 107      | clay:  60      |
-| 37 | 56.1223 | 9.24917 | 0-30cm  | g/kg           | sand: 838      | silt:  95      | clay:  67      |
-| 38 | 56.1239 | 8.72794 | 0-30cm  | g/kg           | sand: 826      | silt: 109      | clay:  65      |
-| 39 | 56.124  | 8.96254 | 0-30cm  | g/kg           | sand: 810      | silt: 125      | clay:  66      |
-| 40 | 56.127  | 8.91474 | 0-30cm  | g/kg           | sand: 649      | silt: 252      | clay: 100      |
-| 41 | 56.1365 | 9.0808  | 0-30cm  | g/kg           | sand: 786      | silt: 111      | clay: 104      |
-| 42 | 56.1644 | 9.26652 | 0-30cm  | g/kg           | sand: 801      | silt: 117      | clay:  84      |
-| 43 | 56.1707 | 8.92046 | 0-30cm  | g/kg           | sand: 802      | silt: 128      | clay:  70      |
-| 44 | 56.177  | 8.82983 | 0-30cm  | g/kg           | sand: 807      | silt: 136      | clay:  57      |
-| 45 | 56.1878 | 9.00154 | 0-30cm  | g/kg           | sand: 870      | silt:  86      | clay:  44      |
-| 46 | 56.2074 | 9.23711 | 0-30cm  | g/kg           | sand: 807      | silt: 118      | clay:  75      |
-| 47 | 56.2128 | 9.33269 | 0-30cm  | g/kg           | sand: 729      | silt: 183      | clay:  87      |
-| 48 | 56.2192 | 8.77554 | 0-30cm  | g/kg           | sand: 820      | silt: 115      | clay:  64      |
+|     lat |     lon | depth   | mapped_units   | property_no1   | property_no2   | property_no3   |
+|--------:|--------:|:--------|:---------------|:---------------|:---------------|:---------------|
+| 55.9681 | 9.19413 | 0-30cm  | g/kg           | sand: 863      | silt:  75      | clay:  62      |
+| 55.969  | 8.84612 | 0-30cm  | g/kg           | sand: 858      | silt:  89      | clay:  52      |
+| 55.9736 | 9.26458 | 0-30cm  | g/kg           | sand: 846      | silt:  92      | clay:  63      |
+| 55.988  | 9.06893 | 0-30cm  | g/kg           | sand: 852      | silt:  96      | clay:  51      |
+| 56.0024 | 9.17168 | 0-30cm  | g/kg           | sand: 812      | silt: 101      | clay:  88      |
+| 56.0071 | 8.73347 | 0-30cm  | g/kg           | sand: 846      | silt:  98      | clay:  55      |
+| 56.0079 | 9.1555  | 0-30cm  | g/kg           | sand: 847      | silt: 101      | clay:  52      |
+| 56.0115 | 9.19478 | 0-30cm  | g/kg           | sand: 876      | silt:  73      | clay:  50      |
+| 56.0116 | 9.11962 | 0-30cm  | g/kg           | sand: 854      | silt:  95      | clay:  51      |
+| 56.0129 | 9.06321 | 0-30cm  | g/kg           | sand: 865      | silt:  81      | clay:  54      |
+| 56.0152 | 9.09177 | 0-30cm  | g/kg           | sand: 855      | silt:  93      | clay:  52      |
+| 56.0209 | 9.04625 | 0-30cm  | g/kg           | sand: 868      | silt:  75      | clay:  57      |
+| 56.0215 | 9.01066 | 0-30cm  | g/kg           | sand: 870      | silt:  92      | clay:  37      |
+| 56.0218 | 9.32185 | 0-30cm  | g/kg           | sand: 793      | silt: 129      | clay:  78      |
+| 56.0227 | 8.77494 | 0-30cm  | g/kg           | sand: 659      | silt: 263      | clay:  77      |
+| 56.0245 | 8.98394 | 0-30cm  | g/kg           | sand: 858      | silt:  96      | clay:  45      |
+| 56.0293 | 8.80021 | 0-30cm  | g/kg           | sand: 786      | silt: 134      | clay:  80      |
+| 56.0312 | 9.20504 | 0-30cm  | g/kg           | sand: 838      | silt: 102      | clay:  60      |
+| 56.0312 | 9.33958 | 0-30cm  | g/kg           | sand: 807      | silt: 121      | clay:  71      |
+| 56.0322 | 9.13423 | 0-30cm  | g/kg           | sand: 864      | silt:  83      | clay:  55      |
+| 56.0327 | 8.69833 | 0-30cm  | g/kg           | sand: 857      | silt:  93      | clay:  50      |
+| 56.0335 | 8.82781 | 0-30cm  | g/kg           | sand: 820      | silt: 112      | clay:  67      |
+| 56.0421 | 8.89465 | 0-30cm  | g/kg           | sand: 819      | silt: 106      | clay:  74      |
+| 56.0457 | 9.2178  | 0-30cm  | g/kg           | sand: 848      | silt: 101      | clay:  50      |
+| 56.0524 | 9.05007 | 0-30cm  | g/kg           | sand: 846      | silt:  98      | clay:  57      |
+| 56.0591 | 9.0177  | 0-30cm  | g/kg           | sand: 815      | silt: 112      | clay:  73      |
+| 56.0706 | 9.04175 | 0-30cm  | g/kg           | sand: 840      | silt: 108      | clay:  53      |
+| 56.0731 | 9.1996  | 0-30cm  | g/kg           | sand: 845      | silt:  93      | clay:  61      |
+| 56.0768 | 9.11822 | 0-30cm  | g/kg           | sand: 857      | silt:  93      | clay:  50      |
+| 56.0801 | 8.89161 | 0-30cm  | g/kg           | sand: 830      | silt: 106      | clay:  62      |
+| 56.0936 | 8.88005 | 0-30cm  | g/kg           | sand: 841      | silt:  92      | clay:  65      |
+| 56.1016 | 8.93631 | 0-30cm  | g/kg           | sand: 791      | silt: 138      | clay:  71      |
+| 56.1029 | 9.29378 | 0-30cm  | g/kg           | sand: 759      | silt: 132      | clay: 111      |
+| 56.1034 | 9.1627  | 0-30cm  | g/kg           | sand: 864      | silt:  87      | clay:  49      |
+| 56.1084 | 9.21805 | 0-30cm  | g/kg           | sand: 846      | silt:  84      | clay:  71      |
+| 56.1126 | 8.80794 | 0-30cm  | g/kg           | sand: 836      | silt:  98      | clay:  65      |
+| 56.1153 | 8.81545 | 0-30cm  | g/kg           | sand: 833      | silt: 107      | clay:  60      |
+| 56.1223 | 9.24917 | 0-30cm  | g/kg           | sand: 838      | silt:  95      | clay:  67      |
+| 56.1239 | 8.72794 | 0-30cm  | g/kg           | sand: 826      | silt: 109      | clay:  65      |
+| 56.124  | 8.96254 | 0-30cm  | g/kg           | sand: 810      | silt: 125      | clay:  66      |
+| 56.127  | 8.91474 | 0-30cm  | g/kg           | sand: 649      | silt: 252      | clay: 100      |
+| 56.1365 | 9.0808  | 0-30cm  | g/kg           | sand: 786      | silt: 111      | clay: 104      |
+| 56.1644 | 9.26652 | 0-30cm  | g/kg           | sand: 801      | silt: 117      | clay:  84      |
+| 56.1707 | 8.92046 | 0-30cm  | g/kg           | sand: 802      | silt: 128      | clay:  70      |
+| 56.177  | 8.82983 | 0-30cm  | g/kg           | sand: 807      | silt: 136      | clay:  57      |
+| 56.1878 | 9.00154 | 0-30cm  | g/kg           | sand: 870      | silt:  86      | clay:  44      |
+| 56.2074 | 9.23711 | 0-30cm  | g/kg           | sand: 807      | silt: 118      | clay:  75      |
+| 56.2128 | 9.33269 | 0-30cm  | g/kg           | sand: 729      | silt: 183      | clay:  87      |
+| 56.2192 | 8.77554 | 0-30cm  | g/kg           | sand: 820      | silt: 115      | clay:  64      |
+
+
+You may notice that the above table shows only 49 points; it is missing
+(56.1462, 8.93131). This is because Soilgrids returns null values if there 
+is no data available for a given point, and such cases must necessarily be 
+excluded from the ranking calculation. In this case, the missing data may be 
+explained by the point's close proximity to the [Herningsholm Stream](https://www.google.com/maps/place/56°08'46.3%22N+8°55'52.7%22E/@56.1462,8.9287351,17z/data=!3m1!4b1!4m4!3m3!8m2!3d56.1462!4d8.93131?entry=ttu):
+
+
+
+```python
+agg = sg.aggregate_means(0, 30)
+missing = agg[agg['mean'].isna()]
+show(missing.filter(['lat', 'lon', 'soil_property', 'mean']))
+```
+
+
+|     lat |     lon | soil_property   |   mean |
+|--------:|--------:|:----------------|-------:|
+| 56.1462 | 8.93131 | clay            |    nan |
+| 56.1462 | 8.93131 | sand            |    nan |
+| 56.1462 | 8.93131 | silt            |    nan |
+| 56.1462 | 8.93131 | ocs             |    nan |
 
 
 ## Analysing the relationship between clay, sand, silt and organic carbon stock <a name="property-relationships"></a>
@@ -231,7 +252,7 @@ Image("README_files/ocs_property_relationships.png")
 
 
     
-![png](README_files/README_7_0.png)
+![png](README_files/README_9_0.png)
     
 
 
@@ -255,7 +276,7 @@ Image("README_files/property_map_ocs.png")
 
 
     
-![png](README_files/README_9_0.png)
+![png](README_files/README_11_0.png)
     
 
 
@@ -296,19 +317,19 @@ for dataset in small_datasets:
 ```
 
 
-|    |     lat |     lon | soil_property   | depth   |   mean |
-|---:|--------:|--------:|:----------------|:--------|-------:|
-| 20 | 55.9681 | 9.19413 | clay            | 0-5cm   |     58 |
-| 21 | 55.9681 | 9.19413 | clay            | 5-15cm  |     49 |
-| 22 | 55.9681 | 9.19413 | clay            | 15-30cm |     72 |
-| 23 | 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
+|     lat |     lon | soil_property   | depth   |   mean |
+|--------:|--------:|:----------------|:--------|-------:|
+| 55.9681 | 9.19413 | clay            | 0-5cm   |     58 |
+| 55.9681 | 9.19413 | clay            | 5-15cm  |     49 |
+| 55.9681 | 9.19413 | clay            | 15-30cm |     72 |
+| 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
 
 
 
-|    |     lat |     lon | soil_property   | depth   |   mean |
-|---:|--------:|--------:|:----------------|:--------|-------:|
-|  0 | 55.9681 | 9.19413 | clay            | 0-30cm  |     62 |
-|  3 | 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
+|     lat |     lon | soil_property   | depth   |   mean |
+|--------:|--------:|:----------------|:--------|-------:|
+| 55.9681 | 9.19413 | clay            | 0-30cm  |     62 |
+| 55.9681 | 9.19413 | ocs             | 0-30cm  |     54 |
 
 
 ## Testing <a name="testing"></a>
