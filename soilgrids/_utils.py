@@ -30,14 +30,14 @@ def _check_arg(arg, name, allowed_vals):
 
 
 def _to_vector(x):
-    """Convert a scalar to a list, or leave a list unchanged."""
+    """Convert a scalar to a vector, or leave a vector unchanged."""
     scalars = [str, int, float, bool, type(None)]
     vectors = [list, np.ndarray, pd.Series]
     if any([isinstance(x, t) for t in scalars]):
         return [x]
     if any([isinstance(x, t) for t in vectors]):
         return x
-    raise TypeError(f'Cannot convert {type(x)} to list')
+    raise TypeError(f'Cannot convert {type(x)} to vector')
     
 
 
