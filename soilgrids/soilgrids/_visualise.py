@@ -113,8 +113,8 @@ def plot_property_map(self,
     
     Before plotting, the data is aggregated to get representative figures
     for soil between `top_depth` and `bottom_depth`. Note that any points
-    which have missing values for the selected property will be silently
-    dropped.
+    which have missing values for the selected property will be excluded from
+    the plot.
 
     Args:
         `soil_property` (`str`): The property to use to scale the plotted
@@ -210,7 +210,7 @@ def plot_property_map(self,
     layout = go.Layout(
         title=title,
         mapbox=dict(
-            style='carto-positron',
+            style='open-street-map',
             zoom=zoom,
             center=dict(
                 lat=(latmax + latmin) / 2,
