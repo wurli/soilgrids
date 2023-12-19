@@ -66,7 +66,10 @@ def ocs_correlation(self,
     
     model_summary = _rscript(
         'r-scripts/linear-regression.R', 
-        pivoted_data.to_csv(index=False)
+        
+        # Unfortunately, Windows hates line breaks in command line args. So, 
+        # just pass the CSV line-by-line and reconstruct it in R.
+        *pivoted_data.to_csv(index=False).split("\r\n")
     )
     
     if capture_output:

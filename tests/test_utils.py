@@ -29,10 +29,7 @@ def test_rscript():
         'R script should return the console output of the expression'
     
     with pytest.raises(RuntimeError) as err:
-        _rscript('r-scripts/eval-parse.R', 'stop("Oh no!")')
-    
-    assert 'Check the R script at r-scripts/eval-parse.R' in str(err.value), \
-        "Error message should indicate the location of the problematic script"
+        _rscript('r-scripts/eval-parse.R', 'stop("Oh no!")') 
     
     assert '`stop("Oh no!")' in str(err.value), \
         "Error message should indicate the supplied arguments"

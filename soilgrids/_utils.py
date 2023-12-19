@@ -7,6 +7,7 @@ import pandas as pd
 import os
 import shutil
 import glob
+import shlex
 
 _logger = logging.getLogger('soilgrids')
 
@@ -68,7 +69,7 @@ class _Throttle():
 
 def _rscript(script, *args):
     """Run `rscript script.R arg1 arg2 arg3...` and return the printed output.""" 
-    
+     
     res = subprocess.run(
         [_find_rscript_binary(), _pkg_file(script), *args], 
         capture_output=True
@@ -82,7 +83,6 @@ def _rscript(script, *args):
         
         raise RuntimeError(
             f'R script failed with exit code {res.returncode}.\n' \
-            f'  i: Check the R script at {script}.\n' \
             f'  i: Check the arguments:\n' \
             f'     {args_pretty}\n' \
             f'  i: Check the error returned by R: \n' \

@@ -1,14 +1,10 @@
-args <- commandArgs(trailingOnly = TRUE)
-
-if (length(args) != 1L) {
-  stop("Please supply exactly one trailing argument")
-}
-
-soilgrids_summary <- read.csv(text = args)
+args      <- commandArgs(trailingOnly = TRUE)
+csv       <- paste(args, collapse = "\\r\\n")
+soilgrids <- read.csv(text = args)
 
 model <- lm(
   clay + sand + silt ~ ocs,
-  data = soilgrids_summary,
+  data = soilgrids,
   na.action = na.omit
 )
 
