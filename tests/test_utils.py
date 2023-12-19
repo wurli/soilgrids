@@ -1,6 +1,6 @@
 import pytest
 
-from soilgrids._utils import _check_arg, _rscript, _r_available, _to_vector, _pkg_file
+from soilgrids._utils import _check_arg, _rscript, _find_rscript_binary, _to_vector, _pkg_file
 import numpy as np
 import pandas as pd
 
@@ -20,7 +20,9 @@ def test_check_arg():
 
 
 def test_rscript():
-    if not _r_available():
+    try:
+        _find_rscript_binary()
+    except FileNotFoundError:
         pytest.skip('No R installation available')
         
     assert _rscript('r-scripts/eval-parse.R', 'cat(1 + 1)') == '2', \

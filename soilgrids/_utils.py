@@ -4,6 +4,9 @@ import subprocess
 import time
 import numpy as np
 import pandas as pd
+import os
+import shutil
+import glob
 
 _logger = logging.getLogger('soilgrids')
 
@@ -66,10 +69,8 @@ class _Throttle():
 def _rscript(script, *args):
     """Run `rscript script.R arg1 arg2 arg3...` and return the printed output.""" 
     
-    _check_r_available()
-    
     res = subprocess.run(
-        ['rscript', _pkg_file(script), *args], 
+        [_find_rscript_binary(), _pkg_file(script), *args], 
         capture_output=True
     )
     
@@ -91,23 +92,61 @@ def _rscript(script, *args):
     return res.stdout.decode('utf-8')
 
 
-def _check_r_available():
-    """Check that R can be called from Python."""
-    if not _r_available():
-        raise RuntimeError(
-            'No R installation detected\n' \
-            '  i: Make sure your R installation can be found on the PATH'
-        )
-        
+def _find_rscript_binary():
+    """Attempt to find the binary for Rscript.
 
-def _r_available():
-    """Check that R can be called from Python.""" 
-    cmd = ['rscript', '-e', 'R.version']
-    try:
-        res = subprocess.run(cmd, capture_output=True)
-    except FileNotFoundError:
-        return False
-    return res.returncode == 0
+    It's reasonable to assume the Rscript binary will be on the PATH, but in
+    practice this seems to rarely be the case. If the binary isn't present, it's 
+    worth checking a few common locations before asking the user to start 
+    fiddling with their system variables. NB, the design of this function was 
+    influenced by some research into how RStudio finds the R executable, since 
+    it does so quite reliably, even when R is not on the PATH.
+    """
+    
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # 01: Check for Rscript on the PATH
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    r_path = shutil.which('Rscript')
+    if r_path is not None:
+        return os.path.abspath(r_path)
+    
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # 02: Check using the R_HOME environment variable
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    r_home = os.environ.get('R_HOME')
+    if r_home is not None:
+        r_binary = os.path.join(r_home, 'bin', 'Rscript')
+        if os.path.exists(r_binary):
+            return os.path.abspath(r_binary)
+    
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # 03: Check common installation directories for an executable
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    common_directories = [
+        'opt/local/bin/Rscript',                  # macOS standard location
+        '/Library/Frameworks/' \
+            'R.framework/Versions/current/' \
+            'Resources/bin/Rscript',              # Common alternative on macOS
+        '/usr/bin/Rscript',                       # Linux standard location
+        '/usr/local/bin/Rscript',                 # Common alternative on Linux
+        'opt/bin/Rscript',                        # Common alternative on Linux
+        'C:/Program Files/R/R-*/bin/Rscript.exe', # Windows
+    ]
+
+    for directory in common_directories:
+        files = glob.glob(directory)
+        if len(files) > 0:
+            # Max returns the executable for the most up-to-date R version, e.g.
+            # in on Windows when we might get: 
+            #     'C:/Program Files/R/R-4.2.0/bin/Rscript.exe' 
+            # and 'C:/Program Files/R/R-3.6.0/bin/Rscript.exe'
+            return os.path.abspath(max(files))
+        
+    raise FileNotFoundError(
+        "Could not find Rscript binary.\n" +
+        "  i: Make sure R is installed.\n" +
+        "  i: If R is installed, make sure Rscript is on the PATH."
+    )
 
 
 def _pkg_file(path):
